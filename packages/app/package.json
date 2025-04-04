@@ -39,6 +39,7 @@
     "@backstage/plugin-techdocs-react": "^1.2.15",
     "@backstage/plugin-user-settings": "^0.8.20",
     "@backstage/theme": "^0.6.4",
+    "@internal/plugin-testkube": "workspace:^",
     "@material-ui/core": "^4.12.2",
     "@material-ui/icons": "^4.9.1",
     "react": "^18.0.2",
