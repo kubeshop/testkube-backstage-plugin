@@ -21,7 +21,7 @@ export const TestkubePage = testkubePlugin.provide(
   createRoutableExtension({
     name: 'TestkubePage',
     component: () =>
-      import('./components/ExampleComponent').then(m => m.ExampleComponent),
+      import('./components/DashboardComponent').then(m => m.DashboardComponent),
     mountPoint: rootRouteRef,
   }),
 );
