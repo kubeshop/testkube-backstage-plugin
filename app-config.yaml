@@ -43,13 +43,18 @@ integrations:
     #   apiBaseUrl: https://ghe.example.net/api/v3
     #   token: ${GHE_TOKEN}
 
-proxy: {}
+proxy:
   ### Example for how to add a proxy endpoint for the frontend.
   ### A typical reason to do this is to handle HTTPS and CORS for internal services.
   # endpoints:
   #   '/test':
   #     target: 'https://example.com'
   #     changeOrigin: true
+  endpoints:
+    '/testkube':
+      target: 'http://localhost:8088'
+      changeOrigin: true
+      credentials: dangerously-allow-unauthenticated
 
 # Reference documentation http://backstage.io/docs/features/techdocs/configuration
 # Note: After experimenting with basic setup, use CI/CD to generate docs
@@ -117,6 +122,5 @@ permission:
 
 testkube:
   enterprise: false
-  api: https://api.testkube.dev/
   # Depends on testkube.enterprise = true
-  ui: https://app.testkube.dev/
+  uiUrl: https://app.testkube.dev/

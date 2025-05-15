@@ -1,27 +1,39 @@
 import {
+  createApiFactory,
+  createComponentExtension,
   createPlugin,
-  createRoutableExtension,
+  discoveryApiRef,
+  identityApiRef,
 } from '@backstage/core-plugin-api';
 
-import { rootRouteRef } from './routes';
+import { testkubeApiRef, TestkubeClient } from './api';
 
 export const testkubePlugin = createPlugin({
   id: 'testkube',
-  routes: {
-    root: rootRouteRef,
-  },
-  featureFlags: [
-    {
-      name: 'testkube'
-    }
-  ]
+  apis: [
+    createApiFactory({
+      api: testkubeApiRef,
+      deps: {
+        discoveryApi: discoveryApiRef,
+        identityApi: identityApiRef,
+      },
+      factory: ({ discoveryApi, identityApi }) =>
+        new TestkubeClient({
+          discoveryApi,
+          identityApi,
+        }),
+    }),
+  ],
 });
 
 export const TestkubePage = testkubePlugin.provide(
-  createRoutableExtension({
+  createComponentExtension({
     name: 'TestkubePage',
-    component: () =>
-      import('./components/DashboardComponent').then(m => m.DashboardComponent),
-    mountPoint: rootRouteRef,
+    component: {
+      lazy: () =>
+      import('./components/TestWorkflowExecutionsPage').then(
+        m => m.TestWorkflowExecutionsPage,
+      ),
+    },
   }),
 );

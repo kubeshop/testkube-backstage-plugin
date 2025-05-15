@@ -11,7 +11,11 @@
     "types": "dist/index.d.ts"
   },
   "backstage": {
-    "role": "frontend-plugin"
+    "role": "frontend-plugin",
+    "pluginId": "testkube",
+    "pluginPackages": [
+      "@testkube/backstage-plugin-testkube"
+    ]
   },
   "sideEffects": false,
   "scripts": {
@@ -24,8 +28,11 @@
     "postpack": "backstage-cli package postpack"
   },
   "dependencies": {
+    "@backstage/catalog-model": "^1.7.3",
+    "@backstage/core-compat-api": "^0.3.5",
     "@backstage/core-components": "^0.17.0",
     "@backstage/core-plugin-api": "^1.10.5",
+    "@backstage/frontend-plugin-api": "^0.9.4",
     "@backstage/theme": "^0.6.4",
     "@material-ui/core": "^4.9.13",
     "@material-ui/icons": "^4.9.1",
@@ -47,7 +54,34 @@
     "react": "^16.13.1 || ^17.0.0 || ^18.0.0"
   },
   "files": [
+    "alpha",
     "dist",
     "config.d.ts"
+  ],
+  "exports": {
+    ".": "./src/index.ts",
+    "./alpha": "./src/alpha.tsx",
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "alpha": [
+        "src/alpha.tsx"
+      ],
+      "package.json": [
+        "package.json"
+      ]
+    }
+  },
+  "configSchema": "config.d.ts",
+  "homepage": "https://github.com/caiodonascimento/backstage-testkube-plugin/blob/main/plugins/README.md",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/caiodonascimento/backstage-testkube-plugin.git",
+    "directory": "plugins/testkube"
+  },
+  "keywords": [
+    "backstage",
+    "testkube"
   ]
 }

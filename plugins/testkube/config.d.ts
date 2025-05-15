@@ -6,7 +6,6 @@ export interface Config {
      * @visibility frontend
      */
     enterprise?: boolean;
-    api?: string;
-    ui?: string;
+    uiUrl?: string;
   }
 }
