@@ -2,9 +2,8 @@ kind: TestWorkflow
 apiVersion: testworkflows.testkube.io/v1
 metadata:
   name: k6-sample
-  namespace: testkube
   labels:
-    docs: example
+    app: testkube-website
 spec:
   content:
     files:

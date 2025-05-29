@@ -2,9 +2,8 @@ kind: TestWorkflow
 apiVersion: testworkflows.testkube.io/v1
 metadata:
   name: k6-fail-sample
-  namespace: testkube
   labels:
-    docs: example
+    app: testkube-website
 spec:
   content:
     files:
@@ -13,7 +12,7 @@ spec:
         import http from 'k6/http';
         import { sleep } from 'k6';
         export default function () {
-            http.gets('https://test.k6.io');
+            http.get('https://test.k6.io');
             sleep(1);
         };
   steps:
@@ -28,7 +27,7 @@ spec:
         value: k6-test-report.html
       args:
       - run
-      - example.js
+      - example.jss
     artifacts:
       paths:
       - k6-test-report.html
