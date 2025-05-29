@@ -1,16 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Typography, Grid } from '@material-ui/core';
 import {
-  InfoCard,
   Header,
   Page,
   Content,
   ContentHeader,
   Table,
   Link,
-  CodeSnippet,
-  WarningPanel,
-  Progress,
   EmptyState,
   HeaderLabel
 } from '@backstage/core-components';
@@ -19,6 +14,10 @@ import { useApi } from '@backstage/core-plugin-api';
 import { columns, useStyles } from './tableHeading';
 import { useTestkubeUI } from '../../utils/isTestkubeUiConfigured';
 import { TestWorkflowExecutionsResult } from '../../types';
+import { TestkubePageWrapper } from '../utils/TestkubePageWrapper';
+import { TestkubeErrorPage } from '../utils/TestkubeErrorComponent';
+import { TWESummaryMetricsComponent } from '../TWESummaryMetricsComponent';
+import { TestkubeLoadingComponent } from '../utils/TestkubeLoadingComponent';
 
 export const TestkubeDashboardPage = () => {
 
@@ -63,83 +62,48 @@ export const TestkubeDashboardPage = () => {
     return () => clearInterval(interval);
   }, []);
 
+  const noDataState = (
+    <div className={classes.empty}>
+      <EmptyState
+        missing="data"
+        title="No data available"
+        description="No executions were returned from Testkube."
+      />
+    </div>
+  )
+
   if (loading) {
     return (
-      <Page themeId="home">
-        <Header title="Testkube" subtitle="Test Automation Execution Platform">
-        </Header>
-        <Content>
-          <Progress />
-        </Content>
-      </Page>
+      <TestkubePageWrapper>
+        <TestkubeLoadingComponent />
+      </TestkubePageWrapper>
     );
   }
+
   if (error) {
     return (
-      <Page themeId="home">
-        <Header title="Testkube" subtitle="Test Automation Execution Platform">
-        </Header>
-        <Content>
-          <EmptyState
-            missing="info"
-            title="No data available"
-            description="Unable to load data from Testkube API, please review your set up."
-          >
-          </EmptyState>
-          <WarningPanel severity="error" title="Could not fetch Test Workflow Executions from TestKube.">
-            <CodeSnippet language="text" text={error.toString()} />
-          </WarningPanel>
-        </Content>
-      </Page>
+      <TestkubePageWrapper>
+        <TestkubeErrorPage error={error} />
+      </TestkubePageWrapper>
     );
   }
 
   if (!lastExecutions) {
     return (
-      <Page themeId="home">
-        <Header title="Testkube" subtitle="Test Automation Execution Platform">
-        </Header>
-        <Content>
-          <EmptyState
-          missing="data"
-          title="No data available"
-          description="No executions were returned from Testkube."
-          />
-        </Content>
-      </Page>
+      <TestkubePageWrapper>
+        {noDataState}
+      </TestkubePageWrapper>
     );
   }
 
   return (
     <Page themeId="home">
-      <Header title={title} subtitle="Test Automation Execution Platform">
+      <Header title={title} subtitle="">
       <HeaderLabel label="Go to platform" value="https://app.testkube.io"></HeaderLabel>
     </Header>
     <Content>
       <ContentHeader title={isRefreshing ? `${String(title)} - Actualizando datos...` : String(title)}></ContentHeader>
-      <Grid container spacing={3} direction="row" alignItems="stretch">
-        <Grid item xs={12} sm={6} md={4}>
-          <InfoCard title="Pass/Fail Ratio">
-            <Typography variant="h5">
-              {(lastExecutions.totals.passed * 100 / lastExecutions.totals.results).toFixed(2) || 0}%
-            </Typography>
-          </InfoCard>
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          <InfoCard title="Failed Executions">
-            <Typography variant="h5">
-              {lastExecutions.totals.failed}
-            </Typography>
-          </InfoCard>
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          <InfoCard title="Total Executions">
-            <Typography variant="h5">
-              {lastExecutions.totals.results}
-            </Typography>
-          </InfoCard>
-        </Grid>
-      </Grid>
+      <TWESummaryMetricsComponent totals={lastExecutions.totals} />
       <br />
       <Table
         columns={columns}
@@ -147,15 +111,7 @@ export const TestkubeDashboardPage = () => {
         subtitle="The last 20 executions"
         options={{ paging: false }}
         data={lastExecutions.results}
-        emptyContent={
-          <div className={classes.empty}>
-            <EmptyState
-              missing="data"
-              title="No data to show"
-              description="No data to show"
-            />
-          </div>
-        }
+        emptyContent={noDataState}
       />
     </Content>
     </Page>
