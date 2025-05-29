@@ -1,0 +1,26 @@
+---
+# https://backstage.io/docs/features/software-catalog/descriptor-format#kind-system
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: testkube
+spec:
+  owner: guests
+---
+# https://backstage.io/docs/features/software-catalog/descriptor-format#kind-component
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: testkube-website
+  annotations:
+    # backstage.io/techdocs-ref: url:someurl
+    # testkube.io/organization: testkube
+    # testkube.io/environments: dev,staging,production
+    # testkube.io/labels: app=testkube,tool=k6
+  labels:
+    app: testkube
+spec:
+  type: website
+  lifecycle: experimental
+  owner: guests
+  system: testkube

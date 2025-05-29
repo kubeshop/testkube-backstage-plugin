@@ -87,6 +87,10 @@ catalog:
     - type: file
       target: ../../examples/entities.yaml
 
+    # Testkube example entities
+    - type: file
+      target: ../../examples/testkube-entities.yaml
+
     # Local example template
     - type: file
       target: ../../examples/template/template.yaml

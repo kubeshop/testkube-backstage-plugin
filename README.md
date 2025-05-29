@@ -4,8 +4,7 @@ This is your newly scaffolded Backstage App, Good Luck!
 
 ## Prerequisites
 
-* Testkube OSS running, check here the instructions to [install](https://docs.testkube.io/articles/install/standalone-agent).
-* Port forward the Testkube API using the following command: `kubectl port-forward svc/testkube-api-server -n testkube 8088:8088`.
+* Check how to set up Testkube plugin [here](plugins/testkube/README.md).
 
 ## Test locally this plugin
 
@@ -15,3 +14,9 @@ To start the app, run:
 yarn install
 yarn dev
 ```
+
+## Tasks
+
+[ ] Show logs of execution.
+[ ] Filter executions by component annotations
+[ ] 
