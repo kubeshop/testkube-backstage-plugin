@@ -23,12 +23,12 @@ export const columns: TableColumn<TestWorkflowExecutionSummary>[] = [
   {
     title: 'Start Time',
     field: 'scheduledAt',
-    type: 'date'
+    type: 'datetime'
   },
   {
     title: 'End Time',
     field: 'result.finishedAt',
-    type: 'date'
+    type: 'datetime'
   },
 ];
 
