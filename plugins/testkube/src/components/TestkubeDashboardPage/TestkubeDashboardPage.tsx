@@ -20,7 +20,7 @@ import { columns, useStyles } from './tableHeading';
 import { useTestkubeUI } from '../../utils/isTestkubeUiConfigured';
 import { TestWorkflowExecutionsResult } from '../../types';
 
-export const TestWorkflowExecutionsPage = () => {
+export const TestkubeDashboardPage = () => {
 
   const TestkubeAPI = useApi(testkubeApiRef);
   const [lastExecutions, setLastExecutions] = useState<TestWorkflowExecutionsResult>();
@@ -43,7 +43,6 @@ export const TestWorkflowExecutionsPage = () => {
     try {
       if (isInitial) setLoading(true);
       else setIsRefreshing(true);
-
       const executions = await TestkubeAPI.getTestWorkflowExecutionsResult();
       console.log('executions >>>', executions);
       setLastExecutions(executions);
@@ -64,23 +63,50 @@ export const TestWorkflowExecutionsPage = () => {
     return () => clearInterval(interval);
   }, []);
 
-  if (loading) return <Progress />;
-
+  if (loading) {
+    return (
+      <Page themeId="home">
+        <Header title="Testkube" subtitle="Test Automation Execution Platform">
+        </Header>
+        <Content>
+          <Progress />
+        </Content>
+      </Page>
+    );
+  }
   if (error) {
     return (
-      <WarningPanel severity="error" title="Could not fetch Test Workflow Executions from TestKube.">
-        <CodeSnippet language="text" text={error.toString()} />
-      </WarningPanel>
+      <Page themeId="home">
+        <Header title="Testkube" subtitle="Test Automation Execution Platform">
+        </Header>
+        <Content>
+          <EmptyState
+            missing="info"
+            title="No data available"
+            description="Unable to load data from Testkube API, please review your set up."
+          >
+          </EmptyState>
+          <WarningPanel severity="error" title="Could not fetch Test Workflow Executions from TestKube.">
+            <CodeSnippet language="text" text={error.toString()} />
+          </WarningPanel>
+        </Content>
+      </Page>
     );
   }
 
   if (!lastExecutions) {
     return (
-      <EmptyState
-        missing="data"
-        title="No data available"
-        description="No executions were returned from Testkube."
-      />
+      <Page themeId="home">
+        <Header title="Testkube" subtitle="Test Automation Execution Platform">
+        </Header>
+        <Content>
+          <EmptyState
+          missing="data"
+          title="No data available"
+          description="No executions were returned from Testkube."
+          />
+        </Content>
+      </Page>
     );
   }
 
@@ -95,7 +121,7 @@ export const TestWorkflowExecutionsPage = () => {
         <Grid item xs={12} sm={6} md={4}>
           <InfoCard title="Pass/Fail Ratio">
             <Typography variant="h5">
-              {lastExecutions.totals.passed * 100 / lastExecutions.totals.results || 0}%
+              {(lastExecutions.totals.passed * 100 / lastExecutions.totals.results).toFixed(2) || 0}%
             </Typography>
           </InfoCard>
         </Grid>

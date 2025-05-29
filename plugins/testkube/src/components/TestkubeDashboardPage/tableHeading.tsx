@@ -3,37 +3,32 @@ import { TestWorkflowExecutionSummary } from '../../types';
 import { makeStyles } from '@material-ui/core';
 
 export const columns: TableColumn<TestWorkflowExecutionSummary>[] = [
-
-  { 
-    title: 'Execution #',
-    field: 'id',
-    type: 'string',
-    highlight: true
-  },
-
-  { 
-    title: 'Test Name', 
+  {
+    title: 'Execution',
     field: 'name',
     type: 'string',
     highlight: true
   },
-
-  { 
+  {
+    title: 'Test Workflow',
+    field: 'workflow.name',
+    type: 'string',
+    highlight: true
+  },
+  {
     title: 'Status',
-    field: 'statusAt',
+    field: 'result.status',
     type: 'string'
   },
-
   {
     title: 'Start Time',
     field: 'scheduledAt',
-    type: 'string'
+    type: 'date'
   },
-
-  { 
+  {
     title: 'End Time',
-    field: 'endTime',
-    type: 'string'
+    field: 'result.finishedAt',
+    type: 'date'
   },
 ];
 

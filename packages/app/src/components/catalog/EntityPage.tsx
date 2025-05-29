@@ -58,6 +58,16 @@ import {
   EntityKubernetesContent,
   isKubernetesAvailable,
 } from '@backstage/plugin-kubernetes';
+import { FeatureFlagged } from '@backstage/core-app-api';
+import { TestkubeEntityPage } from '@internal/plugin-testkube';
+
+const testkubeSummaryPage = (
+  <Grid container spacing={3} alignItems="stretch">
+    <Grid item xs={12}>
+      <TestkubeEntityPage></TestkubeEntityPage>
+    </Grid>
+  </Grid>
+);
 
 const techdocsContent = (
   <EntityTechdocsContent>
@@ -223,6 +233,12 @@ const websiteEntityPage = (
     <EntityLayout.Route path="/docs" title="Docs">
       {techdocsContent}
     </EntityLayout.Route>
+
+    <FeatureFlagged with="testkube">
+      <EntityLayout.Route path="/tests-summary" title="Tests Summary">
+        {testkubeSummaryPage}
+      </EntityLayout.Route>
+    </FeatureFlagged>
   </EntityLayout>
 );
 

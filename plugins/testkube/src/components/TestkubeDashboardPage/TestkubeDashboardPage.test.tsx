@@ -1,5 +1,5 @@
 import React from 'react';
-import { TestWorkflowExecutionsPage } from './TestWorkflowExecutionsPage';
+import { TestkubeDashboardPage } from './TestkubeDashboardPage';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { screen } from '@testing-library/react';
@@ -8,7 +8,7 @@ import {
   renderInTestApp,
 } from '@backstage/test-utils';
 
-describe('TestWorkflowExecutionsPage', () => {
+describe('TestkubeDashboardPage', () => {
   const server = setupServer();
   // Enable sane handlers for network requests
   registerMswTestHooks(server);
@@ -21,7 +21,7 @@ describe('TestWorkflowExecutionsPage', () => {
   });
 
   it('should render', async () => {
-    await renderInTestApp(<TestWorkflowExecutionsPage />);
+    await renderInTestApp(<TestkubeDashboardPage />);
     expect(
       screen.getByText('Welcome to testkube!'),
     ).toBeInTheDocument();

@@ -1,6 +1,7 @@
-export { 
+export {
     testkubePlugin,
-    TestkubePage
+    TestkubeDashboardPage,
+    TestkubeEntityPage,
  } from './plugin';
 
  export * from './api';

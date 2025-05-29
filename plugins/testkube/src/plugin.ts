@@ -10,6 +10,7 @@ import { testkubeApiRef, TestkubeClient } from './api';
 
 export const testkubePlugin = createPlugin({
   id: 'testkube',
+  featureFlags: [{ name: 'testkube' }],
   apis: [
     createApiFactory({
       api: testkubeApiRef,
@@ -26,14 +27,26 @@ export const testkubePlugin = createPlugin({
   ],
 });
 
-export const TestkubePage = testkubePlugin.provide(
+export const TestkubeDashboardPage = testkubePlugin.provide(
   createComponentExtension({
-    name: 'TestkubePage',
+    name: 'TestkubeDashboardPage',
     component: {
       lazy: () =>
-      import('./components/TestWorkflowExecutionsPage').then(
-        m => m.TestWorkflowExecutionsPage,
+      import('./components/TestkubeDashboardPage').then(
+        m => m.TestkubeDashboardPage,
       ),
     },
+  }),
+);
+
+export const TestkubeEntityPage = testkubePlugin.provide(
+  createComponentExtension({
+    name: 'TestkubeEntityPage',
+    component: {
+      lazy: () =>
+        import('./components/TestkubeEntityPage').then(
+          m => m.TestkubeEntityPage,
+        ),
+      },
   }),
 );

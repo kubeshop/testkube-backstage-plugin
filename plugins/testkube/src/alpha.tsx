@@ -27,10 +27,17 @@ export const testkubeApi = ApiBlueprint.make({
     },
   });
 
-  const TestkubePage = PageBlueprint.make({
+  const TestkubeDashboardPage = PageBlueprint.make({
     params: {
       defaultPath: '/testkube',
-      loader: () => import('./components/TestWorkflowExecutionsPage').then(m => <m.TestWorkflowExecutionsPage />),
+      loader: () => import('./components/TestkubeDashboardPage').then(m => <m.TestkubeDashboardPage />),
+    },
+  });
+
+  const TestkubeEntityPage = PageBlueprint.make({
+    params: {
+      defaultPath: '/tests-summary',
+      loader: () => import('./components/TestkubeEntityPage').then(m => <m.TestkubeEntityPage />),
     },
   });
 
@@ -38,6 +45,7 @@ export const testkubeApi = ApiBlueprint.make({
     id: 'testkube',
     extensions: [
       testkubeApi,
-      TestkubePage,
+      TestkubeDashboardPage,
+      TestkubeEntityPage,
     ],
   });

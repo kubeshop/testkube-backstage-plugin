@@ -32,11 +32,15 @@
     "@backstage/core-compat-api": "^0.3.5",
     "@backstage/core-components": "^0.17.0",
     "@backstage/core-plugin-api": "^1.10.5",
-    "@backstage/frontend-plugin-api": "^0.9.4",
+    "@backstage/frontend-plugin-api": "^0.10.0",
     "@backstage/theme": "^0.6.4",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
     "@material-ui/core": "^4.9.13",
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.61",
+    "@mui/icons-material": "^7.0.2",
+    "@mui/material": "^7.0.2",
     "react-use": "^17.2.4"
   },
   "peerDependencies": {
