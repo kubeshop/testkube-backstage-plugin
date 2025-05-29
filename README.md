@@ -17,6 +17,12 @@ yarn dev
 
 ## Tasks
 
-[ ] Show logs of execution.
 [ ] Filter executions by component annotations
-[ ] 
+[ ] Show logs of execution.
+  * TW Executions with pure steps.
+  * TW Executions with Services.
+  * TW Executions with parallel steps.
+  * TW Executions that call other TWs.
+[ ] Run test workflow
+  * TW Executions without Input parameters.
+  * TW Executions with Input parameters.
