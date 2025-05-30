@@ -14,7 +14,6 @@ export const TWEShowLogsDialog = ({ lastExecution } : TWEShowLogsDialogProps) =>
     setOpenLogDialog(false);
   };
   return (<Fragment>
-    <span style={{ paddingRight: "10px", textTransform: "none" }}>{lastExecution}</span>
     <Tooltip title="Show execution logs"><IconButton
       aria-label="more"
       id="long-button"
@@ -24,6 +23,7 @@ export const TWEShowLogsDialog = ({ lastExecution } : TWEShowLogsDialogProps) =>
       onClick={() => { setOpenLogDialog(true); }}>
       <ArticleIcon />
     </IconButton></Tooltip>
+    <span style={{ paddingRight: "10px", textTransform: "none" }}>{lastExecution}</span>
     <Dialog
       maxWidth="md"
       aria-labelledby="dialog-title"

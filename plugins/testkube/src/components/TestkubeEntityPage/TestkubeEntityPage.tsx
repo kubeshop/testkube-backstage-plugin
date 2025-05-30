@@ -3,9 +3,9 @@ import { TWExecutionsDetailedTableComponent } from "../TWExecutionsDetailedTable
 import { testkubeApiRef } from '../../api';
 import { useApi } from '@backstage/core-plugin-api';
 import { TestWorkflowExecutionsResult } from '../../types';
-import { TestkubeErrorPage } from '../utils/TestkubeErrorComponent';
+import { TestkubeErrorPage } from '../../utils/TestkubeErrorComponent';
 import { TWESummaryMetricsComponent } from '../TWESummaryMetricsComponent';
-import { TestkubeLoadingComponent } from '../utils/TestkubeLoadingComponent';
+import { TestkubeLoadingComponent } from '../../utils/TestkubeLoadingComponent';
 import { ContentHeader, EmptyState } from "@backstage/core-components";
 import { useStyles } from "../TestkubeDashboardPage/tableHeading";
 

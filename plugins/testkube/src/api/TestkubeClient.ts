@@ -26,12 +26,13 @@ export class TestkubeClient implements TestkubeApi {
     return `${await this.discoveryApi.getBaseUrl('proxy')}/testkube`;
   }
 
-  private async fetcher(url: string) {
+  private async fetcher(url: string, headers?: any, output: string = 'json') {
     const { token: idToken } = await this.identityApi.getCredentials();
     const response = await fetch(url, {
       headers: {
         'Content-Type': 'application/json',
         ...(idToken && { Authorization: `Bearer ${idToken}` }),
+        ...headers
       },
     });
     if (!response.ok) {
@@ -39,6 +40,7 @@ export class TestkubeClient implements TestkubeApi {
         `failed to fetch data, status ${response.status}: ${response.statusText}`,
       );
     }
+    if (output === 'text') return await response.text();
     return await response.json();
   }
 
@@ -48,6 +50,18 @@ export class TestkubeClient implements TestkubeApi {
     return (await this.fetcher(
       `${proxyUrl}/v1/test-workflow-executions`,
     )) as TestWorkflowExecutionsResult;
+  }
+
+  async getTestWorkflow(id: string) {
+    const proxyUrl = await this.getBaseUrl();
+
+    return (await this.fetcher(
+      `${proxyUrl}/v1/test-workflows/${id}`,
+      {
+        'content-type': 'text/yaml'
+      },
+      'text'
+    )) as string;
   }
 
 }

@@ -10,4 +10,5 @@ export const testkubeApiRef = createApiRef<TestkubeApi>({
 export type TestkubeApi = {
   getTestWorkflowExecutionsResult(
   ): Promise<TestWorkflowExecutionsResult>;
+  getTestWorkflow(id: string): Promise<string>;
 };

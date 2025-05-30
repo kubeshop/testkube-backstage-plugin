@@ -14,10 +14,10 @@ import { useApi } from '@backstage/core-plugin-api';
 import { columns, useStyles } from './tableHeading';
 import { useTestkubeUI } from '../../utils/isTestkubeUiConfigured';
 import { TestWorkflowExecutionsResult } from '../../types';
-import { TestkubePageWrapper } from '../utils/TestkubePageWrapper';
-import { TestkubeErrorPage } from '../utils/TestkubeErrorComponent';
+import { TestkubePageWrapper } from '../../utils/TestkubePageWrapper';
+import { TestkubeErrorPage } from '../../utils/TestkubeErrorComponent';
 import { TWESummaryMetricsComponent } from '../TWESummaryMetricsComponent';
-import { TestkubeLoadingComponent } from '../utils/TestkubeLoadingComponent';
+import { TestkubeLoadingComponent } from '../../utils/TestkubeLoadingComponent';
 
 export const TestkubeDashboardPage = () => {
 

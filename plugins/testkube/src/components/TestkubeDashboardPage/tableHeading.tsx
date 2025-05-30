@@ -1,6 +1,8 @@
-import { TableColumn } from '@backstage/core-components/*';
+import React from 'react';
+import { StatusAborted, StatusError, StatusOK, StatusPending, StatusRunning, TableColumn } from '@backstage/core-components';
 import { TestWorkflowExecutionSummary } from '../../types';
-import { makeStyles } from '@material-ui/core';
+import { makeStyles, Typography } from '@material-ui/core';
+import { TWEStatusBadge } from '../../utils/TWEStatusBadge';
 
 export const columns: TableColumn<TestWorkflowExecutionSummary>[] = [
   {
@@ -18,7 +20,10 @@ export const columns: TableColumn<TestWorkflowExecutionSummary>[] = [
   {
     title: 'Status',
     field: 'result.status',
-    type: 'string'
+    type: 'string',
+    render: (rowData: any) => (
+      <TWEStatusBadge status={rowData.result.status} />
+    )
   },
   {
     title: 'Start Time',
