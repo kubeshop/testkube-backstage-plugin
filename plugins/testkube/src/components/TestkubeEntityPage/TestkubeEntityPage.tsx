@@ -6,21 +6,19 @@ import { TestWorkflowExecutionsResult } from '../../types';
 import { TestkubeErrorPage } from '../../utils/TestkubeErrorComponent';
 import { TWESummaryMetricsComponent } from '../TWESummaryMetricsComponent';
 import { TestkubeLoadingComponent } from '../../utils/TestkubeLoadingComponent';
-import { ContentHeader, EmptyState } from "@backstage/core-components";
+import { EmptyState } from "@backstage/core-components";
 import { useStyles } from "../TestkubeDashboardPage/tableHeading";
 
 export const TestkubeEntityPage = () => {
   const TestkubeAPI = useApi(testkubeApiRef);
   const [lastExecutions, setLastExecutions] = useState<TestWorkflowExecutionsResult>();
   const [loading, setLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const classes = useStyles();
 
   const fetchData = async (isInitial = false) => {
     try {
       if (isInitial) setLoading(true);
-      else setIsRefreshing(true);
       const executions = await TestkubeAPI.getTestWorkflowExecutionsResult();
       console.log('executions >>>', executions);
       setLastExecutions(executions);
@@ -29,7 +27,6 @@ export const TestkubeEntityPage = () => {
       setError(err);
     } finally {
       if (isInitial) setLoading(false);
-      else setIsRefreshing(false);
     }
   };
 
@@ -67,7 +64,6 @@ export const TestkubeEntityPage = () => {
 
   return (
     <Fragment>
-      <ContentHeader title={isRefreshing ? 'Actualizando datos...' : ''}></ContentHeader>
       <TWESummaryMetricsComponent totals={lastExecutions.totals}></TWESummaryMetricsComponent>
       <br />
       <TWExecutionsDetailedTableComponent data={lastExecutions.results}></TWExecutionsDetailedTableComponent>

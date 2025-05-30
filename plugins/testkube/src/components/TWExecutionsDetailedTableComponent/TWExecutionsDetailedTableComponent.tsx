@@ -16,7 +16,7 @@ export const TWExecutionsDetailedTableComponent = ({ data }: TWExecutionsDetaile
       <TWEShowManifestDialog name={rowData.workflow.name} />
     )},
     { title: "Last execution", field: "lastExecution", render: (rowData: any) => (
-      <TWEShowLogsDialog lastExecution={rowData.name} />
+      <TWEShowLogsDialog workflowName={rowData.workflow.name} executionName={rowData.name} executionId={rowData.id} />
     )},
     { title: "Status", field: "result.status", render: (rowData: any) => (
       <TWEStatusBadge status={rowData.result.status} />

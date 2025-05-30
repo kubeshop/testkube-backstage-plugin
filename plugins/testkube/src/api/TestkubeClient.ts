@@ -1,6 +1,6 @@
 import { DiscoveryApi, IdentityApi } from "@backstage/core-plugin-api/*";
 import { TestkubeApi } from "./TestkubeApi";
-import { TestWorkflowExecutionsResult } from "../types";
+import { TestWorkflowExecution, TestWorkflowExecutionsResult } from "../types";
 
 
 export type Options = {
@@ -58,10 +58,27 @@ export class TestkubeClient implements TestkubeApi {
     return (await this.fetcher(
       `${proxyUrl}/v1/test-workflows/${id}`,
       {
-        'content-type': 'text/yaml'
+        'accept': 'text/yaml'
       },
       'text'
     )) as string;
   }
 
+  async getTestWorkflowExecutionById(workflowName: string, executionId: string) {
+    const proxyUrl = await this.getBaseUrl();
+
+    return (await this.fetcher(
+      `${proxyUrl}/v1/test-workflows/${workflowName}/executions/${executionId}`,
+    )) as TestWorkflowExecution;
+  }
+
+  async getTestWorkflowExecutionLog(workflowName: string, executionId: string) {
+    const proxyUrl = await this.getBaseUrl();
+
+    return (await this.fetcher(
+      `${proxyUrl}/v1/test-workflows/${workflowName}/executions/${executionId}/logs`,
+      {},
+      'text'
+    )) as string;
+  }
 }

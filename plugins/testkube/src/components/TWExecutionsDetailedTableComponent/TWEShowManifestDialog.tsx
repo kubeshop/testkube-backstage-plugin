@@ -15,34 +15,24 @@ export const TWEShowManifestDialog = ({ name }: TWEShowManifestDialogProps) => {
   const TestkubeAPI = useApi(testkubeApiRef);
   const [yaml, setYaml] = useState<string>("");
   const [loading, setLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [open, setOpen] = React.useState(false);
-  const fetchData = async (isInitial = false) => {
+  const fetchData = async () => {
     try {
-      if (isInitial) setLoading(true);
-      else setIsRefreshing(true);
+      setLoading(true);
       const yaml = await TestkubeAPI.getTestWorkflow(name);
-      console.log('Yaml:', yaml);
-      setYaml(yaml.toString());
+      setYaml(yaml);
       setError(null);
     } catch (err: any) {
       setError(err);
     } finally {
-      if (isInitial) setLoading(false);
-      else setIsRefreshing(false);
+      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchData(true);
-    const interval = setInterval(() => {
-      fetchData(false);
-    }, 30000);
-    return () => clearInterval(interval);
-  }, []);
   const handleClickOpen = () => {
     setOpen(true);
+    fetchData();
   };
   const handleClose = (event: any) => {
     event.stopPropagation();
@@ -61,7 +51,7 @@ export const TWEShowManifestDialog = ({ name }: TWEShowManifestDialogProps) => {
       open={open}
       onClose={handleClose}>
         <DialogTitle id="dialog-title">
-          Test Workflow Manifest {isRefreshing && "- Refreshing data ..."}
+          Test Workflow Manifest
         </DialogTitle>
         <DialogContent>
           {loading && <TestkubeLoadingComponent/>}
