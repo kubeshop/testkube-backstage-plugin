@@ -9,8 +9,7 @@ export const testkubeApiRef = createApiRef<TestkubeApi>({
 });
 
 export type TestkubeApi = {
-  getTestWorkflowExecutionsResult(
-  ): Promise<TestWorkflowExecutionsResult>;
+  getTestWorkflowExecutionsResult(): Promise<TestWorkflowExecutionsResult>;
   getTestWorkflow(id: string): Promise<string>;
   getTestWorkflowExecutionById(workflowName: string, executionId: string): Promise<TestWorkflowExecution>;
   getTestWorkflowExecutionLog(workflowName: string, executionId: string): Promise<string>;

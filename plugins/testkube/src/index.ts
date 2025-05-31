@@ -4,5 +4,5 @@ export {
     TestkubeEntityPage,
  } from './plugin';
 
- export * from './api';
+ export { TestkubeClient, testkubeApiRef } from './api';
  export { useTestkubeUI } from './utils/isTestkubeUiConfigured';

@@ -1,7 +1,7 @@
 import React from 'react';
-import { StatusAborted, StatusError, StatusOK, StatusPending, StatusRunning, TableColumn } from '@backstage/core-components';
+import { TableColumn } from '@backstage/core-components';
 import { TestWorkflowExecutionSummary } from '../../types';
-import { makeStyles, Typography } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core';
 import { TWEStatusBadge } from '../../utils/TWEStatusBadge';
 
 export const columns: TableColumn<TestWorkflowExecutionSummary>[] = [

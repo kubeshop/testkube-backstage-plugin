@@ -1,11 +1,11 @@
 import React from 'react';
 import { createDevApp } from '@backstage/dev-utils';
-import { testkubePlugin, TestkubePage } from '../src/plugin';
+import { testkubePlugin, TestkubeDashboardPage } from '../src/plugin';
 
 createDevApp()
   .registerPlugin(testkubePlugin)
   .addPage({
-    element: <TestkubePage />,
+    element: <TestkubeDashboardPage />,
     title: 'Testkube Dashboard',
     path: '/testkube',
   })

@@ -28,7 +28,8 @@ export class TestkubeClient implements TestkubeApi {
 
   private async fetcher(url: string, headers?: any, output: string = 'json') {
     const { token: idToken } = await this.identityApi.getCredentials();
-    const response = await fetch(url, {
+    const proxyUrl = await this.getBaseUrl();
+    const response = await fetch(`${proxyUrl}${url}`, {
       headers: {
         'Content-Type': 'application/json',
         ...(idToken && { Authorization: `Bearer ${idToken}` }),
@@ -45,18 +46,11 @@ export class TestkubeClient implements TestkubeApi {
   }
 
   async getTestWorkflowExecutionsResult() {
-    const proxyUrl = await this.getBaseUrl();
-
-    return (await this.fetcher(
-      `${proxyUrl}/v1/test-workflow-executions`,
-    )) as TestWorkflowExecutionsResult;
+    return (await this.fetcher('/v1/test-workflow-executions')) as TestWorkflowExecutionsResult;
   }
 
   async getTestWorkflow(id: string) {
-    const proxyUrl = await this.getBaseUrl();
-
-    return (await this.fetcher(
-      `${proxyUrl}/v1/test-workflows/${id}`,
+    return (await this.fetcher(`/v1/test-workflows/${id}`,
       {
         'accept': 'text/yaml'
       },
@@ -65,19 +59,17 @@ export class TestkubeClient implements TestkubeApi {
   }
 
   async getTestWorkflowExecutionById(workflowName: string, executionId: string) {
-    const proxyUrl = await this.getBaseUrl();
-
     return (await this.fetcher(
-      `${proxyUrl}/v1/test-workflows/${workflowName}/executions/${executionId}`,
+      `/v1/test-workflows/${workflowName}/executions/${executionId}`,
     )) as TestWorkflowExecution;
   }
 
   async getTestWorkflowExecutionLog(workflowName: string, executionId: string) {
-    const proxyUrl = await this.getBaseUrl();
-
     return (await this.fetcher(
-      `${proxyUrl}/v1/test-workflows/${workflowName}/executions/${executionId}/logs`,
-      {},
+      `/v1/test-workflows/${workflowName}/executions/${executionId}/logs`,
+      {
+        'accept': 'text/plain'
+      },
       'text'
     )) as string;
   }
