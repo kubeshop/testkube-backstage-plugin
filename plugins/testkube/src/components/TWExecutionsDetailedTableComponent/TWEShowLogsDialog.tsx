@@ -70,7 +70,7 @@ export const TWEShowLogsDialog = ({ workflowName, executionName, executionId } :
         <ListItem button selected={stepSelected == element.ref} id={element.ref} key={element.ref} onClick={() => {
           loadLog(element.ref || '');
         }}>
-          {checkStepStatus(element.name || 'Undefined', execution.result?.steps[element.ref || ''].status)}
+          {checkStepStatus(element.name || element.category || 'Undefined', execution.result?.steps[element.ref || ''].status)}
         </ListItem>
       )
     });
