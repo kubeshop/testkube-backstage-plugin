@@ -1,10 +1,10 @@
 import React, { Fragment } from "react";
 import { Grid, Typography } from "@material-ui/core";
 import { InfoCard } from "@backstage/core-components";
-import { ExecutionsTotals } from "../../types";
+import { components } from "../../types";
 
 type TWESummaryMetricsComponentProps = {
-  totals: ExecutionsTotals;
+  totals: components["schemas"]["ExecutionsTotals"];
 };
 
 export const TWESummaryMetricsComponent = ({ totals }: TWESummaryMetricsComponentProps) => {

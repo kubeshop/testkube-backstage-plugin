@@ -125,6 +125,6 @@ permission:
   enabled: true
 
 testkube:
-  enterprise: false
+  enterprise: true
   # Depends on testkube.enterprise = true
   uiUrl: https://app.testkube.dev/

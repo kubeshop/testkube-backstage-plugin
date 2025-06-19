@@ -1,6 +1,6 @@
 import { DiscoveryApi, IdentityApi } from "@backstage/core-plugin-api/*";
 import { TestkubeApi } from "./TestkubeApi";
-import { TestWorkflowExecution, TestWorkflowExecutionsResult } from "../types";
+import { components, TestWorkflowWithExecutionsFilters} from "../types";
 
 
 export type Options = {
@@ -46,7 +46,7 @@ export class TestkubeClient implements TestkubeApi {
   }
 
   async getTestWorkflowExecutionsResult() {
-    return (await this.fetcher('/v1/test-workflow-executions')) as TestWorkflowExecutionsResult;
+    return (await this.fetcher('/v1/test-workflow-executions')) as components["schemas"]["TestWorkflowExecutionsResult"];
   }
 
   async getTestWorkflow(id: string) {
@@ -61,7 +61,7 @@ export class TestkubeClient implements TestkubeApi {
   async getTestWorkflowExecutionById(workflowName: string, executionId: string) {
     return (await this.fetcher(
       `/v1/test-workflows/${workflowName}/executions/${executionId}`,
-    )) as TestWorkflowExecution;
+    )) as components["schemas"]["TestWorkflowExecution"];
   }
 
   async getTestWorkflowExecutionLog(workflowName: string, executionId: string) {
@@ -73,4 +73,34 @@ export class TestkubeClient implements TestkubeApi {
       'text'
     )) as string;
   }
+
+  async getTestWorkflowsWithExecutions(filters: TestWorkflowWithExecutionsFilters): Promise<components["schemas"]["TestWorkflowWithExecutionSummary"][]> {
+  const {
+    labels,
+    page = 0,
+    pageSize = 14,
+    organization,
+    environments,
+  } = filters;
+
+  const query = new URLSearchParams({
+    page: page.toString(),
+    pageSize: pageSize.toString(),
+  });
+
+  if (labels) {
+    query.append('selector', labels);
+  }
+
+  // Si hay organización y entornos => modo enterprise
+  if (organization && environments?.length === 1) {
+    const endpoint = `/organizations/${organization}/environments/${environments[0]}/agent/test-workflow-with-executions?${query.toString()}`;
+    const data = await this.fetcher(endpoint);
+    return data as components["schemas"]["TestWorkflowWithExecutionSummary"][];
+  }
+
+  // Modo no enterprise
+  const data = await this.fetcher(`/v1/test-workflow-with-executions?${query.toString()}`);
+  return [data as components["schemas"]["TestWorkflowWithExecutionSummary"]];
+}
 }

@@ -1,10 +1,10 @@
 import React from 'react';
 import { TableColumn } from '@backstage/core-components';
-import { TestWorkflowExecutionSummary } from '../../types';
+import { components } from '../../types';
 import { makeStyles } from '@material-ui/core';
 import { TWEStatusBadge } from '../../utils/TWEStatusBadge';
 
-export const columns: TableColumn<TestWorkflowExecutionSummary>[] = [
+export const columns: TableColumn<components["schemas"]["TestWorkflowExecutionsResult"]>[] = [
   {
     title: 'Execution',
     field: 'name',

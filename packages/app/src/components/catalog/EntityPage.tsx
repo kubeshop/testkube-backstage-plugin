@@ -59,7 +59,7 @@ import {
   isKubernetesAvailable,
 } from '@backstage/plugin-kubernetes';
 import { FeatureFlagged } from '@backstage/core-app-api';
-import { TestkubeEntityPage } from '@internal/plugin-testkube';
+import { TestkubeEntityPage, isTestkubeAvailable } from '@internal/plugin-testkube';
 
 const testkubeSummaryPage = (
   <Grid container spacing={3} alignItems="stretch">
@@ -235,7 +235,7 @@ const websiteEntityPage = (
     </EntityLayout.Route>
 
     <FeatureFlagged with="testkube">
-      <EntityLayout.Route path="/tests-summary" title="Tests Summary">
+      <EntityLayout.Route path="/tests-summary" title="Tests Summary" if={isTestkubeAvailable}>
         {testkubeSummaryPage}
       </EntityLayout.Route>
     </FeatureFlagged>

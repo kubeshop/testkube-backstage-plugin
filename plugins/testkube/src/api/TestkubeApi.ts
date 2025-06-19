@@ -1,7 +1,7 @@
 import { createApiRef } from '@backstage/core-plugin-api';
 import {
-  TestWorkflowExecution,
-  TestWorkflowExecutionsResult
+  components,
+  TestWorkflowWithExecutionsFilters
 } from '../types';
 
 export const testkubeApiRef = createApiRef<TestkubeApi>({
@@ -9,8 +9,9 @@ export const testkubeApiRef = createApiRef<TestkubeApi>({
 });
 
 export type TestkubeApi = {
-  getTestWorkflowExecutionsResult(): Promise<TestWorkflowExecutionsResult>;
+  getTestWorkflowExecutionsResult(): Promise<components["schemas"]["TestWorkflowExecutionsResult"]>;
   getTestWorkflow(id: string): Promise<string>;
-  getTestWorkflowExecutionById(workflowName: string, executionId: string): Promise<TestWorkflowExecution>;
+  getTestWorkflowExecutionById(workflowName: string, executionId: string): Promise<components["schemas"]["TestWorkflowExecution"]>;
   getTestWorkflowExecutionLog(workflowName: string, executionId: string): Promise<string>;
+  getTestWorkflowsWithExecutions(filters: TestWorkflowWithExecutionsFilters): Promise<components["schemas"]["TestWorkflowWithExecutionSummary"][]>;
 };

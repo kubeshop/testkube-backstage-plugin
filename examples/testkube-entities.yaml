@@ -14,9 +14,9 @@ metadata:
   name: testkube-website
   annotations:
     # backstage.io/techdocs-ref: url:someurl
-    # testkube.io/organization: testkube
-    # testkube.io/environments: dev,staging,production
-    # testkube.io/labels: app=testkube,tool=k6
+    testkube.io/organization: testkube
+    testkube.io/environments: dev,staging,production
+    testkube.io/labels: app=testkube-website
   labels:
     app: testkube
 spec:

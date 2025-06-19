@@ -3,11 +3,11 @@ import { Table, TableColumn } from "@backstage/core-components";
 import { TWEShowLogsDialog } from "./TWEShowLogsDialog";
 import { TWEShowManifestDialog } from "./TWEShowManifestDialog";
 import { TWExecutionsDetailedTableAction } from "./TWExecutionsDetailedTableAction";
-import { TestWorkflowExecutionSummary } from "../../types";
+import { components } from "../../types";
 import { TWEStatusBadge } from "../../utils/TWEStatusBadge";
 
 type TWExecutionsDetailedTableComponentProps = {
-  data: TestWorkflowExecutionSummary[];
+  data: components["schemas"]["TestWorkflowExecutionSummary"][];
 };
 
 export const TWExecutionsDetailedTableComponent = ({ data }: TWExecutionsDetailedTableComponentProps) => {

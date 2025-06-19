@@ -5,7 +5,7 @@ import ArticleIcon from '@mui/icons-material/Article';
 import { Dialog, DialogActions, DialogContent, DialogTitle, List } from "@mui/material";
 import { useApi } from "@backstage/frontend-plugin-api";
 import { testkubeApiRef } from "../../api";
-import { TestWorkflowExecution } from "../../types";
+import { components } from "../../types";
 import { TestkubeLoadingComponent } from "../../utils/TestkubeLoadingComponent";
 import { TestkubeErrorPage } from "../../utils/TestkubeErrorComponent";
 
@@ -41,7 +41,7 @@ export const TWEShowLogsDialog = ({ workflowName, executionName, executionId } :
         return (<StatusPending>{stepName}</StatusPending>);
     }
   }
-  const generateStepsList = (execution: TestWorkflowExecution) => {
+  const generateStepsList = (execution: components["schemas"]["TestWorkflowExecution"]) => {
     const rows = execution.signature?.map(element => {
       if (element.children) {
         const childrenRows = element.children.map(children => {
