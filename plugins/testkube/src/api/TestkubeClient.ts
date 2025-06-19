@@ -101,6 +101,6 @@ export class TestkubeClient implements TestkubeApi {
 
   // Modo no enterprise
   const data = await this.fetcher(`/v1/test-workflow-with-executions?${query.toString()}`);
-  return [data as components["schemas"]["TestWorkflowWithExecutionSummary"]];
+  return data as components["schemas"]["TestWorkflowWithExecutionSummary"][];
 }
 }
