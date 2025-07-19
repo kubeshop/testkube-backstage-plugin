@@ -1,0 +1,30 @@
+kind: TestWorkflow
+apiVersion: testworkflows.testkube.io/v1
+metadata:
+  name: gradle-sample
+  labels:
+    app: example-website
+spec:
+  content:
+    git:
+      uri: https://github.com/kubeshop/testkube
+      revision: main
+      paths:
+        - contrib/executor/gradle/examples/hello-maven
+  container:
+    workingDir: /data/repo/contrib/executor/gradle/examples/hello-maven
+    resources:
+      requests:
+        cpu: 512m
+        memory: 512Mi
+  steps:
+    - name: Run tests
+      run:
+        image: gradle:8.5.0-jdk11
+        env:
+          - name: TESTKUBE_GRADLE
+            value: 'true'
+        command:
+          - gradle
+          - --no-daemon
+          - test

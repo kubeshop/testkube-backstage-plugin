@@ -3,6 +3,7 @@ import { makeStyles } from '@material-ui/core';
 import HomeIcon from '@material-ui/icons/Home';
 import ExtensionIcon from '@material-ui/icons/Extension';
 import LibraryBooks from '@material-ui/icons/LibraryBooks';
+import BarChartIcon from '@material-ui/icons/BarChart';
 import CreateComponentIcon from '@material-ui/icons/AddCircleOutline';
 import LogoFull from './LogoFull';
 import LogoIcon from './LogoIcon';
@@ -27,6 +28,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
 import { MyGroupsSidebarItem } from '@backstage/plugin-org';
 import GroupIcon from '@material-ui/icons/People';
+import { FeatureFlagged } from '@backstage/core-app-api';
 
 const useSidebarLogoStyles = makeStyles({
   root: {
@@ -74,6 +76,9 @@ export const Root = ({ children }: PropsWithChildren<{}>) => (
         />
         <SidebarItem icon={ExtensionIcon} to="api-docs" text="APIs" />
         <SidebarItem icon={LibraryBooks} to="docs" text="Docs" />
+        <FeatureFlagged with='testkube'>
+          <SidebarItem icon={BarChartIcon} to="testkube" text="Testkube" />
+        </FeatureFlagged>
         <SidebarItem icon={CreateComponentIcon} to="create" text="Create..." />
         {/* End global nav */}
         <SidebarDivider />

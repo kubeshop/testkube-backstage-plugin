@@ -1,0 +1,1 @@
+export { TestkubeDashboardPage } from './TestkubeDashboardPage';

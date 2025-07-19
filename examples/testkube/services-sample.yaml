@@ -1,0 +1,27 @@
+apiVersion: testworkflows.testkube.io/v1
+kind: TestWorkflow
+metadata:
+  name: services-sample
+  labels:
+    app: example-website
+spec:
+  services:
+    db:
+      timeout: 5m
+      image: mongo:latest
+      env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          value: root
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          value: p4ssw0rd
+      readinessProbe:
+        tcpSocket:
+          port: 27017
+        periodSeconds: 1
+  steps:
+    - name: Check if it is running
+      run:
+        image: mongo:latest
+        shell: |
+          echo Connecting to MongoDB at {{ services.db.0.ip }}
+          mongosh -u root -p p4ssw0rd {{ services.db.0.ip }} --eval 'db.serverStatus().localTime'

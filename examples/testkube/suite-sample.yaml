@@ -1,0 +1,14 @@
+kind: TestWorkflow
+apiVersion: testworkflows.testkube.io/v1
+metadata:
+  name: suite-sample
+  labels:
+    app: testkube-website
+spec:
+  steps:
+  - name: Run Tests Suite
+    execute:
+      workflows:
+      - name: k6-sample
+      - name: k6-fail-sample
+status: {}

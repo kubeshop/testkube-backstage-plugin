@@ -1,0 +1,91 @@
+{
+  "name": "@internal/plugin-testkube",
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "publishConfig": {
+    "access": "public",
+    "main": "dist/index.esm.js",
+    "types": "dist/index.d.ts"
+  },
+  "backstage": {
+    "role": "frontend-plugin",
+    "pluginId": "testkube",
+    "pluginPackages": [
+      "@testkube/backstage-plugin-testkube"
+    ]
+  },
+  "sideEffects": false,
+  "scripts": {
+    "start": "backstage-cli package start",
+    "build": "backstage-cli package build",
+    "lint": "backstage-cli package lint",
+    "test": "backstage-cli package test",
+    "clean": "backstage-cli package clean",
+    "prepack": "backstage-cli package prepack",
+    "postpack": "backstage-cli package postpack"
+  },
+  "dependencies": {
+    "@backstage/catalog-model": "^1.7.3",
+    "@backstage/core-compat-api": "^0.3.5",
+    "@backstage/core-components": "^0.17.0",
+    "@backstage/core-plugin-api": "^1.10.5",
+    "@backstage/frontend-plugin-api": "^0.10.0",
+    "@backstage/theme": "^0.6.4",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@material-ui/core": "^4.9.13",
+    "@material-ui/icons": "^4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.61",
+    "@mui/icons-material": "^7.0.2",
+    "@mui/material": "^7.0.2",
+    "react-use": "^17.2.4"
+  },
+  "peerDependencies": {
+    "react": "^16.13.1 || ^17.0.0 || ^18.0.0"
+  },
+  "devDependencies": {
+    "@backstage/cli": "^0.31.0",
+    "@backstage/core-app-api": "^1.16.0",
+    "@backstage/dev-utils": "^1.1.8",
+    "@backstage/test-utils": "^1.7.6",
+    "@testing-library/jest-dom": "^6.0.0",
+    "@testing-library/react": "^14.0.0",
+    "@testing-library/user-event": "^14.0.0",
+    "msw": "^1.0.0",
+    "react": "^16.13.1 || ^17.0.0 || ^18.0.0"
+  },
+  "files": [
+    "alpha",
+    "dist",
+    "config.d.ts"
+  ],
+  "exports": {
+    ".": "./src/index.ts",
+    "./alpha": "./src/alpha.tsx",
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "alpha": [
+        "src/alpha.tsx"
+      ],
+      "package.json": [
+        "package.json"
+      ]
+    }
+  },
+  "configSchema": "config.d.ts",
+  "homepage": "https://github.com/caiodonascimento/backstage-testkube-plugin/blob/main/plugins/README.md",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/caiodonascimento/backstage-testkube-plugin.git",
+    "directory": "plugins/testkube"
+  },
+  "keywords": [
+    "backstage",
+    "testkube"
+  ]
+}
