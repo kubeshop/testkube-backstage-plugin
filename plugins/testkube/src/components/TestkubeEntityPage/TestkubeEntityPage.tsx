@@ -6,12 +6,14 @@ import { components } from '../../types';
 import { TestkubeErrorPage } from '../../utils/TestkubeErrorComponent';
 import { TWESummaryMetricsComponent } from '../TWESummaryMetricsComponent';
 import { TestkubeLoadingComponent } from '../../utils/TestkubeLoadingComponent';
-import { EmptyState, InfoCard, StructuredMetadataTable } from "@backstage/core-components";
+import { ContentHeader, EmptyState, HeaderLabel, InfoCard, StructuredMetadataTable } from "@backstage/core-components";
 import { useStyles } from "../TestkubeDashboardPage/tableHeading";
 import { useEntity } from '@backstage/plugin-catalog-react';
 import { useTestkubeLabels, getTestkubeOrganization, getTestkubeEnvironments, useIsEnterpriseEnabled } from "../../utils/isTestkubeAvailable";
 import { Grid } from "@material-ui/core";
-
+import { sleep } from "../../utils/functions";
+import { IconButton } from "@mui/material";
+import RefreshIcon from '@material-ui/icons/Refresh';
 type TestWorkflowWithExecutionSummary = components["schemas"]["TestWorkflowWithExecutionSummary"];
 type TestWorkflowExecutionSummary = components["schemas"]["TestWorkflowExecutionSummary"];
 
@@ -55,6 +57,7 @@ export const TestkubeEntityPage = () => {
   const [lastExecutions, setLastExecutions] = useState<components["schemas"]["TestWorkflowExecutionsResult"]>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const classes = useStyles();
 
   const { entity } = useEntity();
@@ -69,7 +72,7 @@ export const TestkubeEntityPage = () => {
   const fetchData = async (isInitial = false) => {
   try {
     if (isInitial) setLoading(true);
-
+    else setIsRefreshing(true);
     const filters: any = {
       labels,
       pageSize: 50,
@@ -77,7 +80,7 @@ export const TestkubeEntityPage = () => {
     };
 
     let workflowsWithExecutions: TestWorkflowWithExecutionSummary[][] = [];
-
+    await sleep(1000)
     if (isEnterprise) {
       const organization = getTestkubeOrganization(entity);
       const environments = getTestkubeEnvironments(entity)
@@ -149,6 +152,7 @@ export const TestkubeEntityPage = () => {
     setError(err);
   } finally {
     if (isInitial) setLoading(false);
+    else setIsRefreshing(false);
   }
 };
 
@@ -190,16 +194,22 @@ export const TestkubeEntityPage = () => {
       <Wrapper>
       <InfoCard title="Testkube Enterprise Context" variant="fullHeight">
         <div style={cardContentStyle}>
-          <StructuredMetadataTable 
+          <StructuredMetadataTable
         metadata={metadata}
       />
         </div>
       </InfoCard>
       </Wrapper>
     )}
+    <ContentHeader title={isRefreshing ? 'Summary Metrics - Actualizando datos...' : 'Summary Metrics'}>
+        <HeaderLabel
+          value={<IconButton disabled={isRefreshing} onClick={() => fetchData(false)}>
+            <RefreshIcon />
+          </IconButton>} label={''}/>
+      </ContentHeader>
     <TWESummaryMetricsComponent totals={lastExecutions.totals} />
     <br />
-    <TWExecutionsDetailedTableComponent data={lastExecutions.results} />
+    <TWExecutionsDetailedTableComponent data={lastExecutions.results} reload={fetchData}/>
   </Fragment>
  );
 };

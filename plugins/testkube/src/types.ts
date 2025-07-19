@@ -4373,7 +4373,7 @@ export interface components {
             statusAt?: string;
             /** @description structured tree of steps */
             signature?: components["schemas"]["TestWorkflowSignature"][];
-            result?: components["schemas"]["TestWorkflowResult"];
+            result: components["schemas"]["TestWorkflowResult"];
             /** @description additional information from the steps, like referenced executed tests or artifacts */
             output?: components["schemas"]["TestWorkflowOutput"][];
             /** @description generated reports from the steps, like junit */
@@ -4652,8 +4652,8 @@ export interface components {
             /** @description Total duration in milliseconds (incl. pause) */
             totalDurationMs: number;
             pauses?: components["schemas"]["TestWorkflowPause"][];
-            initialization?: components["schemas"]["TestWorkflowStepResult"];
-            steps?: {
+            initialization: components["schemas"]["TestWorkflowStepResult"];
+            steps: {
                 [key: string]: components["schemas"]["TestWorkflowStepResult"];
             };
         };

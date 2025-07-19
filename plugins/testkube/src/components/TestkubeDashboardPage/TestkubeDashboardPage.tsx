@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Header,
-  Page,
-  Content,
   ContentHeader,
   Table,
   Link,
@@ -13,16 +10,19 @@ import { testkubeApiRef } from '../../api';
 import { useApi } from '@backstage/core-plugin-api';
 import { columns, useStyles } from './tableHeading';
 import { useTestkubeUI } from '../../utils/isTestkubeUiConfigured';
-import { TestWorkflowExecutionsResult } from '../../types';
+import { components } from '../../types';
 import { TestkubePageWrapper } from '../../utils/TestkubePageWrapper';
 import { TestkubeErrorPage } from '../../utils/TestkubeErrorComponent';
 import { TWESummaryMetricsComponent } from '../TWESummaryMetricsComponent';
 import { TestkubeLoadingComponent } from '../../utils/TestkubeLoadingComponent';
+import { sleep } from '../../utils/functions';
+import RefreshIcon from '@material-ui/icons/Refresh';
+import { IconButton } from '@mui/material';
 
 export const TestkubeDashboardPage = () => {
 
   const TestkubeAPI = useApi(testkubeApiRef);
-  const [lastExecutions, setLastExecutions] = useState<TestWorkflowExecutionsResult>();
+  const [lastExecutions, setLastExecutions] = useState<components["schemas"]["TestWorkflowExecutionsResult"]>();
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -42,6 +42,7 @@ export const TestkubeDashboardPage = () => {
     try {
       if (isInitial) setLoading(true);
       else setIsRefreshing(true);
+      await sleep(1000)
       const executions = await TestkubeAPI.getTestWorkflowExecutionsResult();
       console.log('executions >>>', executions);
       setLastExecutions(executions);
@@ -97,23 +98,22 @@ export const TestkubeDashboardPage = () => {
   }
 
   return (
-    <Page themeId="home">
-      <Header title={title} subtitle="">
-      <HeaderLabel label="Go to platform" value="https://app.testkube.io"></HeaderLabel>
-    </Header>
-    <Content>
-      <ContentHeader title={isRefreshing ? `${String(title)} - Actualizando datos...` : String(title)}></ContentHeader>
+    <TestkubePageWrapper>
+      <ContentHeader title={isRefreshing ? 'Summary Metrics - Actualizando datos...' : 'Summary Metrics'}>
+        <HeaderLabel
+          value={<IconButton disabled={isRefreshing} onClick={() => fetchData(false)}>
+            <RefreshIcon />
+          </IconButton>} label={''}/>
+      </ContentHeader>
       <TWESummaryMetricsComponent totals={lastExecutions.totals} />
       <br />
       <Table
         columns={columns}
         title="Last Executions"
-        subtitle="The last 20 executions"
         options={{ paging: false }}
         data={lastExecutions.results}
         emptyContent={noDataState}
       />
-    </Content>
-    </Page>
+    </TestkubePageWrapper>
   );
 };

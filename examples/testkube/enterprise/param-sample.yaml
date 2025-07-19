@@ -1,0 +1,30 @@
+kind: TestWorkflow
+apiVersion: testworkflows.testkube.io/v1
+metadata:
+  name: param-sample
+  labels:
+    app: example-website
+spec:
+  config:
+    string:
+      type: string
+      default: "default value"
+    boolean:
+      type: boolean
+      default: true
+    number:
+      type: number
+      default: 42.5
+    integer:
+      type: integer
+      default: 100
+  steps:
+  - name: Run Tests - Print String
+    shell: echo "String parameter: {{ config.string }}"
+  - name: Run Tests - Print Boolean
+    shell: echo "Boolean parameter: {{ config.boolean }}"
+  - name: Run Tests - Print Number
+    shell: echo "Number parameter: {{ config.number }}"
+  - name: Run Tests - Print Integer
+    shell: echo "Integer parameter: {{ config.integer }}"
+status: {}

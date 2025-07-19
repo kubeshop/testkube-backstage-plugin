@@ -10,7 +10,7 @@ interface TestkubePageWrapperProps {
 export const TestkubePageWrapper: React.FC<TestkubePageWrapperProps> = ({ title, subtitle, children }) => {
   return (
     <Page themeId="home">
-      <Header title={title || "Testkube"} subtitle={subtitle || "Test Automation Execution Platform"} />
+      <Header title={title || "Testkube Dashboard"} subtitle={subtitle || "Test Orchestration at ULTRA Scale for Cloud Native Applications"} />
       <Content>
         {children}
       </Content>

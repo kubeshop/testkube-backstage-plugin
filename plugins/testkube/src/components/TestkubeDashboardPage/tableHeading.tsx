@@ -4,7 +4,7 @@ import { components } from '../../types';
 import { makeStyles } from '@material-ui/core';
 import { TWEStatusBadge } from '../../utils/TWEStatusBadge';
 
-export const columns: TableColumn<components["schemas"]["TestWorkflowExecutionsResult"]>[] = [
+export const columns: TableColumn<components["schemas"]["TestWorkflowExecutionSummary"]>[] = [
   {
     title: 'Execution',
     field: 'name',

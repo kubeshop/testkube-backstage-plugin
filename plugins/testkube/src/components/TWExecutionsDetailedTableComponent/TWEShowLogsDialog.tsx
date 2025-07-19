@@ -8,14 +8,16 @@ import { testkubeApiRef } from "../../api";
 import { components } from "../../types";
 import { TestkubeLoadingComponent } from "../../utils/TestkubeLoadingComponent";
 import { TestkubeErrorPage } from "../../utils/TestkubeErrorComponent";
+import { sleep } from "../../utils/functions";
 
 type TWEShowLogsDialogProps = {
   workflowName: string;
   executionName: string;
   executionId: string;
+  small: boolean;
 };
 
-export const TWEShowLogsDialog = ({ workflowName, executionName, executionId } : TWEShowLogsDialogProps) => {
+export const TWEShowLogsDialog = ({ workflowName, executionName, executionId, small = true } : TWEShowLogsDialogProps) => {
   const [open, setOpenLogDialog] = React.useState(false);
   const TestkubeAPI = useApi(testkubeApiRef);
   const [stepsList, setStepsList] = useState<React.ReactNode>();
@@ -47,7 +49,7 @@ export const TWEShowLogsDialog = ({ workflowName, executionName, executionId } :
         const childrenRows = element.children.map(children => {
           console.log('Sub children:', children.name, 'Status:', execution.result?.steps[children.ref || ''].status)
           return (
-            <ListItem button id={children.ref} style={{ paddingLeft: '40px'}} selected={element.ref == stepSelected} key={children.ref} onClick={() => {
+            <ListItem button id={children.ref} style={{ paddingLeft: '40px'}} key={children.ref} onClick={() => {
               loadLog(children.ref || '');
             }}>
               {checkStepStatus(children.name || children.category || 'Undefined', execution.result?.steps[element.ref || ''].status)}
@@ -57,7 +59,7 @@ export const TWEShowLogsDialog = ({ workflowName, executionName, executionId } :
         console.log('Sub element:', element.name, 'Status:', execution.result?.steps[element.ref || ''].status)
         return (
           <div>
-            <ListItem button id={element.ref} key={element.ref} selected={element.children.filter(children => children.ref == stepSelected).length > 0} onClick={() => {
+            <ListItem button id={element.ref} key={element.ref} onClick={() => {
               loadLog(element.children ? element.children[0].ref || '' : '');
             }}>
               {checkStepStatus(element.name || element.category || 'Undefined', execution.result?.steps[element.ref || ''].status)}
@@ -67,7 +69,7 @@ export const TWEShowLogsDialog = ({ workflowName, executionName, executionId } :
         )
       }
       return (
-        <ListItem button selected={stepSelected == element.ref} id={element.ref} key={element.ref} onClick={() => {
+        <ListItem button id={element.ref} key={element.ref} onClick={() => {
           loadLog(element.ref || '');
         }}>
           {checkStepStatus(element.name || element.category || 'Undefined', execution.result?.steps[element.ref || ''].status)}
@@ -79,7 +81,7 @@ export const TWEShowLogsDialog = ({ workflowName, executionName, executionId } :
         Steps:
       </ListSubheader>
     }>
-      <ListItem button selected={stepSelected === 'init'} id="init" key="init" onClick={() => {
+      <ListItem button id="init" key="init" onClick={() => {
         loadLog('init');
       }}>
         {checkStepStatus('Initializing', execution.result?.initialization.status)}
@@ -110,6 +112,7 @@ export const TWEShowLogsDialog = ({ workflowName, executionName, executionId } :
       setLoadingLog(true);
       setStepSelected(stepRef);
       console.log(stepSelected);
+      await sleep(1000)
       const log = await TestkubeAPI.getTestWorkflowExecutionLog(workflowName, executionId);
       const slicedLog = sliceLines(log, stepRef);
       setLogs(slicedLog);
@@ -169,7 +172,7 @@ export const TWEShowLogsDialog = ({ workflowName, executionName, executionId } :
       onClick={openLogDialog}>
       <ArticleIcon />
     </IconButton></Tooltip>
-    <span style={{ paddingRight: "10px", textTransform: "none" }}>{executionName}</span>
+    {small && <span style={{ paddingRight: "10px", textTransform: "none" }}>{executionName}</span>}
     <Dialog
       maxWidth="md"
       aria-labelledby="dialog-title"
