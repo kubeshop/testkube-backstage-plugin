@@ -5,7 +5,8 @@ import { TWEShowManifestDialog } from "./TWEShowManifestDialog";
 import { TWExecutionsDetailedTableAction } from "./TWExecutionsDetailedTableAction";
 import { components } from "../../types";
 import { TWEStatusBadge } from "../../utils/TWEStatusBadge";
-import { Snackbar } from "@mui/material";
+import { IconButton, Snackbar } from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
 
 type TWExecutionsDetailedTableComponentProps = {
   data: components["schemas"]["TestWorkflowExecutionSummary"][];
@@ -20,7 +21,9 @@ export const TWExecutionsDetailedTableComponent = ({ data, reload }: TWExecution
   };
   const action = (
     <Fragment>
-      <button onClick={handleClose}>Close</button>
+      <IconButton onClick={handleClose}>
+        <CloseIcon />
+      </IconButton>
     </Fragment>
   );
   const reloadData = (message?: string) => {
