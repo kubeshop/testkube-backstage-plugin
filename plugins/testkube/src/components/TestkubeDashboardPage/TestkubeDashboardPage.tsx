@@ -112,7 +112,6 @@ export const TestkubeDashboardPage = () => {
         title="Last Executions"
         options={{ paging: false }}
         data={lastExecutions.results}
-        emptyContent={noDataState}
       />
     </TestkubePageWrapper>
   );
