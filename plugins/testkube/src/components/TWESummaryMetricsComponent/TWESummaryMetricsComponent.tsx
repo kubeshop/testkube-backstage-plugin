@@ -14,7 +14,7 @@ export const TWESummaryMetricsComponent = ({ totals }: TWESummaryMetricsComponen
         <Grid item xs={12} sm={6} md={4}>
           <InfoCard title="Pass/Fail Ratio">
             <Typography variant="h5">
-              {(totals.passed * 100 / totals.results).toFixed(2) || 0}%
+              {totals.results === 0 ? 0 : (totals.passed * 100 / totals.results).toFixed(2)}%
             </Typography>
           </InfoCard>
         </Grid>
