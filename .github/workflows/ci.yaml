@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request: {}
+
+# By default, jobs require `read` access to `contents`.
+# This is a good practice to avoid accidentally granting excessive permissions.
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'yarn'
+      - run: yarn install --immutable
+      - run: yarn lint
+
+  type-check:
+    name: Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'yarn'
+      - run: yarn install --immutable
+      - run: yarn tsc
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'yarn'
+      - run: yarn install --immutable
+      - run: yarn test
+
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    # This job needs write permissions to add comments to pull requests.
+    permissions:
+      pull-requests: write
+    steps:
+      - name: 'Checkout Repository'
+        uses: actions/checkout@v4
+      - name: 'Dependency Review'
+        uses: actions/dependency-review-action@v4
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    # This job needs write permissions for security-events to report findings.
+    permissions:
+      security-events: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: typescript
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'yarn'
+      - run: yarn install --immutable
+      - run: yarn tsc
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
