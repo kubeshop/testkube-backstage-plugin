@@ -1,4 +1,4 @@
-# [Backstage](https://backstage.io)
+# [Testkube plugin](plugins/testkube/README.md) for [Backstage](https://backstage.io)
 
 This is your newly scaffolded Backstage App, Good Luck!
 
@@ -14,20 +14,3 @@ To start the app, run:
 yarn install
 yarn dev
 ```
-
-## Tasks
-
-[X] Create Testkube Dashboard page
-[X] Create Testkube Entity page
-[X] Filter executions by component annotations
-[X] Show logs of execution.
-  * TW Executions with pure steps.
-  * TW Executions with Services.
-  * TW Executions with parallel steps.
-  * TW Executions that call other TWs.
-[ ] Testkube Dashboard Enterprise mode (Pancho)
-[ ] Show test workflow execution history (Caio)
-[ ] Run test workflow (Caio)
-  * TW Executions without Input parameters.
-  * TW Executions with Input parameters.
-[ ] Visuals fix (Pancho)
