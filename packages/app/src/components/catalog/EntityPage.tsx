@@ -64,7 +64,7 @@ import { TestkubeEntityPage, isTestkubeAvailable } from '@internal/plugin-testku
 const testkubeSummaryPage = (
   <Grid container spacing={3} alignItems="stretch">
     <Grid item xs={12}>
-      <TestkubeEntityPage></TestkubeEntityPage>
+      <TestkubeEntityPage />
     </Grid>
   </Grid>
 );
