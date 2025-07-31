@@ -2,7 +2,11 @@ import React, { Fragment, useState } from "react";
 import { Button, Grid, IconButton, ListItem, ListSubheader, Tooltip } from "@material-ui/core";
 import { InfoCard, LogViewer, StatusAborted, StatusError, StatusOK, StatusPending, StatusRunning } from "@backstage/core-components";
 import ArticleIcon from '@mui/icons-material/Article';
-import { Dialog, DialogActions, DialogContent, DialogTitle, List } from "@mui/material";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import List from "@mui/material/List";
 import { useApi } from "@backstage/frontend-plugin-api";
 import { testkubeApiRef } from "../../api";
 import { components } from "../../types";
@@ -14,7 +18,7 @@ type TWEShowLogsDialogProps = {
   workflowName: string;
   executionName: string;
   executionId: string;
-  small: boolean;
+  small?: boolean;
 };
 
 export const TWEShowLogsDialog = ({ workflowName, executionName, executionId, small = true } : TWEShowLogsDialogProps) => {
@@ -27,6 +31,38 @@ export const TWEShowLogsDialog = ({ workflowName, executionName, executionId, sm
   const [error, setError] = useState<Error | null>(null);
   const [logError, setLogError] = useState<Error | null>(null);
   const [stepSelected, setStepSelected] = useState('init');
+  const sliceLines = (fullLog: string, stepRef: string) => {
+    const lines = fullLog.split('\n');
+    if (lines.length === 0) return fullLog;
+    let streamStarted = false;
+    let isDone = false;
+    return lines.filter((line, i) => {
+      if ((stepRef === 'init' && i === 0) || (stepRef && line.startsWith(`${stepRef}start`))) {
+        streamStarted = true
+        return stepRef === '' ? streamStarted : !streamStarted;
+      }
+      if (streamStarted && /^\\\[a-z0-9]{7}\start\$/.test(line)) {
+        isDone = true
+        return !isDone;
+      }
+      return !isDone && streamStarted;
+    }).join('\n');
+  }
+  const loadLog = async (stepRef: string) => {
+    try {
+      setLoadingLog(true);
+      setStepSelected(stepRef);
+      await sleep(1000)
+      const log = await TestkubeAPI.getTestWorkflowExecutionLog(workflowName, executionId);
+      const slicedLog = sliceLines(log, stepRef);
+      setLogs(slicedLog);
+      setLogError(null);
+    } catch (err: any) {
+      setLogError(err);
+    } finally {
+      setLoadingLog(false);
+    }
+  };
   const checkStepStatus = (stepName: string, status?: string) => {
     switch (status) {
       case 'passed':
@@ -47,7 +83,6 @@ export const TWEShowLogsDialog = ({ workflowName, executionName, executionId, sm
     const rows = execution.signature?.map(element => {
       if (element.children) {
         const childrenRows = element.children.map(children => {
-          console.log('Sub children:', children.name, 'Status:', execution.result?.steps[children.ref || ''].status)
           return (
             <ListItem button id={children.ref} style={{ paddingLeft: '40px'}} key={children.ref} onClick={() => {
               loadLog(children.ref || '');
@@ -56,7 +91,6 @@ export const TWEShowLogsDialog = ({ workflowName, executionName, executionId, sm
             </ListItem>
           )
         })
-        console.log('Sub element:', element.name, 'Status:', execution.result?.steps[element.ref || ''].status)
         return (
           <div>
             <ListItem button id={element.ref} key={element.ref} onClick={() => {
@@ -89,45 +123,10 @@ export const TWEShowLogsDialog = ({ workflowName, executionName, executionId, sm
       {rows}
     </List>)
   }
-  const sliceLines = (logs: string, stepRef: string) => {
-    const lines = logs.split('\n');
-    if (lines.length == 0) return logs;
-    let streamStarted = false;
-    let isDone = false;
-    console.log(stepRef);
-    return lines.filter((line, i) => {
-      if ((stepRef === 'init' && i == 0) || (stepRef && line.startsWith(`${stepRef}start`))) {
-        streamStarted = true
-        return stepRef === '' ? streamStarted : !streamStarted;
-      }
-      if (streamStarted && /^\\\[a-z0-9]{7}\start\$/.test(line)) {
-        isDone = true
-        return !isDone;
-      }
-      return !isDone && streamStarted;
-    }).join('\n');
-  }
-  const loadLog = async (stepRef: string) => {
-    try {
-      setLoadingLog(true);
-      setStepSelected(stepRef);
-      console.log(stepSelected);
-      await sleep(1000)
-      const log = await TestkubeAPI.getTestWorkflowExecutionLog(workflowName, executionId);
-      const slicedLog = sliceLines(log, stepRef);
-      setLogs(slicedLog);
-      setLogError(null);
-    } catch (err: any) {
-      setLogError(err);
-    } finally {
-      setLoadingLog(false);
-    }
-  };
   const fetchData = async () => {
     try {
       setLoading(true);
       const execution = await TestkubeAPI.getTestWorkflowExecutionById(workflowName, executionId);
-      console.log('Execution:', execution);
       setStepsList(generateStepsList(execution));
       loadLog('init');
       setError(null);
@@ -155,9 +154,9 @@ export const TWEShowLogsDialog = ({ workflowName, executionName, executionId, sm
         <InfoCard>
           {loadingLog && <TestkubeLoadingComponent/>}
           {(!loadingLog && !logError) && <div style={{ minHeight: "300px" }}>
-            <LogViewer  text={logs}></LogViewer>
+            <LogViewer  text={logs} />
           </div>}
-          {logError && <TestkubeErrorPage error={logError}></TestkubeErrorPage>}
+          {logError && <TestkubeErrorPage error={logError} />}
         </InfoCard>
       </Grid>
     </Grid>
@@ -186,7 +185,7 @@ export const TWEShowLogsDialog = ({ workflowName, executionName, executionId, sm
       <DialogContent>
         {loading && <TestkubeLoadingComponent/>}
         {(!loading && !error) && dialogContent}
-        {error && <TestkubeErrorPage error={error}></TestkubeErrorPage>}
+        {error && <TestkubeErrorPage error={error} />}
       </DialogContent>
       <DialogActions>
         <Button color="primary" onClick={closeLogDialog}>Close</Button>

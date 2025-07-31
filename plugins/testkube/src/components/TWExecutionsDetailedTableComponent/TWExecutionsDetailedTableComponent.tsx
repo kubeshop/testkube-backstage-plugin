@@ -5,7 +5,8 @@ import { TWEShowManifestDialog } from "./TWEShowManifestDialog";
 import { TWExecutionsDetailedTableAction } from "./TWExecutionsDetailedTableAction";
 import { components } from "../../types";
 import { TWEStatusBadge } from "../../utils/TWEStatusBadge";
-import { IconButton, Snackbar } from "@mui/material";
+import IconButton from "@mui/material/IconButton";
+import Snackbar from "@mui/material/Snackbar";
 import CloseIcon from '@mui/icons-material/Close';
 
 type TWExecutionsDetailedTableComponentProps = {
@@ -26,10 +27,10 @@ export const TWExecutionsDetailedTableComponent = ({ data, reload }: TWExecution
       </IconButton>
     </Fragment>
   );
-  const reloadData = (message?: string) => {
+  const reloadData = (alertMessage?: string) => {
     reload();
-    if (message) {
-      setMessage(message);
+    if (alertMessage) {
+      setMessage(alertMessage);
       setOpen(true);
     }
   };
@@ -38,7 +39,7 @@ export const TWExecutionsDetailedTableComponent = ({ data, reload }: TWExecution
       <TWEShowManifestDialog name={rowData.workflow.name} />
     )},
     { title: "Last execution", field: "lastExecution", render: (rowData: any) => (
-      <TWEShowLogsDialog workflowName={rowData.workflow.name} executionName={rowData.name} executionId={rowData.id} small={true} />
+      <TWEShowLogsDialog workflowName={rowData.workflow.name} executionName={rowData.name} executionId={rowData.id} />
     )},
     { title: "Status", field: "result.status", render: (rowData: any) => (
       <TWEStatusBadge status={rowData.result.status} />
@@ -52,8 +53,7 @@ export const TWExecutionsDetailedTableComponent = ({ data, reload }: TWExecution
 
   return (
     <Fragment>
-      <Table columns={testWorkflowsColumns} title="Last Executions" options={{ paging: false }} data={data}>
-      </Table>
+      <Table columns={testWorkflowsColumns} title="Last Executions" options={{ paging: false }} data={data} />
       <Snackbar
         open={open}
         autoHideDuration={6000}

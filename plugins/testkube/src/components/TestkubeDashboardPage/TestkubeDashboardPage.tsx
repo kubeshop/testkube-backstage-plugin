@@ -17,7 +17,7 @@ import { TWESummaryMetricsComponent } from '../TWESummaryMetricsComponent';
 import { TestkubeLoadingComponent } from '../../utils/TestkubeLoadingComponent';
 import { sleep } from '../../utils/functions';
 import RefreshIcon from '@material-ui/icons/Refresh';
-import { IconButton } from '@mui/material';
+import IconButton from '@mui/material/IconButton';
 
 export const TestkubeDashboardPage = () => {
 
@@ -44,7 +44,6 @@ export const TestkubeDashboardPage = () => {
       else setIsRefreshing(true);
       await sleep(1000)
       const executions = await TestkubeAPI.getTestWorkflowExecutionsResult();
-      console.log('executions >>>', executions);
       setLastExecutions(executions);
       setError(null);
     } catch (err: any) {
@@ -99,11 +98,11 @@ export const TestkubeDashboardPage = () => {
 
   return (
     <TestkubePageWrapper>
-      <ContentHeader title={isRefreshing ? 'Summary Metrics - Actualizando datos...' : 'Summary Metrics'}>
+      <ContentHeader title={isRefreshing ? 'Summary Metrics - Refreshing ...' : 'Summary Metrics'}>
         <HeaderLabel
           value={<IconButton disabled={isRefreshing} onClick={() => fetchData(false)}>
             <RefreshIcon />
-          </IconButton>} label={''}/>
+          </IconButton>} label="" />
       </ContentHeader>
       <TWESummaryMetricsComponent totals={lastExecutions.totals} />
       <br />

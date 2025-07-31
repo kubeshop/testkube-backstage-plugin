@@ -12,8 +12,9 @@ import { useEntity } from '@backstage/plugin-catalog-react';
 import { useTestkubeLabels, getTestkubeOrganization, getTestkubeEnvironments, useIsEnterpriseEnabled } from "../../utils/isTestkubeAvailable";
 import { Grid } from "@material-ui/core";
 import { sleep } from "../../utils/functions";
-import { IconButton } from "@mui/material";
+import IconButton from "@mui/material/IconButton";
 import RefreshIcon from '@material-ui/icons/Refresh';
+
 type TestWorkflowWithExecutionSummary = components["schemas"]["TestWorkflowWithExecutionSummary"];
 type TestWorkflowExecutionSummary = components["schemas"]["TestWorkflowExecutionSummary"];
 
@@ -28,7 +29,6 @@ const Wrapper = ({ children }: PropsWithChildren<{}>) => (
 const mapToExecutionResult = (
   items: TestWorkflowWithExecutionSummary[]
 ): TestWorkflowExecutionSummary[] => {
-  console.log (items)
   return items
     .filter(item => !!item.workflow)
     .map(item => {
@@ -201,11 +201,11 @@ export const TestkubeEntityPage = () => {
       </InfoCard>
       </Wrapper>
     )}
-    <ContentHeader title={isRefreshing ? 'Summary Metrics - Actualizando datos...' : 'Summary Metrics'}>
+    <ContentHeader title={isRefreshing ? 'Summary Metrics - Refreshing ...' : 'Summary Metrics'}>
         <HeaderLabel
           value={<IconButton disabled={isRefreshing} onClick={() => fetchData(false)}>
             <RefreshIcon />
-          </IconButton>} label={''}/>
+          </IconButton>} label=""/>
       </ContentHeader>
     <TWESummaryMetricsComponent totals={lastExecutions.totals} />
     <br />

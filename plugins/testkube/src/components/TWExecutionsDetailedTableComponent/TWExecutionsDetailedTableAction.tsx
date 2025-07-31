@@ -4,7 +4,10 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useApi } from "@backstage/frontend-plugin-api";
 import { testkubeApiRef } from "../../api";
 import { components } from "../../types";
-import { Button, Dialog, DialogActions, DialogContent } from "@mui/material";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
 import { EmptyState, Table, TableColumn } from "@backstage/core-components";
 import { useStyles } from "../TestkubeDashboardPage/tableHeading";
 import { TWEStatusBadge } from "../../utils/TWEStatusBadge";
@@ -62,7 +65,6 @@ export const TWExecutionsDetailedTableAction = ({ name, reload }: TWExecutionsDe
     const result = await TestkubeAPI.runTestWorkflowByName(name);
     let message = 'Test workflow started successfully';
     if (result instanceof Error) {
-      console.error('Error running test workflow:', result);
       message = `Error running test workflow: ${result.message}`;
     }
     reload?.(message);

@@ -12,8 +12,7 @@ export const TestkubeErrorPage = ({ error }: { error: Error }) => {
         missing="info"
         title="No data available"
         description="Unable to load data from Testkube API, please review your set up."
-      >
-      </EmptyState>
+      />
       <br />
       <br />
       <br />

@@ -1,7 +1,10 @@
 import React, { Fragment, useState } from "react";
 import { Button } from "@material-ui/core";
 import { CodeSnippet, LinkButton } from "@backstage/core-components";
-import { Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
 import { TestkubeErrorPage } from "../../utils/TestkubeErrorComponent";
 import { TestkubeLoadingComponent } from "../../utils/TestkubeLoadingComponent";
 import { useApi } from "@backstage/frontend-plugin-api";
@@ -20,8 +23,8 @@ export const TWEShowManifestDialog = ({ name }: TWEShowManifestDialogProps) => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const yaml = await TestkubeAPI.getTestWorkflow(name);
-      setYaml(yaml);
+      const result = await TestkubeAPI.getTestWorkflow(name);
+      setYaml(result);
       setError(null);
     } catch (err: any) {
       setError(err);
@@ -40,12 +43,11 @@ export const TWEShowManifestDialog = ({ name }: TWEShowManifestDialogProps) => {
   };
   return (
   <Fragment>
-    <LinkButton onClick={handleClickOpen} color="primary" to={""}>
+    <LinkButton onClick={handleClickOpen} color="primary" to="">
       <span style={{ fontWeight: "bold", textTransform: "none" }}>{name}</span>
     </LinkButton>
     <Dialog
       maxWidth="md"
-      fullWidth={true}
       aria-labelledby="dialog-title"
       aria-describedby="dialog-description"
       open={open}
@@ -54,9 +56,9 @@ export const TWEShowManifestDialog = ({ name }: TWEShowManifestDialogProps) => {
           Test Workflow Manifest
         </DialogTitle>
         <DialogContent>
-          {loading && <TestkubeLoadingComponent/>}
-          {(!loading && !error) && <CodeSnippet language="yaml" showLineNumbers text={yaml}></CodeSnippet>}
-          {error && <TestkubeErrorPage error={error}></TestkubeErrorPage>}
+          {loading && <TestkubeLoadingComponent />}
+          {(!loading && !error) && <CodeSnippet language="yaml" showLineNumbers text={yaml} />}
+          {error && <TestkubeErrorPage error={error} />}
         </DialogContent>
         <DialogActions>
           <Button color="primary" onClick={handleClose}>Close</Button>
