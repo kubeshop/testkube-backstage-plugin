@@ -6,7 +6,9 @@ import { screen } from '@testing-library/react';
 import {
   registerMswTestHooks,
   renderInTestApp,
+  TestApiProvider,
 } from '@backstage/test-utils';
+import { TestkubeApi, testkubeApiRef } from '../../api';
 
 describe('TestkubeDashboardPage', () => {
   const server = setupServer();
@@ -20,10 +22,16 @@ describe('TestkubeDashboardPage', () => {
     );
   });
 
+  const testkubeApi: Partial<TestkubeApi> = {};
+
   it('should render', async () => {
-    await renderInTestApp(<TestkubeDashboardPage />);
+    await renderInTestApp(
+      <TestApiProvider apis={[[testkubeApiRef, testkubeApi]]}>
+        <TestkubeDashboardPage />
+      </TestApiProvider>
+    );
     expect(
-      screen.getByText('Welcome to testkube!'),
+      screen.getByText('Testkube Dashboard'),
     ).toBeInTheDocument();
   });
 });

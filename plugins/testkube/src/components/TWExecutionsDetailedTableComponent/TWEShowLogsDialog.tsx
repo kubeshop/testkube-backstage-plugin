@@ -30,7 +30,7 @@ export const TWEShowLogsDialog = ({ workflowName, executionName, executionId, sm
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [logError, setLogError] = useState<Error | null>(null);
-  const [stepSelected, setStepSelected] = useState('init');
+
   const sliceLines = (fullLog: string, stepRef: string) => {
     const lines = fullLog.split('\n');
     if (lines.length === 0) return fullLog;
@@ -51,7 +51,6 @@ export const TWEShowLogsDialog = ({ workflowName, executionName, executionId, sm
   const loadLog = async (stepRef: string) => {
     try {
       setLoadingLog(true);
-      setStepSelected(stepRef);
       await sleep(1000)
       const log = await TestkubeAPI.getTestWorkflowExecutionLog(workflowName, executionId);
       const slicedLog = sliceLines(log, stepRef);

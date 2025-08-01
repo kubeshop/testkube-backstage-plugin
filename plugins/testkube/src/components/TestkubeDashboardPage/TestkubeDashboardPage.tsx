@@ -2,14 +2,12 @@ import React, { useEffect, useState } from 'react';
 import {
   ContentHeader,
   Table,
-  Link,
   EmptyState,
   HeaderLabel
 } from '@backstage/core-components';
 import { testkubeApiRef } from '../../api';
 import { useApi } from '@backstage/core-plugin-api';
 import { columns, useStyles } from './tableHeading';
-import { useTestkubeUI } from '../../utils/isTestkubeUiConfigured';
 import { components } from '../../types';
 import { TestkubePageWrapper } from '../../utils/TestkubePageWrapper';
 import { TestkubeErrorPage } from '../../utils/TestkubeErrorComponent';
@@ -27,16 +25,6 @@ export const TestkubeDashboardPage = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const classes = useStyles();
-
-  const testkubeUIUrl = useTestkubeUI();
-  const title = testkubeUIUrl ? (
-    <>
-      {`Test Workflow Executions: `}
-      <Link to={`${testkubeUIUrl}`} />
-    </>
-  ) : (
-    `Test Workflow Executions`
-  );
 
   const fetchData = async (isInitial = false) => {
     try {

@@ -51,110 +51,110 @@ const mapToExecutionResult = (
         workflow: wf,
       };
     });
-};
-export const TestkubeEntityPage = () => {
-  const TestkubeAPI = useApi(testkubeApiRef);
-  const [lastExecutions, setLastExecutions] = useState<components["schemas"]["TestWorkflowExecutionsResult"]>();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const classes = useStyles();
+  };
+  export const TestkubeEntityPage = () => {
+    const TestkubeAPI = useApi(testkubeApiRef);
+    const [lastExecutions, setLastExecutions] = useState<components["schemas"]["TestWorkflowExecutionsResult"]>();
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<Error | null>(null);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const classes = useStyles();
 
-  const { entity } = useEntity();
-  const labels = useTestkubeLabels();
-  const isEnterprise = useIsEnterpriseEnabled();
-  const metadata = {
-  Organization: getTestkubeOrganization(entity),
-  Environments: getTestkubeEnvironments(entity)
-};
+    const { entity } = useEntity();
+    const labels = useTestkubeLabels();
+    const isEnterprise = useIsEnterpriseEnabled();
+    const metadata = {
+    Organization: getTestkubeOrganization(entity),
+    Environments: getTestkubeEnvironments(entity)
+  };
 
 
   const fetchData = async (isInitial = false) => {
-  try {
-    if (isInitial) setLoading(true);
-    else setIsRefreshing(true);
-    const filters: any = {
-      labels,
-      pageSize: 50,
-      page: 0,
-    };
-
-    let workflowsWithExecutions: TestWorkflowWithExecutionSummary[][] = [];
-    await sleep(1000)
-    if (isEnterprise) {
-      const organization = getTestkubeOrganization(entity);
-      const environments = getTestkubeEnvironments(entity)
-        .map(env => env.trim())
-        .filter(env => env.length > 0);
-
-      const allResults = await Promise.all(
-        environments.map(env =>
-          TestkubeAPI.getTestWorkflowsWithExecutions({
-            ...filters,
-            organization,
-            environments: [env],
-          })
-        )
-      );
-
-      workflowsWithExecutions = allResults;
-    } else {
-      const results = await TestkubeAPI.getTestWorkflowsWithExecutions(filters);
-      workflowsWithExecutions = [results];
-    }
-
-    const flattened = workflowsWithExecutions.flat();
-    const results = mapToExecutionResult(flattened);
-
-    const computeMetrics = (executions: typeof results) => {
-      const initial = {
-        results: executions.length,
-        passed: 0,
-        failed: 0,
-        aborted: 0,
-        running: 0,
-        queued: 0,
-        noData: 0,
+    try {
+      if (isInitial) setLoading(true);
+      else setIsRefreshing(true);
+      const filters: any = {
+        labels,
+        pageSize: 50,
+        page: 0,
       };
 
-      return executions.reduce((acc, e) => {
-        const status = e.result?.status;
-        if (status) {
-          switch (status) {
-            case 'passed':
-            case 'failed':
-            case 'aborted':
-            case 'running':
-            case 'queued':
-              acc[status]++;
-              break;
-            default:
-              acc.noData++;
-              break;
+      let workflowsWithExecutions: TestWorkflowWithExecutionSummary[][] = [];
+      await sleep(1000)
+      if (isEnterprise) {
+        const organization = getTestkubeOrganization(entity);
+        const environments = getTestkubeEnvironments(entity)
+          .map(env => env.trim())
+          .filter(env => env.length > 0);
+
+        const allResults = await Promise.all(
+          environments.map(env =>
+            TestkubeAPI.getTestWorkflowsWithExecutions({
+              ...filters,
+              organization,
+              environments: [env],
+            })
+          )
+        );
+
+        workflowsWithExecutions = allResults;
+      } else {
+        const results = await TestkubeAPI.getTestWorkflowsWithExecutions(filters);
+        workflowsWithExecutions = [results];
+      }
+
+      const flattened = workflowsWithExecutions.flat();
+      const results = mapToExecutionResult(flattened);
+
+      const computeMetrics = (executions: typeof results) => {
+        const initial = {
+          results: executions.length,
+          passed: 0,
+          failed: 0,
+          aborted: 0,
+          running: 0,
+          queued: 0,
+          noData: 0,
+        };
+
+        return executions.reduce((acc, e) => {
+          const status = e.result?.status;
+          if (status) {
+            switch (status) {
+              case 'passed':
+              case 'failed':
+              case 'aborted':
+              case 'running':
+              case 'queued':
+                acc[status]++;
+                break;
+              default:
+                acc.noData++;
+                break;
+            }
+          } else {
+            acc.noData++;
           }
-        } else {
-          acc.noData++;
-        }
-        return acc;
-      }, initial);
-    };
+          return acc;
+        }, initial);
+      };
 
-    const metrics = computeMetrics(results);
+      const metrics = computeMetrics(results);
 
-    setLastExecutions({
-      totals: metrics,
-      filtered: metrics,
-      results,
-    });
+      setLastExecutions({
+        totals: metrics,
+        filtered: metrics,
+        results,
+      });
 
-    setError(null);
-  } catch (err: any) {
-    setError(err);
-  } finally {
-    if (isInitial) setLoading(false);
-    else setIsRefreshing(false);
-  }
-};
+      setError(null);
+    } catch (err: any) {
+      setError(err);
+    } finally {
+      if (isInitial) setLoading(false);
+      else setIsRefreshing(false);
+    }
+  };
 
   useEffect(() => {
     fetchData(true);
