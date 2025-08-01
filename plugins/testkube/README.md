@@ -28,7 +28,7 @@ This is a Frontend Backstage plugin which means it only has to be configured at 
 To install this plugin use the following command:
 
 ```bash
-yarn workspace packages/app add @backstage-community/plugin-testkube
+yarn workspace packages/app add @testkube/backstage-plugin
 ```
 
 ### Configuring plugin to connect to my Testkube Agent
@@ -50,11 +50,13 @@ proxy:
 
 #### Testkube Dashboard
 
+<img src="img/testkube-dashboard.png" alt="Testkube Dashboard" width="600"/>
+
 To enable **Testkube Dashboard** into your Backstage project edit the file `packages/app/src/App.tsx` to include the following lines:
 
 ```javascript
 (...)
-import { TestkubeDashboardPage } from '@backstage-community/plugin-testkube';
+import { TestkubeDashboardPage } from '@testkube/backstage-plugin';
 
 (...)
 
@@ -99,11 +101,13 @@ Now **Teskube Dashboard** will appear in the side menu of your Backstage app.
 
 #### Testkube Entity Page
 
+<img src="img/entity-page.png" alt="Testkube Entity Page" width="600"/>
+
 To enable **Testkube Entity Page** into your Backstage project edit the file `packages/app/src/components/catalog/EntityPage.tsx` to include the following lines:
 
 ```javascript
 (...)
-import { TestkubeEntityPage, isTestkubeAvailable } from '@backstage-community/plugin-testkube';
+import { TestkubeEntityPage, isTestkubeAvailable } from '@testkube/backstage-plugin';
 
 const testkubeSummaryPage = (
   <Grid container spacing={3} alignItems="stretch">
