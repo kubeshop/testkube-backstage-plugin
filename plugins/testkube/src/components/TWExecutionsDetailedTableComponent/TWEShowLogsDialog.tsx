@@ -11,7 +11,6 @@ import { useApi } from "@backstage/frontend-plugin-api";
 import { testkubeApiRef } from "../../api";
 import { components } from "../../types";
 import { TestkubeLoadingComponent } from "../../utils/TestkubeLoadingComponent";
-import { TestkubeErrorPage } from "../../utils/TestkubeErrorComponent";
 import { sleep } from "../../utils/functions";
 
 type TWEShowLogsDialogProps = {
@@ -122,12 +121,12 @@ export const TWEShowLogsDialog = ({ workflowName, executionName, executionId, sm
       {rows}
     </List>)
   }
-  const fetchData = async () => {
+  const fetchData = async (isInitial: boolean = true) => {
     try {
       setLoading(true);
       const execution = await TestkubeAPI.getTestWorkflowExecutionById(workflowName, executionId);
       setStepsList(generateStepsList(execution));
-      loadLog('init');
+      if (isInitial) loadLog('init');
       setError(null);
     } catch (err: any) {
       setError(err);
@@ -152,10 +151,9 @@ export const TWEShowLogsDialog = ({ workflowName, executionName, executionId, sm
       <Grid item xs={12} sm={8} md={9}>
         <InfoCard>
           {loadingLog && <TestkubeLoadingComponent/>}
-          {(!loadingLog && !logError) && <div style={{ minHeight: "300px" }}>
-            <LogViewer  text={logs} />
+          {!loadingLog && <div style={{ minHeight: "300px" }}>
+            <LogViewer  text={logError ? "No logs" : logs} />
           </div>}
-          {logError && <TestkubeErrorPage error={logError} />}
         </InfoCard>
       </Grid>
     </Grid>
@@ -184,7 +182,7 @@ export const TWEShowLogsDialog = ({ workflowName, executionName, executionId, sm
       <DialogContent>
         {loading && <TestkubeLoadingComponent/>}
         {(!loading && !error) && dialogContent}
-        {error && <TestkubeErrorPage error={error} />}
+        {error && (<center>No Logs</center>)}
       </DialogContent>
       <DialogActions>
         <Button color="primary" onClick={closeLogDialog}>Close</Button>
