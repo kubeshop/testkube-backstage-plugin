@@ -80,7 +80,7 @@
   "homepage": "https://github.com/kubeshop/testkube-backstage-plugin/blob/main/plugins/testkube/README.md",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kubeshop/testkube-backstage-plugin.git",
+    "url": "git+https://github.com/kubeshop/testkube-backstage-plugin.git",
     "directory": "plugins/testkube"
   },
   "keywords": [
