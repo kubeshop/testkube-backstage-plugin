@@ -1,5 +1,4 @@
 name: CI
-
 on:
   push:
     branches:
@@ -59,6 +58,9 @@ jobs:
         uses: actions/checkout@v4
       - name: 'Dependency Review'
         uses: actions/dependency-review-action@v4
+        with:
+          base-ref: 'main' # Replace with your desired base branch or commit SHA
+          head-ref: '${{ github.sha }}' # Replace with your desired head branch or commit SHA
 
   security-scan:
     name: Security Scan
