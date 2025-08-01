@@ -53,7 +53,7 @@ export const TWExecutionsDetailedTableComponent = ({ data, reload }: TWExecution
 
   return (
     <Fragment>
-      <Table columns={testWorkflowsColumns} title="Last Executions" options={{ paging: false }} data={data} />
+      <Table columns={testWorkflowsColumns} title="Test Workflows" options={{ paging: false }} data={data} />
       <Snackbar
         open={open}
         autoHideDuration={6000}

@@ -26,14 +26,14 @@ export const columns: TableColumn<components["schemas"]["TestWorkflowExecutionSu
     )
   },
   {
-    title: 'Start Time',
+    title: 'Scheduled at',
     field: 'scheduledAt',
     type: 'datetime'
   },
   {
-    title: 'End Time',
-    field: 'result.finishedAt',
-    type: 'datetime'
+    title: 'Duration',
+    field: 'result.totalDuration',
+    type: 'time'
   },
 ];
 

@@ -114,7 +114,7 @@ export const TWExecutionsDetailedTableAction = ({ name, reload }: TWExecutionsDe
         <DialogContent>
           <Table
             columns={columns}
-            title={`Executions history for ${name}`}
+            title="Executions history"
             options={{ paging: false }}
             data={executionHistory}
             emptyContent={noDataState}
