@@ -12,7 +12,7 @@
     "role": "frontend-plugin",
     "pluginId": "testkube",
     "pluginPackages": [
-      "@testkube/backstage-plugin-testkube"
+      "@backstage-community/plugin-testkube"
     ]
   },
   "sideEffects": false,
@@ -77,10 +77,10 @@
     }
   },
   "configSchema": "config.d.ts",
-  "homepage": "https://github.com/caiodonascimento/backstage-testkube-plugin/blob/main/plugins/README.md",
+  "homepage": "https://github.com/kubeshop/testkube-backstage-plugin/blob/main/plugins/testkube/README.md",
   "repository": {
     "type": "git",
-    "url": "https://github.com/caiodonascimento/backstage-testkube-plugin.git",
+    "url": "https://github.com/kubeshop/testkube-backstage-plugin.git",
     "directory": "plugins/testkube"
   },
   "keywords": [
