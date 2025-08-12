@@ -32,6 +32,7 @@ export class TestkubeClient implements TestkubeApi {
       method: method || 'GET',
       body: body ? JSON.stringify(body) : null,
       headers: {
+        'User-Agent': 'backstage',
         'Content-Type': 'application/json',
         ...(idToken && { Authorization: `Bearer ${idToken}` }),
         ...headers
