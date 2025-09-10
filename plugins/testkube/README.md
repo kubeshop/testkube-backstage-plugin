@@ -2,7 +2,7 @@
 
 > **IMPORTANT!**
 >
-> The plugin currently only supports the integration with the Testkube Standalone Agent, we are planning a future integration with the Testkube Control Plane.
+> The plugin currently only supports the integration with the [Testkube Standalone Agent](https://docs.testkube.io/articles/install/standalone-agent), we are planning a future integration with the Testkube Control Plane.
 
 This plugin allows you to centralize specific information about automated tests managed from the Testkube Agent within Backstage, making it visible from a general perspective as well as by entity.
 
