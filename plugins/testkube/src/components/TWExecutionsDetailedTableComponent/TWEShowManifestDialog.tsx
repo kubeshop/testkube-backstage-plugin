@@ -12,9 +12,10 @@ import { testkubeApiRef } from "../../api";
 
 type TWEShowManifestDialogProps = {
   name: string;
+  onDialogStateChange?: (isOpen: boolean) => void;
 }
 
-export const TWEShowManifestDialog = ({ name }: TWEShowManifestDialogProps) => {
+export const TWEShowManifestDialog = ({ name, onDialogStateChange }: TWEShowManifestDialogProps) => {
   const TestkubeAPI = useApi(testkubeApiRef);
   const [yaml, setYaml] = useState<string>("");
   const [loading, setLoading] = useState(true);
@@ -35,11 +36,13 @@ export const TWEShowManifestDialog = ({ name }: TWEShowManifestDialogProps) => {
 
   const handleClickOpen = () => {
     setOpen(true);
+    onDialogStateChange?.(true);
     fetchData();
   };
   const handleClose = (event: any) => {
     event.stopPropagation();
     setOpen(false);
+    onDialogStateChange?.(false);
   };
   return (
   <Fragment>

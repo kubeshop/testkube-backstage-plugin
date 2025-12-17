@@ -12,9 +12,10 @@ import CloseIcon from '@mui/icons-material/Close';
 type TWExecutionsDetailedTableComponentProps = {
   data: components["schemas"]["TestWorkflowExecutionSummary"][];
   reload: () => void;
+  onDialogStateChange?: (isOpen: boolean) => void;
 };
 
-export const TWExecutionsDetailedTableComponent = ({ data, reload }: TWExecutionsDetailedTableComponentProps) => {
+export const TWExecutionsDetailedTableComponent = ({ data, reload, onDialogStateChange }: TWExecutionsDetailedTableComponentProps) => {
   const [open, setOpen] = React.useState(false);
   const [message, setMessage] = React.useState("");
   const handleClose = () => {
@@ -36,10 +37,10 @@ export const TWExecutionsDetailedTableComponent = ({ data, reload }: TWExecution
   };
   const testWorkflowsColumns: TableColumn[] = [
     { title: "Name", field: "name", render: (rowData: any) => (
-      <TWEShowManifestDialog name={rowData.workflow.name} />
+      <TWEShowManifestDialog name={rowData.workflow.name} onDialogStateChange={onDialogStateChange} />
     )},
     { title: "Last execution", field: "lastExecution", render: (rowData: any) => (
-      <TWEShowLogsDialog workflowName={rowData.workflow.name} executionName={rowData.name} executionId={rowData.id} />
+      <TWEShowLogsDialog workflowName={rowData.workflow.name} executionName={rowData.name} executionId={rowData.id} onDialogStateChange={onDialogStateChange} />
     )},
     { title: "Status", field: "result.status", render: (rowData: any) => (
       <TWEStatusBadge status={rowData.result.status} />
@@ -47,7 +48,7 @@ export const TWExecutionsDetailedTableComponent = ({ data, reload }: TWExecution
     { title: "Duration", field: "result.totalDuration" },
     { title: "Scheduled at", field: "scheduledAt", type: 'datetime' },
     { title: "", field: "actions", width: "5px", sorting: false, render: (rowData: any) => (
-      <TWExecutionsDetailedTableAction name={rowData.workflow.name} reload={reloadData} />
+      <TWExecutionsDetailedTableAction name={rowData.workflow.name} reload={reloadData} onDialogStateChange={onDialogStateChange} />
     )}
   ];
 

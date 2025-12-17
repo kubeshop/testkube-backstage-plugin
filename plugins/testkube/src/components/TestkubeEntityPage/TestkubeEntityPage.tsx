@@ -1,4 +1,4 @@
-import React, { Fragment, PropsWithChildren, useEffect, useState } from "react";
+import React, { Fragment, PropsWithChildren, useEffect, useState, useRef } from "react";
 import { TWExecutionsDetailedTableComponent } from "../TWExecutionsDetailedTableComponent";
 import { testkubeApiRef } from '../../api';
 import { useApi } from '@backstage/core-plugin-api';
@@ -58,6 +58,7 @@ const mapToExecutionResult = (
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
     const [isRefreshing, setIsRefreshing] = useState(false);
+    const isDialogOpenRef = useRef(false);
     const classes = useStyles();
 
     const { entity } = useEntity();
@@ -68,8 +69,16 @@ const mapToExecutionResult = (
     Environments: getTestkubeEnvironments(entity)
   };
 
+  const handleDialogStateChange = (isOpen: boolean) => {
+    isDialogOpenRef.current = isOpen;
+  };
+
 
   const fetchData = async (isInitial = false) => {
+    // Skip background polling updates when a dialog is open to prevent closing it
+    if (!isInitial && isDialogOpenRef.current) {
+      return;
+    }
     try {
       if (isInitial) setLoading(true);
       else setIsRefreshing(true);
@@ -141,6 +150,11 @@ const mapToExecutionResult = (
 
       const metrics = computeMetrics(results);
 
+      // Check again before updating state - dialog may have opened during fetch
+      if (!isInitial && isDialogOpenRef.current) {
+        return;
+      }
+
       setLastExecutions({
         totals: metrics,
         filtered: metrics,
@@ -209,7 +223,7 @@ const mapToExecutionResult = (
       </ContentHeader>
     <TWESummaryMetricsComponent totals={lastExecutions.totals} />
     <br />
-    <TWExecutionsDetailedTableComponent data={lastExecutions.results} reload={fetchData}/>
+    <TWExecutionsDetailedTableComponent data={lastExecutions.results} reload={fetchData} onDialogStateChange={handleDialogStateChange}/>
   </Fragment>
  );
 };

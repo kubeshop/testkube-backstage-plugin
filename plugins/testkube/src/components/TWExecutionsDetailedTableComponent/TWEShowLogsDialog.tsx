@@ -19,9 +19,10 @@ type TWEShowLogsDialogProps = {
   executionName: string;
   executionId: string;
   small?: boolean;
+  onDialogStateChange?: (isOpen: boolean) => void;
 };
 
-export const TWEShowLogsDialog = ({ workflowName, executionName, executionId, small = true } : TWEShowLogsDialogProps) => {
+export const TWEShowLogsDialog = ({ workflowName, executionName, executionId, small = true, onDialogStateChange } : TWEShowLogsDialogProps) => {
   const [open, setOpenLogDialog] = React.useState(false);
   const TestkubeAPI = useApi(testkubeApiRef);
   const [stepsList, setStepsList] = useState<React.ReactNode>();
@@ -138,9 +139,11 @@ export const TWEShowLogsDialog = ({ workflowName, executionName, executionId, sm
   const openLogDialog = () => {
     fetchData()
     setOpenLogDialog(true);
+    onDialogStateChange?.(true);
   }
   const closeLogDialog = () => {
     setOpenLogDialog(false);
+    onDialogStateChange?.(false);
   };
   const dialogContent = (
     <Grid container spacing={3} direction="row" alignItems="stretch" style={{ minHeight: "300px" }}>
