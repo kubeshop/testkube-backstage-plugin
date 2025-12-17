@@ -16,9 +16,10 @@ import { TWEShowLogsDialog } from "./TWEShowLogsDialog";
 type TWExecutionsDetailedTableActionProps = {
   name: string;
   reload?: (message?: string) => void;
+  onDialogStateChange?: (isOpen: boolean) => void;
 }
 
-export const TWExecutionsDetailedTableAction = ({ name, reload }: TWExecutionsDetailedTableActionProps) => {
+export const TWExecutionsDetailedTableAction = ({ name, reload, onDialogStateChange }: TWExecutionsDetailedTableActionProps) => {
   const TestkubeAPI = useApi(testkubeApiRef);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -42,7 +43,7 @@ export const TWExecutionsDetailedTableAction = ({ name, reload }: TWExecutionsDe
     { title: "Duration", field: "result.totalDuration" },
     { title: "Scheduled at", field: "scheduledAt", type: 'datetime' },
     { title: "", field: "actions", width: "5px", sorting: false, render: (rowData: any) => (
-      <TWEShowLogsDialog workflowName={rowData.workflow.name} executionName={rowData.name} executionId={rowData.id} small={false} />
+      <TWEShowLogsDialog workflowName={rowData.workflow.name} executionName={rowData.name} executionId={rowData.id} small={false} onDialogStateChange={onDialogStateChange} />
     )}
   ];
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -54,9 +55,11 @@ export const TWExecutionsDetailedTableAction = ({ name, reload }: TWExecutionsDe
   const [openHistoryExecutions, setOpenHistoryExecutions] = React.useState(false);
   const closeHistoryExecutions = () => {
     setOpenHistoryExecutions(false);
+    onDialogStateChange?.(false);
   };
   const openHistoryExecutionsDialog = async () => {
     setOpenHistoryExecutions(true);
+    onDialogStateChange?.(true);
     const result = await TestkubeAPI.getTestWorkflowExecutionsByName(name);
     setExecutionHistory(result.results);
     handleClose();
