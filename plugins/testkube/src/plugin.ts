@@ -27,26 +27,24 @@ export const testkubePlugin = createPlugin({
   ],
 });
 
-export const TestkubeDashboardPage = testkubePlugin.provide(
+export const DashboardPage = testkubePlugin.provide(
   createComponentExtension({
-    name: 'TestkubeDashboardPage',
+    name: 'DashboardPage',
     component: {
       lazy: () =>
-      import('./components/TestkubeDashboardPage').then(
-        m => m.TestkubeDashboardPage,
-      ),
+        import('./components/pages/DashboardPage').then(
+          m => m.DashboardPage as any,
+        ),
     },
   }),
 );
 
-export const TestkubeEntityPage = testkubePlugin.provide(
+export const EntityPage = testkubePlugin.provide(
   createComponentExtension({
-    name: 'TestkubeEntityPage',
+    name: 'EntityPage',
     component: {
       lazy: () =>
-        import('./components/TestkubeEntityPage').then(
-          m => m.TestkubeEntityPage,
-        ),
-      },
+        import('./components/pages/EntityPage').then(m => m.EntityPage),
+    },
   }),
 );

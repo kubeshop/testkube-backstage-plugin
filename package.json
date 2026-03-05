@@ -21,6 +21,7 @@
     "fix": "backstage-cli repo fix",
     "lint": "backstage-cli repo lint --since origin/main",
     "lint:all": "backstage-cli repo lint",
+    "format": "prettier --write .",
     "prettier:check": "prettier --check .",
     "new": "backstage-cli new"
   },
@@ -34,6 +35,8 @@
     "@backstage/cli": "^0.31.0",
     "@backstage/e2e-test-utils": "^0.1.1",
     "@playwright/test": "^1.32.3",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
     "node-gyp": "^10.0.0",
     "prettier": "^2.3.2",
     "typescript": "~5.8.0"

@@ -25,4 +25,3 @@ We're trying hard to limit technical debt from the beginning so we defined simpl
 
 - By fixing [one of many Issues](https://github.com/kubeshop/testkube-backstage-plugin/issues) - simply fork our repo and create new Pull Request with new code changes.
 - By helping to reach out valid results [from discussions](https://github.com/kubeshop/testkube-backstage-plugin/discussions)
-

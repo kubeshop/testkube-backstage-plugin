@@ -76,7 +76,7 @@ export const Root = ({ children }: PropsWithChildren<{}>) => (
         />
         <SidebarItem icon={ExtensionIcon} to="api-docs" text="APIs" />
         <SidebarItem icon={LibraryBooks} to="docs" text="Docs" />
-        <FeatureFlagged with='testkube'>
+        <FeatureFlagged with="testkube">
           <SidebarItem icon={BarChartIcon} to="testkube" text="Testkube" />
         </FeatureFlagged>
         <SidebarItem icon={CreateComponentIcon} to="create" text="Create..." />

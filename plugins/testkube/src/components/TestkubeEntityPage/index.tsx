@@ -1,1 +1,0 @@
-export { TestkubeEntityPage } from './TestkubeEntityPage';

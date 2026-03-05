@@ -1,7 +1,9 @@
-import { DiscoveryApi, IdentityApi } from "@backstage/core-plugin-api/*";
-import { TestkubeApi } from "./TestkubeApi";
-import { components, TestWorkflowWithExecutionsFilters} from "../types";
-
+import { DiscoveryApi, IdentityApi } from '@backstage/core-plugin-api/*';
+import { TestkubeApi } from './TestkubeApi';
+import {
+  components,
+  TestWorkflowWithExecutionsFilters,
+} from '../types/openapi';
 
 export type Options = {
   discoveryApi: DiscoveryApi;
@@ -9,7 +11,6 @@ export type Options = {
 };
 
 export class TestkubeClient implements TestkubeApi {
-  // @ts-ignore
   private readonly discoveryApi: DiscoveryApi;
   private readonly identityApi: IdentityApi;
 
@@ -25,7 +26,13 @@ export class TestkubeClient implements TestkubeApi {
     return `${await this.discoveryApi.getBaseUrl('proxy')}/testkube`;
   }
 
-  private async fetcher(url: string, headers?: any, output: string = 'json', method: string = 'GET', body: any = null) {
+  private async fetcher(
+    url: string,
+    headers?: any,
+    output: string = 'json',
+    method: string = 'GET',
+    body: any = null,
+  ) {
     const { token: idToken } = await this.identityApi.getCredentials();
     const proxyUrl = await this.getBaseUrl();
     const response = await fetch(`${proxyUrl}${url}`, {
@@ -35,7 +42,7 @@ export class TestkubeClient implements TestkubeApi {
         'User-Agent': 'backstage',
         'Content-Type': 'application/json',
         ...(idToken && { Authorization: `Bearer ${idToken}` }),
-        ...headers
+        ...headers,
       },
     });
     if (!response.ok) {
@@ -48,22 +55,28 @@ export class TestkubeClient implements TestkubeApi {
   }
 
   async getTestWorkflowExecutionsResult() {
-    return (await this.fetcher('/v1/test-workflow-executions')) as components["schemas"]["TestWorkflowExecutionsResult"];
+    return (await this.fetcher(
+      '/v1/test-workflow-executions',
+    )) as components['schemas']['TestWorkflowExecutionsResult'];
   }
 
   async getTestWorkflow(id: string) {
-    return (await this.fetcher(`/v1/test-workflows/${id}`,
+    return (await this.fetcher(
+      `/v1/test-workflows/${id}`,
       {
-        'accept': 'text/yaml'
+        accept: 'text/yaml',
       },
-      'text'
+      'text',
     )) as string;
   }
 
-  async getTestWorkflowExecutionById(workflowName: string, executionId: string) {
+  async getTestWorkflowExecutionById(
+    workflowName: string,
+    executionId: string,
+  ) {
     return (await this.fetcher(
       `/v1/test-workflows/${workflowName}/executions/${executionId}`,
-    )) as components["schemas"]["TestWorkflowExecution"];
+    )) as components['schemas']['TestWorkflowExecution'];
   }
 
   async runTestWorkflowByName(workflowName: string) {
@@ -72,51 +85,59 @@ export class TestkubeClient implements TestkubeApi {
       {},
       'json',
       'POST',
-      {}
-    )) as components["schemas"]["TestWorkflowExecution"][];
+      {},
+    )) as components['schemas']['TestWorkflowExecution'][];
   }
 
   async getTestWorkflowExecutionsByName(workflowName: string) {
-    return (await this.fetcher(`/v1/test-workflows/${workflowName}/executions`)) as components["schemas"]["TestWorkflowExecutionsResult"];
+    return (await this.fetcher(
+      `/v1/test-workflows/${workflowName}/executions`,
+    )) as components['schemas']['TestWorkflowExecutionsResult'];
   }
 
   async getTestWorkflowExecutionLog(workflowName: string, executionId: string) {
     return (await this.fetcher(
       `/v1/test-workflows/${workflowName}/executions/${executionId}/logs`,
       {
-        'accept': 'text/plain'
+        accept: 'text/plain',
       },
-      'text'
+      'text',
     )) as string;
   }
 
-  async getTestWorkflowsWithExecutions(filters: TestWorkflowWithExecutionsFilters): Promise<components["schemas"]["TestWorkflowWithExecutionSummary"][]> {
-  const {
-    labels,
-    page = 0,
-    pageSize = 14,
-    organization,
-    environments,
-  } = filters;
+  async getTestWorkflowsWithExecutions(
+    filters: TestWorkflowWithExecutionsFilters,
+  ): Promise<components['schemas']['TestWorkflowWithExecutionSummary'][]> {
+    const {
+      labels,
+      page = 0,
+      pageSize = 14,
+      organization,
+      environments,
+    } = filters;
 
-  const query = new URLSearchParams({
-    page: page.toString(),
-    pageSize: pageSize.toString(),
-  });
+    const query = new URLSearchParams({
+      page: page.toString(),
+      pageSize: pageSize.toString(),
+    });
 
-  if (labels) {
-    query.append('selector', labels);
+    if (labels) {
+      query.append('selector', labels);
+    }
+
+    // Si hay organización y entornos => modo enterprise
+    if (organization && environments?.length === 1) {
+      const endpoint = `/organizations/${organization}/environments/${
+        environments[0]
+      }/agent/test-workflow-with-executions?${query.toString()}`;
+      const data = await this.fetcher(endpoint);
+      return data as components['schemas']['TestWorkflowWithExecutionSummary'][];
+    }
+
+    // Modo no enterprise
+    const data = await this.fetcher(
+      `/v1/test-workflow-with-executions?${query.toString()}`,
+    );
+    return data as components['schemas']['TestWorkflowWithExecutionSummary'][];
   }
-
-  // Si hay organización y entornos => modo enterprise
-  if (organization && environments?.length === 1) {
-    const endpoint = `/organizations/${organization}/environments/${environments[0]}/agent/test-workflow-with-executions?${query.toString()}`;
-    const data = await this.fetcher(endpoint);
-    return data as components["schemas"]["TestWorkflowWithExecutionSummary"][];
-  }
-
-  // Modo no enterprise
-  const data = await this.fetcher(`/v1/test-workflow-with-executions?${query.toString()}`);
-  return data as components["schemas"]["TestWorkflowWithExecutionSummary"][];
-}
 }

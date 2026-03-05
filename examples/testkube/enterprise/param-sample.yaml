@@ -8,7 +8,7 @@ spec:
   config:
     string:
       type: string
-      default: "default value"
+      default: 'default value'
     boolean:
       type: boolean
       default: true
@@ -19,12 +19,11 @@ spec:
       type: integer
       default: 100
   steps:
-  - name: Run Tests - Print String
-    shell: echo "String parameter: {{ config.string }}"
-  - name: Run Tests - Print Boolean
-    shell: echo "Boolean parameter: {{ config.boolean }}"
-  - name: Run Tests - Print Number
-    shell: echo "Number parameter: {{ config.number }}"
-  - name: Run Tests - Print Integer
-    shell: echo "Integer parameter: {{ config.integer }}"
-status: {}
+    - name: Run Tests - Print String
+      shell: 'echo "String parameter: {{ config.string }}"'
+    - name: Run Tests - Print Boolean
+      shell: 'echo "Boolean parameter: {{ config.boolean }}"'
+    - name: Run Tests - Print Number
+      shell: 'echo "Number parameter: {{ config.number }}"'
+    - name: Run Tests - Print Integer
+      shell: 'echo "Integer parameter: {{ config.integer }}"'

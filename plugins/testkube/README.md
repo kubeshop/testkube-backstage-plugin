@@ -8,14 +8,14 @@ This plugin allows you to centralize specific information about automated tests 
 
 It has the following features:
 
-* **Testkube Dashboard:** a page containing an overview of the latest automated test executions. It includes a panel with three metrics: Success/Failure Range, Failed Executions, and Total Executions. Below the metrics, the executions are listed with their respective identifier, execution time, execution date, status, and test workflow name.
+- **Testkube Dashboard:** a page containing an overview of the latest automated test executions. It includes a panel with three metrics: Success/Failure Range, Failed Executions, and Total Executions. Below the metrics, the executions are listed with their respective identifier, execution time, execution date, status, and test workflow name.
 
-* **Testkube Entity Page:** a page containing a view of the automated test workflows related to an Entity based on its annotations. It includes a panel with three metrics: Success/Failure Range, Failed Executions, and Total Executions, all respecting the filter by Entity. Then, under the metrics, the automated test workflows are listed with its name and information about last execution: identifier, duration, scheduling date, and current status. The table also allows you to perform four different actions:
+- **Testkube Entity Page:** a page containing a view of the automated test workflows related to an Entity based on its annotations. It includes a panel with three metrics: Success/Failure Range, Failed Executions, and Total Executions, all respecting the filter by Entity. Then, under the metrics, the automated test workflows are listed with its name and information about last execution: identifier, duration, scheduling date, and current status. The table also allows you to perform four different actions:
 
-  * View the test workflow definition in YAML format.
-  * View the logs of the last execution.
-  * View the history of the last executions. This history also offers the option to view the log for each execution.
-  * Run the test workflow.
+  - View the test workflow definition in YAML format.
+  - View the logs of the last execution.
+  - View the history of the last executions. This history also offers the option to view the log for each execution.
+  - Run the test workflow.
 
 _This plugin was created through the Backstage CLI_
 
@@ -146,7 +146,6 @@ spec:
 
 Will show only test workflows which have the label `app=testkube-website`.
 
-
 ## Development guide
 
 Before to start developing please read our [Contributing Manifest](../../CONTRIBUTING.md) and our [Code of Conduct](../../CODE_OF_CONDUCT.md).
@@ -155,18 +154,18 @@ We encorage everyone to contribute your changes and improvements raising a PR fr
 
 ### Prepare local environment
 
-* You must have installed:
-  * Nodejs 20 or later.
-  * Kubernetes CLI.
-  * Helm CLI.
-* Connect to a Kubernetes cluster, you can use [Kind](https://kind.sigs.k8s.io/) to have a local one.
-* Testkube OSS running, check here the instructions to [install](https://docs.testkube.io/articles/install/standalone-agent).
-* Port forward the Testkube API using the following command: `kubectl port-forward svc/testkube-api-server -n testkube 8088:8088`.
-* Pre-load data using the following command from the root directory:
+- You must have installed:
+  - Nodejs 20 or later.
+  - Kubernetes CLI.
+  - Helm CLI.
+- Connect to a Kubernetes cluster, you can use [Kind](https://kind.sigs.k8s.io/) to have a local one.
+- Testkube OSS running, check here the instructions to [install](https://docs.testkube.io/articles/install/standalone-agent).
+- Port forward the Testkube API using the following command: `kubectl port-forward svc/testkube-api-server -n testkube 8088:8088`.
+- Pre-load data using the following command from the root directory:
 
-    ```bash
-    ./example/testkube/load-data.sh
-    ```
+  ```bash
+  ./example/testkube/load-data.sh
+  ```
 
 ### Run Backtage
 
