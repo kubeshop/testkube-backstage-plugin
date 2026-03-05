@@ -1,4 +1,3 @@
-
 export interface Config {
   testkube?: {
     /**
@@ -7,5 +6,9 @@ export interface Config {
      */
     enterprise?: boolean;
     uiUrl?: string;
-  }
+  };
+}
+
+declare module '@backstage-community/plugin-testkube' {
+  export * from './src';
 }

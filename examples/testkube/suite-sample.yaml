@@ -6,9 +6,9 @@ metadata:
     app: testkube-website
 spec:
   steps:
-  - name: Run Tests Suite
-    execute:
-      workflows:
-      - name: k6-sample
-      - name: k6-fail-sample
+    - name: Run Tests Suite
+      execute:
+        workflows:
+          - name: k6-sample
+          - name: k6-fail-sample
 status: {}
