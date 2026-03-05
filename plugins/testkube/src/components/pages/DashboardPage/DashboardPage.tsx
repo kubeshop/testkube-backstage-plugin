@@ -1,64 +1,23 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import {
-  ContentHeader,
-  Table,
-  EmptyState,
-  HeaderLabel,
-} from '@backstage/core-components';
-import { useApi } from '@backstage/core-plugin-api';
-import RefreshIcon from '@material-ui/icons/Refresh';
-import IconButton from '@mui/material/IconButton';
+import React from 'react';
+import { ContentHeader, Table, EmptyState } from '@backstage/core-components';
 
-import { testkubeApiRef } from '../../../api';
 import {
   columns,
   useStyles,
 } from '../../organisms/ExecutionsDetailedTable/Heading';
 import { SummaryMetrics } from '../../organisms/SummaryMetrics';
-import { components } from '../../../types/openapi';
+
 import { Layout as layout } from '../../hoc/Layout/Layout';
 import { Error } from '../../molecules/Error';
 import { Loading } from '../../molecules/Loading';
-import { sleep } from '../../../utils/functions';
+import { useExecutions } from '../../../hooks/useApi';
 
 export const DashboardPage = layout(() => {
-  const TestkubeAPI = useApi(testkubeApiRef);
-  const [lastExecutions, setLastExecutions] =
-    useState<components['schemas']['TestWorkflowExecutionsResult']>();
-  const [loading, setLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-  const classes = useStyles();
-
-  const fetchData = useCallback(
-    async (isInitial = false) => {
-      try {
-        if (isInitial) setLoading(true);
-        else setIsRefreshing(true);
-        await sleep(1000);
-        const executions = await TestkubeAPI.getTestWorkflowExecutionsResult();
-        setLastExecutions(executions);
-        setError(null);
-      } catch (err: any) {
-        setError(err);
-      } finally {
-        if (isInitial) setLoading(false);
-        else setIsRefreshing(false);
-      }
-    },
-    [TestkubeAPI],
-  );
-
-  useEffect(() => {
-    fetchData(true);
-    const interval = setInterval(() => {
-      fetchData(false);
-    }, 30000);
-    return () => clearInterval(interval);
-  }, [fetchData]);
+  const { data: executions, isLoading, error, isRefetching } = useExecutions();
+  const { empty } = useStyles();
 
   const noDataState = (
-    <div className={classes.empty}>
+    <div className={empty}>
       <EmptyState
         missing="data"
         title="No data available"
@@ -67,7 +26,7 @@ export const DashboardPage = layout(() => {
     </div>
   );
 
-  if (loading) {
+  if (isLoading) {
     return <Loading />;
   }
 
@@ -75,36 +34,29 @@ export const DashboardPage = layout(() => {
     return <Error error={error} />;
   }
 
-  if (!lastExecutions) {
+  if (!executions) {
     return noDataState;
   }
+
+  const {
+    results = [],
+    totals = { results: 0, passed: 0, failed: 0, queued: 0, running: 0 },
+  } = executions;
 
   return (
     <>
       <ContentHeader
         title={
-          isRefreshing ? 'Summary Metrics - Refreshing ...' : 'Summary Metrics'
+          isRefetching ? 'Summary Metrics - Refreshing ...' : 'Summary Metrics'
         }
-      >
-        <HeaderLabel
-          value={
-            <IconButton
-              disabled={isRefreshing}
-              onClick={() => fetchData(false)}
-            >
-              <RefreshIcon />
-            </IconButton>
-          }
-          label=""
-        />
-      </ContentHeader>
-      <SummaryMetrics totals={lastExecutions.totals} />
-      <br />
+      />
+      <SummaryMetrics totals={totals} />
       <Table
+        style={{ marginTop: '20px' }}
         columns={columns}
         title="Last Executions"
         options={{ paging: false }}
-        data={lastExecutions.results}
+        data={results}
       />
     </>
   );

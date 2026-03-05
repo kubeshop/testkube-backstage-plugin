@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
 import {
   Table as BackstageTable,
   TableColumn,
@@ -11,18 +11,35 @@ import { ExecutionStatusBadge } from '../../molecules/ExecutionStatusBadge';
 import IconButton from '@mui/material/IconButton';
 import Snackbar from '@mui/material/Snackbar';
 import CloseIcon from '@mui/icons-material/Close';
+import { ExecutionDialog } from '../ExecutionDialog';
+import { ManifestDialog } from '../ManifestDialog';
 
 type TableProps = {
   data: components['schemas']['TestWorkflowExecutionSummary'][];
-  reload: () => void;
 };
 
-export const Table: React.FC<TableProps> = ({ data, reload }) => {
-  const [open, setOpen] = React.useState(false);
-  const [message, setMessage] = React.useState('');
+export const Table: React.FC<TableProps> = ({ data }) => {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isManifestDialogOpen, setIsManifestDialogOpen] = useState(false);
+  const [workflowName, setWorkflowName] = useState('');
+  const [executionId, setExecutionId] = useState('');
+  const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
+
   const handleClose = () => {
-    setOpen(false);
+    setIsSnackbarOpen(false);
   };
+
+  const handleOpenExecutionDialog = (workflowNameParam: string, id: string) => {
+    setIsDialogOpen(true);
+    setWorkflowName(workflowNameParam);
+    setExecutionId(id);
+  };
+
+  const handleOpenManifestDialog = (workflowNameParam: string) => {
+    setIsManifestDialogOpen(true);
+    setWorkflowName(workflowNameParam);
+  };
+
   const action = (
     <Fragment>
       <IconButton onClick={handleClose}>
@@ -30,19 +47,16 @@ export const Table: React.FC<TableProps> = ({ data, reload }) => {
       </IconButton>
     </Fragment>
   );
-  const reloadData = (alertMessage?: string) => {
-    reload();
-    if (alertMessage) {
-      setMessage(alertMessage);
-      setOpen(true);
-    }
-  };
+
   const testWorkflowsColumns: TableColumn[] = [
     {
       title: 'Name',
       field: 'name',
       render: (rowData: any) => (
-        <ShowManifestDialog name={rowData.workflow.name} />
+        <ShowManifestDialog
+          name={rowData.workflow.name}
+          onOpen={() => handleOpenManifestDialog(rowData.workflow.name)}
+        />
       ),
     },
     {
@@ -50,9 +64,10 @@ export const Table: React.FC<TableProps> = ({ data, reload }) => {
       field: 'lastExecution',
       render: (rowData: any) => (
         <ShowLogsDialog
-          workflowName={rowData.workflow.name}
           executionName={rowData.name}
-          executionId={rowData.id}
+          onOpen={() =>
+            handleOpenExecutionDialog(rowData.workflow.name, rowData.id)
+          }
         />
       ),
     },
@@ -70,14 +85,12 @@ export const Table: React.FC<TableProps> = ({ data, reload }) => {
       field: 'actions',
       width: '5px',
       sorting: false,
-      render: (rowData: any) => (
-        <TableAction name={rowData.workflow.name} reload={reloadData} />
-      ),
+      render: (rowData: any) => <TableAction name={rowData.workflow.name} />,
     },
   ];
 
   return (
-    <Fragment>
+    <>
       <BackstageTable
         columns={testWorkflowsColumns}
         title="Test Workflows"
@@ -85,12 +98,24 @@ export const Table: React.FC<TableProps> = ({ data, reload }) => {
         data={data}
       />
       <Snackbar
-        open={open}
+        open={isSnackbarOpen}
         autoHideDuration={6000}
         onClose={handleClose}
-        message={message}
+        message="Test workflow started successfully"
         action={action}
       />
-    </Fragment>
+      <ExecutionDialog
+        workflowName={workflowName}
+        executionName="HOLA"
+        executionId={executionId}
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+      />
+      <ManifestDialog
+        name={workflowName}
+        isOpen={isManifestDialogOpen}
+        onClose={() => setIsManifestDialogOpen(false)}
+      />
+    </>
   );
 };
