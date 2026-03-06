@@ -1,8 +1,6 @@
 import { createApiRef } from '@backstage/core-plugin-api';
-import {
-  components,
-  TestWorkflowWithExecutionsFilters,
-} from '../types/openapi';
+import { components } from '../types/openapi';
+import { TestWorkflowWithExecutionsFilters } from '../types/common';
 
 export const testkubeApiRef = createApiRef<TestkubeApi>({
   id: 'plugin.testkube.service',

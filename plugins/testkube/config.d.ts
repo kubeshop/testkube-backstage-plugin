@@ -8,7 +8,3 @@ export interface Config {
     uiUrl?: string;
   };
 }
-
-declare module '@backstage-community/plugin-testkube' {
-  export * from './src';
-}

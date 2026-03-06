@@ -60,14 +60,14 @@ import {
 } from '@backstage/plugin-kubernetes';
 import { FeatureFlagged } from '@backstage/core-app-api';
 import {
-  EntityPage,
+  TestkubeEntityPage,
   isTestkubeAvailable,
 } from '@backstage-community/plugin-testkube';
 
 const testkubeSummaryPage = (
   <Grid container spacing={3} alignItems="stretch">
     <Grid item xs={12}>
-      <EntityPage />
+      <TestkubeEntityPage />
     </Grid>
   </Grid>
 );

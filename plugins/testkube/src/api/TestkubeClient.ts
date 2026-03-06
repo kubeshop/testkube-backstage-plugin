@@ -1,9 +1,7 @@
 import { DiscoveryApi, IdentityApi } from '@backstage/core-plugin-api/*';
 import { TestkubeApi } from './TestkubeApi';
-import {
-  components,
-  TestWorkflowWithExecutionsFilters,
-} from '../types/openapi';
+import { components } from '../types/openapi';
+import { TestWorkflowWithExecutionsFilters } from '../types/common';
 
 export type Options = {
   discoveryApi: DiscoveryApi;

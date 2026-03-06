@@ -1,12 +1,11 @@
 name: CI
+
 on:
   push:
     branches:
       - main
   pull_request: {}
 
-# By default, jobs require `read` access to `contents`.
-# This is a good practice to avoid accidentally granting excessive permissions.
 permissions:
   contents: read
 
@@ -16,10 +15,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'yarn'
+          cache: "yarn"
+
       - run: yarn install --immutable
       - run: yarn lint
 
@@ -28,10 +31,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'yarn'
+          cache: "yarn"
+
       - run: yarn install --immutable
       - run: yarn tsc
 
@@ -40,37 +47,44 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'yarn'
+          cache: "yarn"
+
       - run: yarn install --immutable
       - run: yarn test
 
   dependency-review:
     name: Dependency Review
     runs-on: ubuntu-latest
-    # This job needs write permissions to add comments to pull requests.
     permissions:
       pull-requests: write
     steps:
-      - name: 'Checkout Repository'
+      - name: Checkout Repository
         uses: actions/checkout@v4
-      - name: 'Dependency Review'
+        with:
+          fetch-depth: 0
+
+      - name: Dependency Review
         uses: actions/dependency-review-action@v4
         with:
-          base-ref: 'main' # Replace with your desired base branch or commit SHA
-          head-ref: '${{ github.sha }}' # Replace with your desired head branch or commit SHA
+          base-ref: "main"
+          head-ref: "${{ github.sha }}"
 
   security-scan:
     name: Security Scan
     runs-on: ubuntu-latest
-    # This job needs write permissions for security-events to report findings.
     permissions:
       security-events: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
@@ -80,7 +94,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'yarn'
+          cache: "yarn"
+
       - run: yarn install --immutable
       - run: yarn tsc
 
