@@ -21,7 +21,7 @@ export class TestkubeClient implements TestkubeApi {
   }
 
   private async getBaseUrl() {
-    return `${await this.discoveryApi.getBaseUrl('proxy')}/testkube`;
+    return await this.discoveryApi.getBaseUrl('testkube');
   }
 
   private async fetcher(

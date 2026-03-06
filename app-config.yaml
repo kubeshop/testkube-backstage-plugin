@@ -50,11 +50,6 @@ proxy:
   #   '/test':
   #     target: 'https://example.com'
   #     changeOrigin: true
-  endpoints:
-    '/testkube':
-      target: 'http://localhost:8088'
-      changeOrigin: true
-      credentials: dangerously-allow-unauthenticated
 
 # Reference documentation http://backstage.io/docs/features/techdocs/configuration
 # Note: After experimenting with basic setup, use CI/CD to generate docs
@@ -128,3 +123,8 @@ testkube:
   enterprise: false
   # Depends on testkube.enterprise = true
   uiUrl: https://app.testkube.dev/
+  # Backend plugin: upstream Testkube API (used when proxy target points to backend plugin)
+  apiUrl: 'http://localhost:8088'
+  # Optional: API key or token for Testkube API (e.g. auth.apiKey: ${TESTKUBE_API_KEY})
+  # auth:
+  #   apiKey: ${TESTKUBE_API_KEY}
