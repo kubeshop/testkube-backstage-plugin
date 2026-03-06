@@ -5,8 +5,13 @@ import {
   discoveryApiRef,
   identityApiRef,
 } from '@backstage/core-plugin-api';
+import type { ReactElement } from 'react';
 
 import { testkubeApiRef, TestkubeClient } from './api';
+
+type BackstageLazyComponent = (
+  props: Record<string, unknown>,
+) => ReactElement | null;
 
 export const testkubePlugin = createPlugin({
   id: 'testkube',
@@ -33,7 +38,7 @@ export const TestkubeDashboardPage = testkubePlugin.provide(
     component: {
       lazy: () =>
         import('./components/pages/DashboardPage').then(
-          m => m.DashboardPage as any,
+          m => m.DashboardPage as BackstageLazyComponent,
         ),
     },
   }),
@@ -44,7 +49,9 @@ export const TestkubeEntityPage = testkubePlugin.provide(
     name: 'TestkubeEntityPage',
     component: {
       lazy: () =>
-        import('./components/pages/EntityPage').then(m => m.EntityPage as any),
+        import('./components/pages/EntityPage').then(
+          m => m.EntityPage as BackstageLazyComponent,
+        ),
     },
   }),
 );

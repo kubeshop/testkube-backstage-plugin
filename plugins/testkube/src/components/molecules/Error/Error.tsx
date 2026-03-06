@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import {
   CodeSnippet,
   WarningPanel,
@@ -7,7 +7,7 @@ import {
 
 export const Error = ({ error }: { error: Error }) => {
   return (
-    <Fragment>
+    <>
       <EmptyState
         missing="info"
         title="No data available"
@@ -22,6 +22,6 @@ export const Error = ({ error }: { error: Error }) => {
       >
         <CodeSnippet language="text" text={error.toString()} />
       </WarningPanel>
-    </Fragment>
+    </>
   );
 };

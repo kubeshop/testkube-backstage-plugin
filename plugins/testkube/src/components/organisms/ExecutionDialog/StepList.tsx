@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import List from '@mui/material/List';
 import { ListItem, ListSubheader } from '@material-ui/core';
 import { components } from '../../../types/openapi';
@@ -44,13 +44,13 @@ export const StepList: React.FC<StepListProps> = ({
           >
             <StepStatusBadge
               stepName={children.name || children.category || 'Undefined'}
-              status={execution.result?.steps[element.ref || ''].status}
+              status={execution.result?.steps[children.ref || ''].status}
             />
           </ListItem>
         ));
 
         return (
-          <>
+          <Fragment key={element.ref}>
             <ListItem
               button
               id={element.ref}
@@ -67,7 +67,7 @@ export const StepList: React.FC<StepListProps> = ({
               />
             </ListItem>
             {childrenList}
-          </>
+          </Fragment>
         );
       }
 

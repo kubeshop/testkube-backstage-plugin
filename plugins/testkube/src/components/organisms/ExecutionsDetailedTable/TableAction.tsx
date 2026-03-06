@@ -2,19 +2,21 @@ import React, { useState } from 'react';
 import { IconButton, Menu, MenuItem } from '@material-ui/core';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 
-import { ExecutionHistoryDialog } from '../ExecutionHistoryDialog';
 import { useRunTestWorkflowByNameMutation } from '../../../hooks/useApi';
 
 type TableActionProps = {
   name: string;
+  onOpenExecutionHistoryDialog(): void;
+  onOpenSnackbar(): void;
 };
 
-export const TableAction: React.FC<TableActionProps> = ({ name }) => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+export const TableAction: React.FC<TableActionProps> = ({
+  name,
+  onOpenExecutionHistoryDialog,
+  onOpenSnackbar,
+}) => {
   const { mutate: runTestWorkflow, isPending } =
-    useRunTestWorkflowByNameMutation({
-      name,
-    });
+    useRunTestWorkflowByNameMutation();
 
   const [tooltipAnchorEl, setTooltipAnchorEl] = useState<null | HTMLElement>(
     null,
@@ -30,11 +32,20 @@ export const TableAction: React.FC<TableActionProps> = ({ name }) => {
   };
 
   const handleOpenHistoryDialog = () => {
-    setIsDialogOpen(true);
+    handleTooltipClose();
+    onOpenExecutionHistoryDialog();
   };
 
   const handleRunTestWorkflow = () => {
-    runTestWorkflow();
+    handleTooltipClose();
+    runTestWorkflow(
+      { name },
+      {
+        onSettled: () => {
+          onOpenSnackbar();
+        },
+      },
+    );
   };
 
   return (
@@ -55,7 +66,6 @@ export const TableAction: React.FC<TableActionProps> = ({ name }) => {
         anchorEl={tooltipAnchorEl}
         open={isToolTipOpen}
         onClose={handleTooltipClose}
-        slot="menu"
       >
         <MenuItem onClick={handleOpenHistoryDialog}>
           Executions history
@@ -64,12 +74,6 @@ export const TableAction: React.FC<TableActionProps> = ({ name }) => {
           {isPending ? 'Running...' : 'Run'}
         </MenuItem>
       </Menu>
-
-      <ExecutionHistoryDialog
-        name={name}
-        isOpen={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
-      />
     </>
   );
 };

@@ -1,18 +1,18 @@
-import React, { Fragment, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Table as BackstageTable,
   TableColumn,
 } from '@backstage/core-components';
+import Snackbar from '@mui/material/Snackbar';
+
 import { ShowLogsDialog } from './ShowLogsDialog';
 import { ShowManifestDialog } from './ShowManifestDialog';
 import { TableAction } from './TableAction';
 import { components } from '../../../types/openapi';
 import { ExecutionStatusBadge } from '../../molecules/ExecutionStatusBadge';
-import IconButton from '@mui/material/IconButton';
-import Snackbar from '@mui/material/Snackbar';
-import CloseIcon from '@mui/icons-material/Close';
 import { ExecutionDialog } from '../ExecutionDialog';
 import { ManifestDialog } from '../ManifestDialog';
+import { ExecutionHistoryDialog } from '../ExecutionHistoryDialog';
 
 type TableProps = {
   data: components['schemas']['TestWorkflowExecutionSummary'][];
@@ -20,14 +20,12 @@ type TableProps = {
 
 export const Table: React.FC<TableProps> = ({ data }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isExecutionHistoryDialogOpen, setIsExecutionHistoryDialogOpen] =
+    useState(false);
+  const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
   const [isManifestDialogOpen, setIsManifestDialogOpen] = useState(false);
   const [workflowName, setWorkflowName] = useState('');
   const [executionId, setExecutionId] = useState('');
-  const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
-
-  const handleClose = () => {
-    setIsSnackbarOpen(false);
-  };
 
   const handleOpenExecutionDialog = (workflowNameParam: string, id: string) => {
     setIsDialogOpen(true);
@@ -40,13 +38,15 @@ export const Table: React.FC<TableProps> = ({ data }) => {
     setWorkflowName(workflowNameParam);
   };
 
-  const action = (
-    <Fragment>
-      <IconButton onClick={handleClose}>
-        <CloseIcon />
-      </IconButton>
-    </Fragment>
-  );
+  const handleOpenExecutionHistoryDialog = (workflowNameParam: string) => {
+    setIsExecutionHistoryDialogOpen(true);
+    setWorkflowName(workflowNameParam);
+  };
+
+  const handleOpenSnackbar = (workflowNameParam: string) => {
+    setIsSnackbarOpen(true);
+    setWorkflowName(workflowNameParam);
+  };
 
   const testWorkflowsColumns: TableColumn[] = [
     {
@@ -85,7 +85,15 @@ export const Table: React.FC<TableProps> = ({ data }) => {
       field: 'actions',
       width: '5px',
       sorting: false,
-      render: (rowData: any) => <TableAction name={rowData.workflow.name} />,
+      render: (rowData: any) => (
+        <TableAction
+          name={rowData.workflow.name}
+          onOpenExecutionHistoryDialog={() =>
+            handleOpenExecutionHistoryDialog(rowData.workflow.name)
+          }
+          onOpenSnackbar={() => handleOpenSnackbar(rowData.workflow.name)}
+        />
+      ),
     },
   ];
 
@@ -97,16 +105,8 @@ export const Table: React.FC<TableProps> = ({ data }) => {
         options={{ paging: false }}
         data={data}
       />
-      <Snackbar
-        open={isSnackbarOpen}
-        autoHideDuration={6000}
-        onClose={handleClose}
-        message="Test workflow started successfully"
-        action={action}
-      />
       <ExecutionDialog
         workflowName={workflowName}
-        executionName="HOLA"
         executionId={executionId}
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
@@ -115,6 +115,19 @@ export const Table: React.FC<TableProps> = ({ data }) => {
         name={workflowName}
         isOpen={isManifestDialogOpen}
         onClose={() => setIsManifestDialogOpen(false)}
+      />
+
+      <ExecutionHistoryDialog
+        name={workflowName}
+        isOpen={isExecutionHistoryDialogOpen}
+        onClose={() => setIsExecutionHistoryDialogOpen(false)}
+      />
+
+      <Snackbar
+        open={isSnackbarOpen}
+        autoHideDuration={5000} // 5 seconds
+        onClose={() => setIsSnackbarOpen(false)}
+        message="Test workflow started successfully"
       />
     </>
   );

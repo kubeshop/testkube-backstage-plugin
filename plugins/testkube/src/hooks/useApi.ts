@@ -8,7 +8,7 @@ import {
   TestWorkflowWithExecutionSummary,
 } from '../types/common';
 
-const defaultRefetchInterval = 5000;
+const defaultRefetchInterval = 15000;
 
 export const useExecutions = () => {
   const TestkubeAPI = useApi(testkubeApiRef);
@@ -53,12 +53,11 @@ const sliceLines = (fullLog: string, stepRef: string) => {
 export const useExecutionLog = ({
   workflowName,
   executionId,
-  stepRef = 'init',
 }: UseExecutionLogProps) => {
   const TestkubeAPI = useApi(testkubeApiRef);
 
   return useQuery({
-    queryKey: ['testWorkflowExecutionLog', workflowName, executionId, stepRef],
+    queryKey: ['testWorkflowExecutionLog', workflowName, executionId],
     queryFn: async () =>
       TestkubeAPI.getTestWorkflowExecutionLog(workflowName, executionId),
   });
@@ -193,16 +192,19 @@ export const useTestWorkflow = (name: string) => {
 
 type UseTestWorkflowExecutionsByNameProps = {
   name: string;
+  isEnabled?: boolean;
 };
 
 export const useTestWorkflowExecutionsByName = ({
   name,
+  isEnabled = true,
 }: UseTestWorkflowExecutionsByNameProps) => {
   const TestkubeAPI = useApi(testkubeApiRef);
 
   return useQuery({
     queryKey: ['testWorkflowExecutionsByName', name],
     queryFn: async () => TestkubeAPI.getTestWorkflowExecutionsByName(name),
+    enabled: isEnabled,
   });
 };
 
@@ -210,14 +212,13 @@ type UseRunTestWorkflowByNameMutationProps = {
   name: string;
 };
 
-export const useRunTestWorkflowByNameMutation = ({
-  name,
-}: UseRunTestWorkflowByNameMutationProps) => {
+export const useRunTestWorkflowByNameMutation = () => {
   const TestkubeAPI = useApi(testkubeApiRef);
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async () => TestkubeAPI.runTestWorkflowByName(name),
+    mutationFn: async ({ name }: UseRunTestWorkflowByNameMutationProps) =>
+      TestkubeAPI.runTestWorkflowByName(name),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['testWorkflowsWithExecutions'],

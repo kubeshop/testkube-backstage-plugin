@@ -21,6 +21,7 @@ export const ExecutionHistoryDialog: React.FC<ExecutionHistoryDialogProps> = ({
 }) => {
   const { data: { results = [] } = {} } = useTestWorkflowExecutionsByName({
     name,
+    isEnabled: isOpen,
   });
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);

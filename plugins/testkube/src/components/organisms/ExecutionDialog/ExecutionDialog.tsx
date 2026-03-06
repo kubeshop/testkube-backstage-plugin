@@ -56,6 +56,8 @@ export const ExecutionDialog: React.FC<ExecutionDialogProps> = ({
 
   const isLoading = isLoadingLog || isLoadingExecution;
   const error = logError || executionError;
+  const isDataReady =
+    !isLoading && !error && slicedLog !== undefined && execution;
 
   return (
     <Dialog
@@ -72,7 +74,7 @@ export const ExecutionDialog: React.FC<ExecutionDialogProps> = ({
       <DialogContent>
         {(isLoading && <Loading />) ||
           (error && <Error error={error} />) ||
-          (slicedLog && execution && (
+          (isDataReady && (
             <Grid
               container
               spacing={3}
