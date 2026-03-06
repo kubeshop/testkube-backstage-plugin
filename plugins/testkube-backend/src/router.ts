@@ -17,14 +17,19 @@ const Router = ({ httpAuth, proxyController }: RouterDeps): Router => ({
   handle() {
     const router = ExpressRouter();
     router.use(express.json());
-    router.use(express.text({ type: '*/*' }));
+    router.use(express.text({ type: ['text/*', 'application/json'] }));
 
     const authMiddleware = AuthMiddleware({ httpAuth });
     router.use(authMiddleware.inject);
 
     // router.get('/environments', )
 
-    router.all('*', proxyController.handle);
+    router.all(
+      '*',
+      router.all('*', (req, res, next) => {
+        Promise.resolve(proxyController.handle(req, res)).catch(next);
+      }),
+    );
 
     return router;
   },

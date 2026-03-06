@@ -22,6 +22,11 @@ export const testkubePlugin = createBackendPlugin({
         const configService = ConfigService();
         const config = configService.getFromBackstage(backstageConfig);
 
+        const errors = configService.validate(config);
+        if (errors.length > 0) {
+          throw new Error(errors.join('\n'));
+        }
+
         const cacheService = CacheService();
         const proxyService = ProxyService({ config });
         const enterpriseService = EnterpriseService({

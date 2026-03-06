@@ -6,10 +6,10 @@ type CacheItem<T = any> = {
 type CacheService = {
   map: Map<string, CacheItem>;
   get<T>(key: string): T | null;
-  set<T>(key: string, value: T): void;
+  set<T>(key: string, value: T, ttl?: number): void;
 };
 
-const DEFAULT_CACHE_TTL = 1000 * 30; // 30 min
+const DEFAULT_CACHE_TTL = 1000 * 60 * 30; // 30 min
 
 const CacheService = (): CacheService => ({
   map: new Map<string, CacheItem>(),

@@ -45,10 +45,6 @@ const ConfigService = (): ConfigService => ({
       errors.push('Testkube API URL is required');
     }
 
-    if (!config.isEnterprise) {
-      errors.push('Testkube isEnterprise is required');
-    }
-
     if (config.isEnterprise && config.organizations.length === 0) {
       errors.push('Testkube organizations are required for enterprise mode');
     }

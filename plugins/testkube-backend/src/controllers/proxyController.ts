@@ -18,7 +18,7 @@ const ProxyController = ({
   proxyService,
   enterpriseService,
 }: ProxyControllerParams): ProxyController => ({
-  async handle({ method, body, path, headers }: Request, res: Response) {
+  async handle({ method, body, url: path, headers }: Request, res: Response) {
     const requestData = await enterpriseService.getRequest({
       orgIndex: Number(headers[ORG_HEADER]),
       envSlug: headers[ENV_HEADER] as string,

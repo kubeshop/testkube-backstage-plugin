@@ -51,18 +51,18 @@ const EnterpriseService = ({
   async getRequest({ orgIndex, envSlug }) {
     if (!isEnterprise) return undefined;
 
+    const org = organizations[orgIndex];
+    if (!org) throw new Error(`Organization not found at index ${orgIndex}`);
+    const { id: orgId, apiKey } = org;
+
     const cacheKey = replaceStringVariables(CACHE_KEY_REQUEST, {
-      orgId: organizations[orgIndex].id,
+      orgId,
       envSlug,
     });
     const cacheData = cacheService.get<RequestData>(cacheKey);
 
     // if has cache, return it
     if (cacheData) return cacheData;
-
-    const org = organizations[orgIndex];
-    if (!org) throw new Error(`Organization not found at index ${orgIndex}`);
-    const { id: orgId, apiKey } = org;
 
     const environments = await this.getEnvironments({ org });
     const envId = environments.find(env => env.slug === envSlug)?.id;
@@ -87,6 +87,10 @@ const EnterpriseService = ({
       method: 'GET',
       apiKey,
     });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch environments for organization ${orgId}`);
+    }
 
     const { elements = [] }: ListEnvironmentsResponse = await response.json();
 
