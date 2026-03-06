@@ -27,9 +27,9 @@ export const testkubePlugin = createPlugin({
   ],
 });
 
-export const DashboardPage = testkubePlugin.provide(
+export const TestkubeDashboardPage = testkubePlugin.provide(
   createComponentExtension({
-    name: 'DashboardPage',
+    name: 'TestkubeDashboardPage',
     component: {
       lazy: () =>
         import('./components/pages/DashboardPage').then(
@@ -39,12 +39,12 @@ export const DashboardPage = testkubePlugin.provide(
   }),
 );
 
-export const EntityPage = testkubePlugin.provide(
+export const TestkubeEntityPage = testkubePlugin.provide(
   createComponentExtension({
-    name: 'EntityPage',
+    name: 'TestkubeEntityPage',
     component: {
       lazy: () =>
-        import('./components/pages/EntityPage').then(m => m.EntityPage),
+        import('./components/pages/EntityPage').then(m => m.EntityPage as any),
     },
   }),
 );

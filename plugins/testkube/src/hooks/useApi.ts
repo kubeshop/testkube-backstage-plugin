@@ -4,14 +4,17 @@ import { testkubeApiRef } from '../api/TestkubeApi';
 import { useMemo } from 'react';
 import {
   TestWorkflowExecutionSummary,
+  TestWorkflowWithExecutionsFilters,
   TestWorkflowWithExecutionSummary,
 } from '../types/common';
+
+const defaultRefetchInterval = 30000;
 
 export const useExecutions = () => {
   const TestkubeAPI = useApi(testkubeApiRef);
 
   return useQuery({
-    refetchInterval: 30000,
+    refetchInterval: defaultRefetchInterval,
     queryKey: ['executions'],
     queryFn: async () => TestkubeAPI.getTestWorkflowExecutionsResult(),
   });
@@ -91,11 +94,7 @@ export const useExecution = ({
 };
 
 type UseTestWorkflowsWithExecutionsProps = {
-  filters?: {
-    labels?: string;
-    page?: number;
-    pageSize?: number;
-  };
+  filters?: TestWorkflowWithExecutionsFilters;
 };
 
 const mapToExecutionResult = (
@@ -159,13 +158,13 @@ const computeMetrics = (executions: TestWorkflowExecutionSummary[]) => {
 };
 
 export const useTestWorkflowsWithExecutions = ({
-  filters,
+  filters = {},
 }: UseTestWorkflowsWithExecutionsProps = {}) => {
   const TestkubeAPI = useApi(testkubeApiRef);
 
   return useQuery({
     queryKey: ['testWorkflowsWithExecutions', filters],
-    refetchInterval: 3000,
+    refetchInterval: defaultRefetchInterval,
     queryFn: async () => {
       const workflowsWithExecutions =
         await TestkubeAPI.getTestWorkflowsWithExecutions(filters);
