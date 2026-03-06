@@ -67,7 +67,8 @@ const EnterpriseService = ({
     const environments = await this.getEnvironments({ org });
     const envId = environments.find(env => env.slug === envSlug)?.id;
 
-    if (!envId) throw new Error(`Environment not found with slug ${envSlug}`);
+    if (!envId && !envSlug)
+      throw new Error(`Environment not found with slug ${envSlug}`);
     if (!orgId || !envId || !apiKey) return undefined;
 
     const requestData: RequestData = { orgId, envId, apiKey };
@@ -83,7 +84,7 @@ const EnterpriseService = ({
     if (cached) return cached;
 
     const response = await proxyService.send({
-      path: `/api/v1/organizations/${orgId}/environments`,
+      path: `/organizations/${orgId}/environments`,
       method: 'GET',
       apiKey,
     });

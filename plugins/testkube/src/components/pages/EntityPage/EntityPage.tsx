@@ -6,12 +6,12 @@ import { Loading } from '../../molecules/Loading/Loading';
 import { Table } from '../../organisms/ExecutionsDetailedTable';
 import { SummaryMetrics } from '../../organisms/SummaryMetrics';
 import { useStyles } from '../../organisms/ExecutionsDetailedTable/Heading';
-import { useLabels } from '../../../hooks/useLabels';
+// import { useLabels } from '../../../hooks/useLabels';
 import { QueryProvider as withQueryProvider } from '../../hoc/QueryProvider';
 import { useTestWorkflowsWithExecutions } from '../../../hooks/useApi';
 
 export const EntityPage: React.FC = withQueryProvider(() => {
-  const labels = useLabels();
+  // const labels = useLabels();
 
   const {
     data: {
@@ -22,7 +22,7 @@ export const EntityPage: React.FC = withQueryProvider(() => {
     error,
   } = useTestWorkflowsWithExecutions({
     filters: {
-      labels,
+      // labels,
     },
   });
 
