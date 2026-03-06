@@ -8,7 +8,7 @@ import {
   TestWorkflowWithExecutionSummary,
 } from '../types/common';
 
-const defaultRefetchInterval = 30000;
+const defaultRefetchInterval = 5000;
 
 export const useExecutions = () => {
   const TestkubeAPI = useApi(testkubeApiRef);
