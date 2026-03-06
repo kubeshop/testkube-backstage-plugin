@@ -37,7 +37,9 @@ const getTargetUrl = (
     parts.push(`/environments/${envId}/agent`);
   }
 
-  return parts.join('') + normalizedPath;
+  return `${parts.join('')}${
+    orgId || envId ? normalizedPath.replace('/v1', '') : normalizedPath
+  }`;
 };
 
 const skipHeaders = new Set([

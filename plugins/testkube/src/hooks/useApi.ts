@@ -7,16 +7,23 @@ import {
   TestWorkflowWithExecutionsFilters,
   TestWorkflowWithExecutionSummary,
 } from '../types/common';
+import { useOrgEnv } from '../context';
 
 const defaultRefetchInterval = 15000;
 
+const useOrgEnvParams = () => {
+  const { orgIndex, envSlug } = useOrgEnv();
+  return { orgIndex, envSlug };
+};
+
 export const useExecutions = () => {
   const TestkubeAPI = useApi(testkubeApiRef);
+  const orgEnv = useOrgEnvParams();
 
   return useQuery({
     refetchInterval: defaultRefetchInterval,
-    queryKey: ['executions'],
-    queryFn: async () => TestkubeAPI.getTestWorkflowExecutionsResult(),
+    queryKey: ['executions', orgEnv.orgIndex, orgEnv.envSlug],
+    queryFn: async () => TestkubeAPI.getTestWorkflowExecutionsResult(orgEnv),
   });
 };
 
@@ -55,11 +62,22 @@ export const useExecutionLog = ({
   executionId,
 }: UseExecutionLogProps) => {
   const TestkubeAPI = useApi(testkubeApiRef);
+  const orgEnv = useOrgEnvParams();
 
   return useQuery({
-    queryKey: ['testWorkflowExecutionLog', workflowName, executionId],
+    queryKey: [
+      'testWorkflowExecutionLog',
+      workflowName,
+      executionId,
+      orgEnv.orgIndex,
+      orgEnv.envSlug,
+    ],
     queryFn: async () =>
-      TestkubeAPI.getTestWorkflowExecutionLog(workflowName, executionId),
+      TestkubeAPI.getTestWorkflowExecutionLog(
+        workflowName,
+        executionId,
+        orgEnv,
+      ),
   });
 };
 
@@ -84,11 +102,22 @@ export const useExecution = ({
   executionId,
 }: UseExecutionProps) => {
   const TestkubeAPI = useApi(testkubeApiRef);
+  const orgEnv = useOrgEnvParams();
 
   return useQuery({
-    queryKey: ['testWorkflowExecution', workflowName, executionId],
+    queryKey: [
+      'testWorkflowExecution',
+      workflowName,
+      executionId,
+      orgEnv.orgIndex,
+      orgEnv.envSlug,
+    ],
     queryFn: async () =>
-      TestkubeAPI.getTestWorkflowExecutionById(workflowName, executionId),
+      TestkubeAPI.getTestWorkflowExecutionById(
+        workflowName,
+        executionId,
+        orgEnv,
+      ),
   });
 };
 
@@ -160,13 +189,19 @@ export const useTestWorkflowsWithExecutions = ({
   filters = {},
 }: UseTestWorkflowsWithExecutionsProps = {}) => {
   const TestkubeAPI = useApi(testkubeApiRef);
+  const orgEnv = useOrgEnvParams();
 
   return useQuery({
-    queryKey: ['testWorkflowsWithExecutions', filters],
+    queryKey: [
+      'testWorkflowsWithExecutions',
+      filters,
+      orgEnv.orgIndex,
+      orgEnv.envSlug,
+    ],
     refetchInterval: defaultRefetchInterval,
     queryFn: async () => {
       const workflowsWithExecutions =
-        await TestkubeAPI.getTestWorkflowsWithExecutions(filters);
+        await TestkubeAPI.getTestWorkflowsWithExecutions(filters, orgEnv);
 
       const results = mapToExecutionResult(workflowsWithExecutions);
 
@@ -183,10 +218,11 @@ export const useTestWorkflowsWithExecutions = ({
 
 export const useTestWorkflow = (name: string) => {
   const TestkubeAPI = useApi(testkubeApiRef);
+  const orgEnv = useOrgEnvParams();
 
   return useQuery({
-    queryKey: ['testWorkflow', name],
-    queryFn: async () => TestkubeAPI.getTestWorkflow(name),
+    queryKey: ['testWorkflow', name, orgEnv.orgIndex, orgEnv.envSlug],
+    queryFn: async () => TestkubeAPI.getTestWorkflow(name, orgEnv),
   });
 };
 
@@ -200,10 +236,17 @@ export const useTestWorkflowExecutionsByName = ({
   isEnabled = true,
 }: UseTestWorkflowExecutionsByNameProps) => {
   const TestkubeAPI = useApi(testkubeApiRef);
+  const orgEnv = useOrgEnvParams();
 
   return useQuery({
-    queryKey: ['testWorkflowExecutionsByName', name],
-    queryFn: async () => TestkubeAPI.getTestWorkflowExecutionsByName(name),
+    queryKey: [
+      'testWorkflowExecutionsByName',
+      name,
+      orgEnv.orgIndex,
+      orgEnv.envSlug,
+    ],
+    queryFn: async () =>
+      TestkubeAPI.getTestWorkflowExecutionsByName(name, orgEnv),
     enabled: isEnabled,
   });
 };
@@ -215,10 +258,11 @@ type UseRunTestWorkflowByNameMutationProps = {
 export const useRunTestWorkflowByNameMutation = () => {
   const TestkubeAPI = useApi(testkubeApiRef);
   const queryClient = useQueryClient();
+  const orgEnv = useOrgEnvParams();
 
   return useMutation({
     mutationFn: async ({ name }: UseRunTestWorkflowByNameMutationProps) =>
-      TestkubeAPI.runTestWorkflowByName(name),
+      TestkubeAPI.runTestWorkflowByName(name, orgEnv),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['testWorkflowsWithExecutions'],
