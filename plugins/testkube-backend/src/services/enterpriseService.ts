@@ -1,3 +1,5 @@
+import type { LoggerService } from '@backstage/backend-plugin-api';
+
 import {
   Environment,
   ListEnvironmentsResponse,
@@ -7,7 +9,6 @@ import { replaceStringVariables } from '../utils/common';
 import CacheService from './cacheService';
 import type { Config } from './configService';
 import ProxyService from './proxyService';
-import type { LoggerService } from '@backstage/backend-plugin-api';
 
 type EnvironmentMetadata = {
   id: Environment['id'];
