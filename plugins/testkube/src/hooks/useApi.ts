@@ -78,6 +78,7 @@ export const useExecutionLog = ({
         executionId,
         orgEnv,
       ),
+    enabled: !!workflowName && !!executionId,
   });
 };
 
@@ -118,6 +119,7 @@ export const useExecution = ({
         executionId,
         orgEnv,
       ),
+    enabled: !!workflowName && !!executionId,
   });
 };
 
@@ -268,5 +270,20 @@ export const useRunTestWorkflowByNameMutation = () => {
         queryKey: ['testWorkflowsWithExecutions'],
       });
     },
+  });
+};
+
+export const useRedirectUrl = () => {
+  const TestkubeAPI = useApi(testkubeApiRef);
+  const orgEnv = useOrgEnvParams();
+
+  return useQuery({
+    queryKey: ['redirectUrl', orgEnv.orgIndex, orgEnv.envSlug],
+    queryFn: async () => {
+      const { url } = await TestkubeAPI.getRedirectUrl(orgEnv);
+
+      return url;
+    },
+    enabled: !!orgEnv.orgIndex && !!orgEnv.envSlug,
   });
 };

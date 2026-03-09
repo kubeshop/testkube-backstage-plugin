@@ -58,4 +58,5 @@ export type TestkubeApi = {
     filters: TestWorkflowWithExecutionsFilters,
     orgEnv?: OrgEnvParams,
   ): Promise<components['schemas']['TestWorkflowWithExecutionSummary'][]>;
+  getRedirectUrl(orgEnv?: OrgEnvParams): Promise<{ url: string }>;
 };

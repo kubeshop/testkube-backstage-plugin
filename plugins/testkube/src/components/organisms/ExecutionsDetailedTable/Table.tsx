@@ -65,6 +65,7 @@ export const Table: React.FC<TableProps> = ({ data }) => {
       render: (rowData: any) => (
         <ShowLogsDialog
           executionName={rowData.name}
+          executionId={rowData.id}
           onOpen={() =>
             handleOpenExecutionDialog(rowData.workflow.name, rowData.id)
           }

@@ -3,6 +3,7 @@ import type { Config as BackstageConfig } from '@backstage/config';
 export type Config = {
   url: string;
   isEnterprise: boolean;
+  uiUrl?: string;
 
   organizations: {
     id: string;
@@ -21,6 +22,8 @@ const ConfigService = (): ConfigService => ({
   getFromBackstage(backstageConfig) {
     const baseUrl =
       backstageConfig.getOptionalString('testkube.apiUrl') ?? DEFAULT_API_URL;
+    const uiUrl =
+      backstageConfig.getOptionalString('testkube.uiUrl') ?? undefined;
 
     const isEnterprise =
       backstageConfig.getOptionalBoolean('testkube.enterprise') ?? false;
@@ -33,7 +36,8 @@ const ConfigService = (): ConfigService => ({
     }));
 
     return {
-      url: baseUrl,
+      url: baseUrl.replace(/\/$/, ''),
+      uiUrl: uiUrl?.replace(/\/$/, ''),
       isEnterprise,
       organizations,
     };
@@ -47,6 +51,10 @@ const ConfigService = (): ConfigService => ({
 
     if (config.isEnterprise && config.organizations.length === 0) {
       errors.push('Testkube organizations are required for enterprise mode');
+    }
+
+    if (config.isEnterprise && !config.uiUrl) {
+      errors.push('Testkube UI URL is required for enterprise mode');
     }
 
     return errors;

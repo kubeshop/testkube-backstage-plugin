@@ -45,6 +45,7 @@ export const ExecutionHistoryTable: React.FC<ExecutionHistoryTableProps> = ({
       render: (rowData: any) => (
         <ShowLogsDialog
           executionName={rowData.name}
+          executionId={rowData.id}
           small={false}
           onOpen={() =>
             onOpenExecutionDialog(rowData.workflow.name, rowData.id)
