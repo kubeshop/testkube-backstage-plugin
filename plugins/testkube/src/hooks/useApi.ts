@@ -78,6 +78,7 @@ export const useExecutionLog = ({
         executionId,
         orgEnv,
       ),
+    enabled: !!workflowName && !!executionId,
   });
 };
 
@@ -118,6 +119,7 @@ export const useExecution = ({
         executionId,
         orgEnv,
       ),
+    enabled: !!workflowName && !!executionId,
   });
 };
 
