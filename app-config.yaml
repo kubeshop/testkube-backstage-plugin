@@ -125,7 +125,7 @@ testkube:
   uiUrl: https://app.testkube.dev/
   # Backend plugin: upstream Testkube API (used when proxy target points to backend plugin)
   # apiUrl: 'https://api.testkube.io'
-  apiUrl: "http://localhost:8088"
+  apiUrl: 'http://localhost:8088'
   # organizations:
   #   - id: <your-org-id>
   #     apiKey: <your-api-key-only-read-access>
