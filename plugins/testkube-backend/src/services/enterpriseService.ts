@@ -1,3 +1,5 @@
+import type { LoggerService } from '@backstage/backend-plugin-api';
+
 import {
   Environment,
   ListEnvironmentsResponse,
@@ -52,15 +54,22 @@ type EnterpriseServiceParams = {
   config: Config;
   cacheService: CacheService;
   proxyService: ProxyService;
+  logger: LoggerService;
 };
 
 const EnterpriseService = ({
   config: { isEnterprise, organizations },
   proxyService,
   cacheService,
+  logger,
 }: EnterpriseServiceParams): EnterpriseService => ({
   async getRequest({ orgIndex, envSlug }) {
-    if (!isEnterprise) return undefined;
+    if (!isEnterprise) {
+      logger.debug(
+        'Enterprise mode disabled, skipping Testkube organization/environment resolution',
+      );
+      return undefined;
+    }
 
     const org = this.getOrganization({ orgIndex });
     if (!org) throw new Error(`Organization not found at index ${orgIndex}`);
@@ -73,18 +82,44 @@ const EnterpriseService = ({
     const cacheData = cacheService.get<RequestData>(cacheKey);
 
     // if has cache, return it
-    if (cacheData) return cacheData;
+    if (cacheData) {
+      logger.debug('Cache hit for Testkube request data', {
+        orgId,
+        envSlug,
+      });
+      return cacheData;
+    }
+
+    logger.debug('Cache miss for Testkube request data', {
+      orgId,
+      envSlug,
+    });
 
     const environments = await this.getEnvironments({ org });
     const envId = environments.find(env => env.slug === envSlug)?.id;
 
-    if (!!envSlug && !envId)
+    if (!!envSlug && !envId) {
+      logger.warn('Environment not found for Testkube request', {
+        orgId,
+        envSlug,
+      });
       throw new Error(`Environment not found with slug ${envSlug}`);
+    }
 
-    if (!orgId || !envId || !apiKey) return undefined;
+    if (!orgId || !envId || !apiKey) {
+      logger.warn('Incomplete Testkube request data, skipping request', {
+        hasOrgId: !!orgId,
+        hasEnvId: !!envId,
+      });
+      return undefined;
+    }
 
     const requestData: RequestData = { orgId, envId, apiKey };
     cacheService.set(cacheKey, requestData);
+    logger.debug('Cached Testkube request data', {
+      orgId,
+      envSlug,
+    });
 
     return requestData;
   },
@@ -93,7 +128,16 @@ const EnterpriseService = ({
       orgId,
     });
     const cached = cacheService.get<EnvironmentMetadata[]>(cacheKey);
-    if (cached) return cached;
+    if (cached) {
+      logger.debug('Cache hit for Testkube environments', {
+        orgId,
+      });
+      return cached;
+    }
+
+    logger.debug('Cache miss for Testkube environments', {
+      orgId,
+    });
 
     const response = await proxyService.send({
       path: `/organizations/${orgId}/environments`,
@@ -102,6 +146,10 @@ const EnterpriseService = ({
     });
 
     if (!response.ok) {
+      logger.error('Failed to fetch Testkube environments', {
+        orgId,
+        status: response.status,
+      });
       throw new Error(`Failed to fetch environments for organization ${orgId}`);
     }
 
@@ -116,6 +164,10 @@ const EnterpriseService = ({
     );
 
     cacheService.set(cacheKey, environments);
+    logger.debug('Cached Testkube environments', {
+      orgId,
+      environmentCount: environments.length,
+    });
 
     return environments;
   },
@@ -139,7 +191,16 @@ const EnterpriseService = ({
 
   async getOrganizationMetadataList() {
     const cached = cacheService.get<OrganizationApi[]>(CACHE_KEY_ORGANIZATIONS);
-    if (cached) return cached;
+    if (cached) {
+      logger.debug('Cache hit for Testkube organizations metadata', {
+        organizationCount: cached.length,
+      });
+      return cached;
+    }
+
+    logger.debug('Cache miss for Testkube organizations metadata', {
+      organizationCount: organizations.length,
+    });
 
     const organizationList = await Promise.all(
       organizations.map(async ({ id, apiKey }) => {
@@ -150,6 +211,10 @@ const EnterpriseService = ({
         });
 
         if (!organization.ok) {
+          logger.error('Failed to fetch Testkube organization metadata', {
+            orgId: id,
+            status: organization.status,
+          });
           throw new Error(`Failed to fetch organization ${id}`);
         }
 
@@ -164,6 +229,9 @@ const EnterpriseService = ({
       organizationList,
       CACHE_EXPIRATION_ORGANIZATIONS,
     );
+    logger.debug('Cached Testkube organizations metadata', {
+      organizationCount: organizationList.length,
+    });
     return organizationList;
   },
 });

@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import type { LoggerService } from '@backstage/backend-plugin-api';
 import type { Config } from '../services/configService';
 import EnterpriseService from '../services/enterpriseService';
 import { ENV_HEADER, ORG_HEADER } from './proxyController';
@@ -13,14 +14,17 @@ type MetadataController = {
 type MetadataControllerParams = {
   config: Config;
   enterpriseService: EnterpriseService;
+  logger: LoggerService;
 };
 
 const MetadataController = ({
   config,
   enterpriseService,
+  logger,
 }: MetadataControllerParams): MetadataController => ({
   async getOrganizations(_req, res) {
     try {
+      logger.debug('Fetching Testkube organizations metadata list');
       const organizations =
         await enterpriseService.getOrganizationMetadataList();
 
@@ -30,7 +34,14 @@ const MetadataController = ({
           id: org.name,
         })),
       });
+
+      logger.debug('Returned Testkube organizations metadata list', {
+        organizationCount: organizations.length,
+      });
     } catch (error) {
+      logger.error('Failed to fetch Testkube organizations metadata list', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
       res.status(500).json({
         error:
           error instanceof Error
@@ -48,6 +59,9 @@ const MetadataController = ({
       orgIndex < 0 ||
       orgIndex >= config.organizations.length
     ) {
+      logger.warn('Invalid organization index for Testkube environments', {
+        index,
+      });
       res.status(400).json({ error: 'Invalid organization index' });
       return;
     }
@@ -59,6 +73,9 @@ const MetadataController = ({
     }
 
     try {
+      logger.debug('Fetching Testkube environments', {
+        orgId: org.id,
+      });
       const environments = await enterpriseService.getEnvironments({ org });
       res.json({
         environments: environments.map(env => ({
@@ -68,6 +85,10 @@ const MetadataController = ({
         })),
       });
     } catch (error) {
+      logger.error('Failed to fetch Testkube environments', {
+        orgId: org.id,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
       res.status(500).json({
         error:
           error instanceof Error
@@ -78,6 +99,10 @@ const MetadataController = ({
   },
 
   getConfig(_req: Request, res: Response) {
+    logger.debug('Getting Testkube configuration summary', {
+      isEnterprise: config.isEnterprise,
+      organizationCount: config.organizations.length,
+    });
     res.json({
       isEnterprise: config.isEnterprise,
       organizationCount: config.organizations.length,
