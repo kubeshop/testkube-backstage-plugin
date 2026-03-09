@@ -63,7 +63,12 @@ const EnterpriseService = ({
   logger,
 }: EnterpriseServiceParams): EnterpriseService => ({
   async getRequest({ orgIndex, envSlug }) {
-    if (!isEnterprise) return undefined;
+    if (!isEnterprise) {
+      logger.debug(
+        'Enterprise mode disabled, skipping Testkube organization/environment resolution',
+      );
+      return undefined;
+    }
 
     const org = this.getOrganization({ orgIndex });
     if (!org) throw new Error(`Organization not found at index ${orgIndex}`);
@@ -185,7 +190,16 @@ const EnterpriseService = ({
 
   async getOrganizationMetadataList() {
     const cached = cacheService.get<OrganizationApi[]>(CACHE_KEY_ORGANIZATIONS);
-    if (cached) return cached;
+    if (cached) {
+      logger.debug('Cache hit for Testkube organizations metadata', {
+        organizationCount: cached.length,
+      });
+      return cached;
+    }
+
+    logger.debug('Cache miss for Testkube organizations metadata', {
+      organizationCount: organizations.length,
+    });
 
     const organizationList = await Promise.all(
       organizations.map(async ({ id, apiKey }) => {
@@ -196,6 +210,10 @@ const EnterpriseService = ({
         });
 
         if (!organization.ok) {
+          logger.error('Failed to fetch Testkube organization metadata', {
+            orgId: id,
+            status: organization.status,
+          });
           throw new Error(`Failed to fetch organization ${id}`);
         }
 
@@ -210,6 +228,9 @@ const EnterpriseService = ({
       organizationList,
       CACHE_EXPIRATION_ORGANIZATIONS,
     );
+    logger.debug('Cached Testkube organizations metadata', {
+      organizationCount: organizationList.length,
+    });
     return organizationList;
   },
 });
