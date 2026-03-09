@@ -11,10 +11,14 @@ export const useEnterpriseNavigation = () => {
   const { data: redirectUrl } = useRedirectUrl();
 
   const navigate = useCallback(
-    async (path: string = '', target: '_blank' | '_self' = '_blank') => {
+    async (
+      path: string = '',
+      target: '_blank' | '_self' = '_blank',
+      features = 'noopener,noreferrer',
+    ) => {
       if (!shouldNavigateToUi) return;
 
-      window.open(`${redirectUrl}/${path}`, target);
+      window.open(`${redirectUrl}/${path}`, target, features);
     },
     [redirectUrl, shouldNavigateToUi],
   );

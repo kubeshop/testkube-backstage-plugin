@@ -273,11 +273,7 @@ export const useRunTestWorkflowByNameMutation = () => {
   });
 };
 
-type UseRedirectUrlProps = {
-  path?: string;
-};
-
-export const useRedirectUrl = ({ path = '' }: UseRedirectUrlProps = {}) => {
+export const useRedirectUrl = () => {
   const TestkubeAPI = useApi(testkubeApiRef);
   const orgEnv = useOrgEnvParams();
 
@@ -286,7 +282,8 @@ export const useRedirectUrl = ({ path = '' }: UseRedirectUrlProps = {}) => {
     queryFn: async () => {
       const { url } = await TestkubeAPI.getRedirectUrl(orgEnv);
 
-      return `${url}${path}`;
+      return url;
     },
+    enabled: !!orgEnv.orgIndex && !!orgEnv.envSlug,
   });
 };

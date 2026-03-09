@@ -110,68 +110,47 @@ const MetadataController = ({
   },
 
   async getRedirectUrl({ headers }, res) {
-    const orgIndex = Number(headers[ORG_HEADER]);
-    const envSlug = headers[ENV_HEADER] as string;
+    try {
+      const orgIndex = Number(headers[ORG_HEADER]);
+      const envSlug = headers[ENV_HEADER] as string;
 
-    logger.debug('Resolving Testkube redirect URL', {
-      orgIndex,
-      envSlug,
-    });
+      const org = enterpriseService.getOrganization({ orgIndex });
+      if (!org) {
+        res.status(404).json({ error: 'Organization not found' });
+        return;
+      }
 
-    const org = enterpriseService.getOrganization({ orgIndex });
-    if (!org) {
-      logger.warn(
-        'Organization not found while resolving Testkube redirect URL',
-        {
-          orgIndex,
-        },
-      );
-      res.status(404).json({ error: 'Organization not found' });
-      return;
+      const metadata = await enterpriseService.getOrganizationMetadata({
+        orgId: org.id,
+      });
+
+      if (!metadata) {
+        res.status(404).json({ error: 'Organization metadata not found' });
+        return;
+      }
+
+      const environment = await enterpriseService.getEnvironment({
+        org,
+        envSlug,
+      });
+      if (!environment) {
+        res.status(404).json({ error: 'Environment not found' });
+        return;
+      }
+
+      const redirectUrl = `${config.uiUrl}/organization/${metadata.slug}/environment/${environment.slug}`;
+
+      res.status(200).json({
+        url: redirectUrl,
+      });
+    } catch (error) {
+      res.status(500).json({
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Failed to fetch redirect URL',
+      });
     }
-
-    const metadata = await enterpriseService.getOrganizationMetadata({
-      orgId: org.id,
-    });
-
-    if (!metadata) {
-      logger.warn(
-        'Organization metadata not found while resolving Testkube redirect URL',
-        {
-          orgId: org.id,
-        },
-      );
-      res.status(404).json({ error: 'Organization metadata not found' });
-      return;
-    }
-
-    const environment = await enterpriseService.getEnvironment({
-      org,
-      envSlug,
-    });
-    if (!environment) {
-      logger.warn(
-        'Environment not found while resolving Testkube redirect URL',
-        {
-          orgId: org.id,
-          envSlug,
-        },
-      );
-      res.status(404).json({ error: 'Environment not found' });
-      return;
-    }
-
-    const redirectUrl = `${config.uiUrl}/organization/${metadata.slug}/environment/${environment.slug}`;
-
-    logger.info('Resolved Testkube redirect URL', {
-      orgId: org.id,
-      orgSlug: metadata.slug,
-      envSlug: environment.slug,
-    });
-
-    res.status(200).json({
-      url: redirectUrl,
-    });
   },
 });
 
