@@ -1,3 +1,4 @@
+import type { LoggerService } from '@backstage/backend-plugin-api';
 import type { Config } from './configService';
 
 type IncomingHeaders = Record<string, string | string[] | undefined>;
@@ -18,6 +19,7 @@ type ProxyService = {
 
 type ProxyServiceParams = {
   config: Config;
+  logger: LoggerService;
 };
 
 const getTargetUrl = (
@@ -90,19 +92,48 @@ const buildHeaders = (
   return headers;
 };
 
-const ProxyService = ({ config }: ProxyServiceParams): ProxyService => ({
+const ProxyService = ({
+  config,
+  logger,
+}: ProxyServiceParams): ProxyService => ({
   async send({ path, method, body, incomingHeaders, orgId, envId, apiKey }) {
     const targetUrl = getTargetUrl(config.url, path, orgId, envId);
     const headers = buildHeaders(incomingHeaders, apiKey);
 
-    return fetch(targetUrl, {
+    logger.debug('Sending request to Testkube API', {
       method,
-      headers,
-      body:
-        body && !['GET', 'DELETE'].includes(method as string)
-          ? JSON.stringify(body)
-          : undefined,
+      path,
+      targetUrl,
+      hasOrgId: !!orgId,
+      hasEnvId: !!envId,
     });
+
+    try {
+      const response = await fetch(targetUrl, {
+        method,
+        headers,
+        body:
+          body && !['GET', 'DELETE'].includes(method as string)
+            ? JSON.stringify(body)
+            : undefined,
+      });
+
+      logger.info('Received response from Testkube API', {
+        method,
+        path,
+        status: response.status,
+      });
+
+      return response;
+    } catch (error) {
+      logger.error('Network error while calling Testkube API', {
+        method,
+        path,
+        targetUrl,
+        error: error instanceof Error ? error.message : 'Unknown network error',
+      });
+      throw error;
+    }
   },
 });
 

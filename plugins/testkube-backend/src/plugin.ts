@@ -18,36 +18,45 @@ export const testkubePlugin = createBackendPlugin({
         http: coreServices.httpRouter,
         httpAuth: coreServices.httpAuth,
         config: coreServices.rootConfig,
+        logger: coreServices.logger,
       },
-      async init({ http, httpAuth, config: backstageConfig }) {
+      async init({ http, httpAuth, config: backstageConfig, logger }) {
+        logger.info('Initializing Testkube backend plugin');
+
         const configService = ConfigService();
         const config = configService.getFromBackstage(backstageConfig);
 
         const errors = configService.validate(config);
         if (errors.length > 0) {
-          throw new Error(errors.join('\n'));
+          const message = errors.join('\n');
+          logger.error(`Testkube configuration validation failed: ${message}`);
+          throw new Error(message);
         }
 
         const cacheService = CacheService();
-        const proxyService = ProxyService({ config });
+        const proxyService = ProxyService({ config, logger });
         const enterpriseService = EnterpriseService({
           config,
           cacheService,
           proxyService,
+          logger,
         });
         const proxyController = ProxyController({
           proxyService,
           enterpriseService,
+          logger,
         });
         const metadataController = MetadataController({
           config,
           enterpriseService,
+          logger,
         });
 
         const router = Router({
           httpAuth,
           proxyController,
           metadataController,
+          logger,
         });
 
         http.use(router.handle());
