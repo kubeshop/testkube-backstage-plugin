@@ -284,6 +284,6 @@ export const useRedirectUrl = () => {
 
       return url;
     },
-    enabled: !!orgEnv.orgIndex && !!orgEnv.envSlug,
+    enabled: orgEnv.orgIndex !== undefined && orgEnv.envSlug !== undefined,
   });
 };
