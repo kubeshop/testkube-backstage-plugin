@@ -46,6 +46,7 @@ const Router = ({
     const authMiddleware = AuthMiddleware({ httpAuth, logger });
     router.use(authMiddleware.inject);
 
+    router.get('/redirect', metadataController.getRedirectUrl);
     router.get('/config', metadataController.getConfig);
     router.get('/organizations', metadataController.getOrganizations);
     router.get(

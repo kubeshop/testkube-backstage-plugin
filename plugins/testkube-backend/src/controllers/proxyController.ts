@@ -13,8 +13,8 @@ type ProxyControllerParams = {
   logger: LoggerService;
 };
 
-const ORG_HEADER = 'x-org-index';
-const ENV_HEADER = 'x-env-slug';
+export const ORG_HEADER = 'x-org-index';
+export const ENV_HEADER = 'x-env-slug';
 
 const ProxyController = ({
   proxyService,

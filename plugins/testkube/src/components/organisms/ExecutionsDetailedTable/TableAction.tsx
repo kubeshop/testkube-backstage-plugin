@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { IconButton, Menu, MenuItem } from '@material-ui/core';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 import { useRunTestWorkflowByNameMutation } from '../../../hooks/useApi';
+import { useEnterpriseNavigation } from '../../../hooks/useEnterpriseNavigation';
 
 type TableActionProps = {
   name: string;
@@ -17,27 +18,46 @@ export const TableAction: React.FC<TableActionProps> = ({
 }) => {
   const { mutate: runTestWorkflow, isPending } =
     useRunTestWorkflowByNameMutation();
+  const { shouldNavigateToUi, navigate } = useEnterpriseNavigation();
 
   const [tooltipAnchorEl, setTooltipAnchorEl] = useState<null | HTMLElement>(
     null,
   );
   const isToolTipOpen = Boolean(tooltipAnchorEl);
 
-  const handleTooltipClose = () => {
+  const handleTooltipClose = useCallback(() => {
     setTooltipAnchorEl(null);
-  };
+  }, []);
 
   const handleTooltipOpen = (event: React.MouseEvent<HTMLElement>) => {
     setTooltipAnchorEl(event.currentTarget);
   };
 
-  const handleOpenHistoryDialog = () => {
+  const handleOpenHistoryDialog = useCallback(() => {
     handleTooltipClose();
-    onOpenExecutionHistoryDialog();
-  };
 
-  const handleRunTestWorkflow = () => {
+    if (shouldNavigateToUi) {
+      navigate(`dashboard/test-workflows/${name}/executions`);
+      return;
+    }
+
+    onOpenExecutionHistoryDialog();
+  }, [
+    shouldNavigateToUi,
+    name,
+    onOpenExecutionHistoryDialog,
+    handleTooltipClose,
+    navigate,
+  ]);
+
+  const handleRunTestWorkflow = useCallback(() => {
     handleTooltipClose();
+
+    if (shouldNavigateToUi) {
+      navigate(`dashboard/test-workflows/${name}/overview`);
+      return;
+    }
+
     runTestWorkflow(
       { name },
       {
@@ -46,7 +66,14 @@ export const TableAction: React.FC<TableActionProps> = ({
         },
       },
     );
-  };
+  }, [
+    shouldNavigateToUi,
+    navigate,
+    runTestWorkflow,
+    name,
+    onOpenSnackbar,
+    handleTooltipClose,
+  ]);
 
   return (
     <>

@@ -1,4 +1,8 @@
-import { Environment, ListEnvironmentsResponse } from '../types/api';
+import {
+  Environment,
+  ListEnvironmentsResponse,
+  Organization as OrganizationApi,
+} from '../types/api';
 import { replaceStringVariables } from '../utils/common';
 import CacheService from './cacheService';
 import type { Config } from './configService';
@@ -26,17 +30,24 @@ type EnterpriseService = {
     orgIndex: number;
     envSlug: string;
   }): Promise<RequestData>;
-  getEnvironments(params: { org: Organization }): Promise<
-    {
-      id: Environment['id'];
-      slug: Environment['slug'];
-      name: Environment['name'];
-    }[]
-  >;
+  getEnvironments(params: {
+    org: Organization;
+  }): Promise<EnvironmentMetadata[]>;
+  getEnvironment(params: {
+    org: Organization;
+    envSlug: string;
+  }): Promise<EnvironmentMetadata | undefined>;
+  getOrganization(params: { orgIndex: number }): Organization | undefined;
+  getOrganizationMetadata(params: {
+    orgId: string;
+  }): Promise<OrganizationApi | undefined>;
+  getOrganizationMetadataList(): Promise<OrganizationApi[]>;
 };
 
 const CACHE_KEY_ENVIRONMENTS = 'environments-{orgId}';
 const CACHE_KEY_REQUEST = 'request-{orgId}-{envSlug}';
+const CACHE_KEY_ORGANIZATIONS = 'organizations';
+const CACHE_EXPIRATION_ORGANIZATIONS = 60 * 60 * 24; // 24 hours
 
 type EnterpriseServiceParams = {
   config: Config;
@@ -54,13 +65,8 @@ const EnterpriseService = ({
   async getRequest({ orgIndex, envSlug }) {
     if (!isEnterprise) return undefined;
 
-    const org = organizations[orgIndex];
-    if (!org) {
-      logger.warn('Organization not found for Testkube request', {
-        orgIndex,
-      });
-      throw new Error(`Organization not found at index ${orgIndex}`);
-    }
+    const org = this.getOrganization({ orgIndex });
+    if (!org) throw new Error(`Organization not found at index ${orgIndex}`);
     const { id: orgId, apiKey } = org;
 
     const cacheKey = replaceStringVariables(CACHE_KEY_REQUEST, {
@@ -158,6 +164,53 @@ const EnterpriseService = ({
     });
 
     return environments;
+  },
+  async getEnvironment({ org: { id: orgId, apiKey }, envSlug }) {
+    const environments = await this.getEnvironments({
+      org: { id: orgId, apiKey },
+    });
+
+    return environments.find(env => env.slug === envSlug);
+  },
+
+  getOrganization({ orgIndex }) {
+    return organizations[orgIndex];
+  },
+
+  async getOrganizationMetadata({ orgId }) {
+    const organizationList = await this.getOrganizationMetadataList();
+
+    return organizationList.find(org => org.id === orgId);
+  },
+
+  async getOrganizationMetadataList() {
+    const cached = cacheService.get<OrganizationApi[]>(CACHE_KEY_ORGANIZATIONS);
+    if (cached) return cached;
+
+    const organizationList = await Promise.all(
+      organizations.map(async ({ id, apiKey }) => {
+        const organization = await proxyService.send({
+          path: `/organizations/${id}`,
+          method: 'GET',
+          apiKey: apiKey,
+        });
+
+        if (!organization.ok) {
+          throw new Error(`Failed to fetch organization ${id}`);
+        }
+
+        const organizationApi: OrganizationApi = await organization.json();
+
+        return organizationApi;
+      }),
+    );
+
+    cacheService.set(
+      CACHE_KEY_ORGANIZATIONS,
+      organizationList,
+      CACHE_EXPIRATION_ORGANIZATIONS,
+    );
+    return organizationList;
   },
 });
 

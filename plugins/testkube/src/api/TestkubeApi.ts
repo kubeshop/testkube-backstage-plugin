@@ -9,6 +9,7 @@ export const testkubeApiRef = createApiRef<TestkubeApi>({
 export type TestkubeConfig = {
   isEnterprise: boolean;
   organizationCount: number;
+  uiUrl?: string;
 };
 
 export type Organization = {
@@ -58,4 +59,5 @@ export type TestkubeApi = {
     filters: TestWorkflowWithExecutionsFilters,
     orgEnv?: OrgEnvParams,
   ): Promise<components['schemas']['TestWorkflowWithExecutionSummary'][]>;
+  getRedirectUrl(orgEnv?: OrgEnvParams): Promise<{ url: string }>;
 };
