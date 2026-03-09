@@ -192,4 +192,13 @@ export class TestkubeClient implements TestkubeApi {
     );
     return data as components['schemas']['TestWorkflowWithExecutionSummary'][];
   }
+
+  async getRedirectUrl(orgEnv?: {
+    orgIndex?: number | null;
+    envSlug?: string | null;
+  }): Promise<{ url: string }> {
+    const response = await this.fetcher(`/redirect`, { ...orgEnv });
+
+    return response as { url: string };
+  }
 }

@@ -1,4 +1,4 @@
-// Path params for /organizations/{id}/environments
+// Path params for /organizations/{id} and /organizations/{id}/environments
 export interface ListEnvironmentsPathParams {
   /** Organization ID (path: {id}) */
   id: string;
@@ -8,6 +8,23 @@ export interface ListEnvironmentsPathParams {
 export interface ListEnvironmentsQueryParams {
   /** Limit queries for list of resources */
   limit?: number;
+}
+
+// Organization (200 response body for GET /organizations/{id})
+// Based on components.schemas.Organization in the Testkube Control Plane OpenAPI
+export interface Organization {
+  /** Organization ID */
+  id: string;
+  /** Organization name */
+  name: string;
+  /** Human- and URL friendly identifier */
+  slug: string;
+
+  // Optional fields from BasicObject
+  description?: string;
+  labels?: Record<string, string>;
+  createdAt?: string; // ISO date-time
+  updatedAt?: string; // ISO date-time
 }
 
 // Environment status values from the spec
