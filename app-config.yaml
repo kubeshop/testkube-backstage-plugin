@@ -120,7 +120,7 @@ permission:
   enabled: false
 
 testkube:
-  enterprise: true
+  enterprise: false
   # Depends on testkube.enterprise = true
   uiUrl: https://app.testkube.dev/
   # Backend plugin: upstream Testkube API (used when proxy target points to backend plugin)

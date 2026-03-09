@@ -1,4 +1,4 @@
-import { DiscoveryApi, IdentityApi } from '@backstage/core-plugin-api/*';
+import { DiscoveryApi, IdentityApi } from '@backstage/core-plugin-api';
 import {
   TestkubeApi,
   TestkubeConfig,
