@@ -1,5 +1,10 @@
-import { DiscoveryApi, IdentityApi } from '@backstage/core-plugin-api/*';
-import { TestkubeApi } from './TestkubeApi';
+import { DiscoveryApi, IdentityApi } from '@backstage/core-plugin-api';
+import {
+  TestkubeApi,
+  TestkubeConfig,
+  Organization,
+  Environment,
+} from './TestkubeApi';
 import { components } from '../types/openapi';
 import { TestWorkflowWithExecutionsFilters } from '../types/common';
 
@@ -26,23 +31,47 @@ export class TestkubeClient implements TestkubeApi {
 
   private async fetcher(
     url: string,
-    headers?: any,
-    output: string = 'json',
-    method: string = 'GET',
-    body: any = null,
+    options: {
+      headers?: Record<string, string>;
+      output?: 'json' | 'text';
+      method?: string;
+      body?: any;
+      orgIndex?: number | null;
+      envSlug?: string | null;
+    } = {},
   ) {
+    const {
+      headers = {},
+      output = 'json',
+      method = 'GET',
+      body = null,
+      orgIndex,
+      envSlug,
+    } = options;
+
     const { token: idToken } = await this.identityApi.getCredentials();
     const proxyUrl = await this.getBaseUrl();
+
+    const requestHeaders: Record<string, string> = {
+      'User-Agent': 'backstage',
+      'Content-Type': 'application/json',
+      ...(idToken && { Authorization: `Bearer ${idToken}` }),
+      ...headers,
+    };
+
+    if (orgIndex !== null && orgIndex !== undefined) {
+      requestHeaders['x-org-index'] = orgIndex.toString();
+    }
+    if (envSlug) {
+      requestHeaders['x-env-slug'] = envSlug;
+    }
+
     const response = await fetch(`${proxyUrl}${url}`, {
-      method: method || 'GET',
+      method,
       body: body ? JSON.stringify(body) : null,
-      headers: {
-        'User-Agent': 'backstage',
-        'Content-Type': 'application/json',
-        ...(idToken && { Authorization: `Bearer ${idToken}` }),
-        ...headers,
-      },
+      headers: requestHeaders,
     });
+
     if (!response.ok) {
       throw new Error(
         `failed to fetch data, status ${response.status}: ${response.statusText}`,
@@ -52,67 +81,101 @@ export class TestkubeClient implements TestkubeApi {
     return await response.json();
   }
 
-  async getTestWorkflowExecutionsResult() {
-    return (await this.fetcher(
-      '/v1/test-workflow-executions',
-    )) as components['schemas']['TestWorkflowExecutionsResult'];
+  async getConfig(): Promise<TestkubeConfig> {
+    return (await this.fetcher('/config')) as TestkubeConfig;
   }
 
-  async getTestWorkflow(id: string) {
-    return (await this.fetcher(
-      `/v1/test-workflows/${id}`,
-      {
-        accept: 'text/yaml',
-      },
-      'text',
-    )) as string;
+  async getOrganizations(): Promise<Organization[]> {
+    const response = (await this.fetcher('/organizations')) as {
+      organizations: Organization[];
+    };
+    return response.organizations;
+  }
+
+  async getEnvironments(orgIndex: number): Promise<Environment[]> {
+    const response = (await this.fetcher(
+      `/organizations/${orgIndex}/environments`,
+    )) as { environments: Environment[] };
+    return response.environments;
+  }
+
+  async getTestWorkflowExecutionsResult(orgEnv?: {
+    orgIndex?: number | null;
+    envSlug?: string | null;
+  }) {
+    return (await this.fetcher('/v1/test-workflow-executions', {
+      ...orgEnv,
+    })) as components['schemas']['TestWorkflowExecutionsResult'];
+  }
+
+  async getTestWorkflow(
+    id: string,
+    orgEnv?: { orgIndex?: number | null; envSlug?: string | null },
+  ) {
+    return (await this.fetcher(`/v1/test-workflows/${id}`, {
+      headers: { accept: 'text/yaml' },
+      output: 'text',
+      ...orgEnv,
+    })) as string;
   }
 
   async getTestWorkflowExecutionById(
     workflowName: string,
     executionId: string,
+    orgEnv?: { orgIndex?: number | null; envSlug?: string | null },
   ) {
     return (await this.fetcher(
       `/v1/test-workflows/${workflowName}/executions/${executionId}`,
+      { ...orgEnv },
     )) as components['schemas']['TestWorkflowExecution'];
   }
 
-  async runTestWorkflowByName(workflowName: string) {
+  async runTestWorkflowByName(
+    workflowName: string,
+    orgEnv?: { orgIndex?: number | null; envSlug?: string | null },
+  ) {
     return (await this.fetcher(
       `/v1/test-workflows/${workflowName}/executions`,
-      {},
-      'json',
-      'POST',
-      {},
+      {
+        method: 'POST',
+        body: {},
+        ...orgEnv,
+      },
     )) as components['schemas']['TestWorkflowExecution'][];
   }
 
-  async getTestWorkflowExecutionsByName(workflowName: string) {
+  async getTestWorkflowExecutionsByName(
+    workflowName: string,
+    orgEnv?: { orgIndex?: number | null; envSlug?: string | null },
+  ) {
     return (await this.fetcher(
       `/v1/test-workflows/${workflowName}/executions`,
+      {
+        ...orgEnv,
+      },
     )) as components['schemas']['TestWorkflowExecutionsResult'];
   }
 
-  async getTestWorkflowExecutionLog(workflowName: string, executionId: string) {
+  async getTestWorkflowExecutionLog(
+    workflowName: string,
+    executionId: string,
+    orgEnv?: { orgIndex?: number | null; envSlug?: string | null },
+  ) {
     return (await this.fetcher(
       `/v1/test-workflows/${workflowName}/executions/${executionId}/logs`,
       {
-        accept: 'text/plain',
+        headers: { accept: 'text/plain' },
+        output: 'text',
+        ...orgEnv,
       },
-      'text',
     )) as string;
   }
 
   async getTestWorkflowsWithExecutions(
     filters: TestWorkflowWithExecutionsFilters,
+    orgEnv?: { orgIndex?: number | null; envSlug?: string | null },
   ): Promise<components['schemas']['TestWorkflowWithExecutionSummary'][]> {
-    const {
-      labels,
-      page = 0,
-      pageSize = 14,
-      organization,
-      environments,
-    } = filters;
+    const { labels, page = 0, pageSize = 14 } = filters;
 
     const query = new URLSearchParams({
       page: page.toString(),
@@ -123,18 +186,9 @@ export class TestkubeClient implements TestkubeApi {
       query.append('selector', labels);
     }
 
-    // Si hay organización y entornos => modo enterprise
-    if (organization && environments?.length === 1) {
-      const endpoint = `/organizations/${organization}/environments/${
-        environments[0]
-      }/agent/test-workflow-with-executions?${query.toString()}`;
-      const data = await this.fetcher(endpoint);
-      return data as components['schemas']['TestWorkflowWithExecutionSummary'][];
-    }
-
-    // Modo no enterprise
     const data = await this.fetcher(
       `/v1/test-workflow-with-executions?${query.toString()}`,
+      { ...orgEnv },
     );
     return data as components['schemas']['TestWorkflowWithExecutionSummary'][];
   }

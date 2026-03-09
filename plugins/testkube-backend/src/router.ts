@@ -3,17 +3,23 @@ import express, { Router as ExpressRouter } from 'express';
 import type { HttpAuthService } from '@backstage/backend-plugin-api';
 import { AuthMiddleware } from './middlewares/authMiddleware';
 import ProxyController from './controllers/proxyController';
+import MetadataController from './controllers/metadataController';
 
 type RouterDeps = {
   httpAuth: HttpAuthService;
   proxyController: ProxyController;
+  metadataController: MetadataController;
 };
 
 type Router = {
   handle(): ExpressRouter;
 };
 
-const Router = ({ httpAuth, proxyController }: RouterDeps): Router => ({
+const Router = ({
+  httpAuth,
+  proxyController,
+  metadataController,
+}: RouterDeps): Router => ({
   handle() {
     const router = ExpressRouter();
     router.use(express.json());
@@ -22,7 +28,12 @@ const Router = ({ httpAuth, proxyController }: RouterDeps): Router => ({
     const authMiddleware = AuthMiddleware({ httpAuth });
     router.use(authMiddleware.inject);
 
-    // router.get('/environments', )
+    router.get('/config', metadataController.getConfig);
+    router.get('/organizations', metadataController.getOrganizations);
+    router.get(
+      '/organizations/:index/environments',
+      metadataController.getEnvironments,
+    );
 
     router.all(
       '*',

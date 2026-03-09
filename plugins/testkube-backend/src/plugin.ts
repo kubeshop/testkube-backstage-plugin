@@ -8,6 +8,7 @@ import ProxyService from './services/proxyService';
 import EnterpriseService from './services/enterpriseService';
 import CacheService from './services/cacheService';
 import ProxyController from './controllers/proxyController';
+import MetadataController from './controllers/metadataController';
 
 export const testkubePlugin = createBackendPlugin({
   pluginId: 'testkube',
@@ -38,10 +39,15 @@ export const testkubePlugin = createBackendPlugin({
           proxyService,
           enterpriseService,
         });
+        const metadataController = MetadataController({
+          config,
+          enterpriseService,
+        });
 
         const router = Router({
           httpAuth,
           proxyController,
+          metadataController,
         });
 
         http.use(router.handle());
