@@ -120,12 +120,13 @@ permission:
   enabled: false
 
 testkube:
-  enterprise: true
+  enterprise: false
   # Depends on testkube.enterprise = true
   uiUrl: https://app.testkube.dev/
   # Backend plugin: upstream Testkube API (used when proxy target points to backend plugin)
-  # apiUrl: 'https://api.testkube.io'
+  #apiUrl: 'https://api.testkube.io'
   apiUrl: "http://localhost:8088"
-  # organizations:
-  #   - id: <your-org-id>
-  #     apiKey: <your-api-key-only-read-access>
+  organizations:
+    - id: <my-org-id>
+      apiKey: <my-api-key-with-read-access>
+      name: <my-optional-org-name>

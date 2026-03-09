@@ -78,7 +78,7 @@ export const OrgEnvSelector = () => {
               value={org.index}
               style={{ paddingLeft: '8px' }}
             >
-              {org.id}
+              {org.name}
             </MenuItem>
           ))}
         </Select>

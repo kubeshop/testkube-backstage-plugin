@@ -13,7 +13,7 @@ export type TestkubeConfig = {
 
 export type Organization = {
   index: number;
-  id: string;
+  name: string;
 };
 
 export type Environment = {

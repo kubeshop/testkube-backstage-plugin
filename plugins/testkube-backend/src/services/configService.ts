@@ -7,6 +7,7 @@ export type Config = {
   organizations: {
     id: string;
     apiKey: string;
+    name: string;
   }[];
 };
 
@@ -27,9 +28,10 @@ const ConfigService = (): ConfigService => ({
 
     const organizations = (
       backstageConfig.getOptionalConfigArray('testkube.organizations') ?? []
-    ).map(config => ({
+    ).map((config, index) => ({
       id: config.getString('id') ?? '',
       apiKey: config.getString('apiKey') ?? '',
+      name: config.getString('name') ?? `Organization #${index + 1}`,
     }));
 
     return {

@@ -18,9 +18,9 @@ const MetadataController = ({
   enterpriseService,
 }: MetadataControllerParams): MetadataController => ({
   getOrganizations(_req: Request, res: Response) {
-    const organizations = config.organizations.map((org, index) => ({
+    const organizations = config.organizations.map(({ name }, index) => ({
       index,
-      id: org.id,
+      name,
     }));
 
     res.json({ organizations });
