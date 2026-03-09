@@ -9,7 +9,6 @@ export const testkubeApiRef = createApiRef<TestkubeApi>({
 export type TestkubeConfig = {
   isEnterprise: boolean;
   organizationCount: number;
-  uiUrl?: string;
 };
 
 export type Organization = {

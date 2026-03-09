@@ -20,14 +20,24 @@ const MetadataController = ({
   enterpriseService,
 }: MetadataControllerParams): MetadataController => ({
   async getOrganizations(_req, res) {
-    const organizations = await enterpriseService.getOrganizationMetadataList();
+    try {
+      const organizations =
+        await enterpriseService.getOrganizationMetadataList();
 
-    res.json({
-      organizations: organizations.map((org, index) => ({
-        index,
-        id: org.name,
-      })),
-    });
+      res.json({
+        organizations: organizations.map((org, index) => ({
+          index,
+          id: org.name,
+        })),
+      });
+    } catch (error) {
+      res.status(500).json({
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Failed to fetch organizations',
+      });
+    }
   },
 
   async getEnvironments({ params: { index } }, res) {
@@ -75,38 +85,47 @@ const MetadataController = ({
   },
 
   async getRedirectUrl({ headers }, res) {
-    const orgIndex = Number(headers[ORG_HEADER]);
-    const envSlug = headers[ENV_HEADER] as string;
+    try {
+      const orgIndex = Number(headers[ORG_HEADER]);
+      const envSlug = headers[ENV_HEADER] as string;
 
-    const org = enterpriseService.getOrganization({ orgIndex });
-    if (!org) {
-      res.status(404).json({ error: 'Organization not found' });
-      return;
+      const org = enterpriseService.getOrganization({ orgIndex });
+      if (!org) {
+        res.status(404).json({ error: 'Organization not found' });
+        return;
+      }
+
+      const metadata = await enterpriseService.getOrganizationMetadata({
+        orgId: org.id,
+      });
+
+      if (!metadata) {
+        res.status(404).json({ error: 'Organization metadata not found' });
+        return;
+      }
+
+      const environment = await enterpriseService.getEnvironment({
+        org,
+        envSlug,
+      });
+      if (!environment) {
+        res.status(404).json({ error: 'Environment not found' });
+        return;
+      }
+
+      const redirectUrl = `${config.uiUrl}/organization/${metadata.slug}/environment/${environment.slug}`;
+
+      res.status(200).json({
+        url: redirectUrl,
+      });
+    } catch (error) {
+      res.status(500).json({
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Failed to fetch redirect URL',
+      });
     }
-
-    const metadata = await enterpriseService.getOrganizationMetadata({
-      orgId: org.id,
-    });
-
-    if (!metadata) {
-      res.status(404).json({ error: 'Organization metadata not found' });
-      return;
-    }
-
-    const environment = await enterpriseService.getEnvironment({
-      org,
-      envSlug,
-    });
-    if (!environment) {
-      res.status(404).json({ error: 'Environment not found' });
-      return;
-    }
-
-    const redirectUrl = `${config.uiUrl}/organization/${metadata.slug}/environment/${environment.slug}`;
-
-    res.status(200).json({
-      url: redirectUrl,
-    });
   },
 });
 
