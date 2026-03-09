@@ -67,8 +67,9 @@ const EnterpriseService = ({
     const environments = await this.getEnvironments({ org });
     const envId = environments.find(env => env.slug === envSlug)?.id;
 
-    if (!envId && !envSlug)
+    if (!!envSlug && !envId)
       throw new Error(`Environment not found with slug ${envSlug}`);
+
     if (!orgId || !envId || !apiKey) return undefined;
 
     const requestData: RequestData = { orgId, envId, apiKey };
