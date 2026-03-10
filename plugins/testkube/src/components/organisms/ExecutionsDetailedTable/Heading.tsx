@@ -1,4 +1,3 @@
-import React from 'react';
 import { TableColumn } from '@backstage/core-components';
 import { components } from '../../../types/openapi';
 import { makeStyles } from '@material-ui/core';

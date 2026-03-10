@@ -7,5 +7,7 @@ module.exports = {
   rules: {
     ...baseConfig.rules,
     'prettier/prettier': 'error',
+    'react/react-in-jsx-scope': 'off',
+    'react/jsx-uses-react': 'off',
   },
 };

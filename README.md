@@ -61,7 +61,7 @@ From the repository root:
 
 ```bash
 yarn install
-yarn dev
+yarn start
 ```
 
 This will start both the frontend (on port `3000`) and backend (on port `7007`). The Testkube dashboard and entity pages are available in the example app once the plugins are loaded.

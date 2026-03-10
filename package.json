@@ -3,12 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "engines": {
-    "node": "20 || 22"
+    "node": "22 || 24"
   },
   "scripts": {
-    "dev": "yarn workspaces foreach -A --include backend --include app --parallel --jobs unlimited -v -i run start",
-    "start": "yarn workspace app start",
-    "start-backend": "yarn workspace backend start",
+    "start": "backstage-cli repo start",
     "build:backend": "yarn workspace backend build",
     "build:all": "backstage-cli repo build --all",
     "build-image": "yarn workspace backend build-image",
@@ -32,18 +30,26 @@
     ]
   },
   "devDependencies": {
-    "@backstage/cli": "^0.31.0",
-    "@backstage/e2e-test-utils": "^0.1.1",
+    "@backstage/cli": "^0.35.4",
+    "@backstage/e2e-test-utils": "^0.1.2",
+    "@jest/environment-jsdom-abstract": "^30.0.0",
     "@playwright/test": "^1.32.3",
+    "@types/jest": "^30.0.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
+    "jest": "^30.2.0",
+    "jsdom": "^27.1.0",
     "node-gyp": "^10.0.0",
     "prettier": "^2.3.2",
     "typescript": "~5.8.0"
   },
   "resolutions": {
     "@types/react": "^18",
-    "@types/react-dom": "^18"
+    "@types/react-dom": "^18",
+    "koa@npm:3.0.3": "npm:3.1.2",
+    "koa@npm:2.15.3": "npm:2.16.4",
+    "underscore@npm:1.13.6": "npm:1.13.8",
+    "dompurify@npm:=3.2.6": "npm:3.3.2"
   },
   "prettier": "@backstage/cli/config/prettier",
   "lint-staged": {

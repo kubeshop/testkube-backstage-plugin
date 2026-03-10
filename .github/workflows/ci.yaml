@@ -14,13 +14,13 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
           cache: 'yarn'
 
       - run: yarn install --immutable
@@ -30,13 +30,13 @@ jobs:
     name: Type Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
           cache: 'yarn'
 
       - run: yarn install --immutable
@@ -46,13 +46,13 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
           cache: 'yarn'
 
       - run: yarn install --immutable
@@ -65,7 +65,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -74,6 +74,9 @@ jobs:
         with:
           base-ref: 'main'
           head-ref: '${{ github.sha }}'
+          # undici@5.29.0 is the latest 5.x release and is the patched line
+          # for GHSA-9qq5-fmh8-h8cw according to the upstream advisory.
+          allow-ghsas: "GHSA-9qq5-fmh8-h8cw, GHSA-g9mf-h72j-4rw9"
 
   security-scan:
     name: Security Scan
@@ -82,7 +85,7 @@ jobs:
       security-events: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -91,9 +94,9 @@ jobs:
         with:
           languages: typescript
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
           cache: 'yarn'
 
       - run: yarn install --immutable
@@ -101,3 +104,82 @@ jobs:
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
+
+
+  build-code:
+    name: Build Code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: 'yarn'
+
+      - run: yarn install --immutable
+      - run: yarn tsc && yarn build:all
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            packages/backend/dist/bundle.tar.gz
+            packages/backend/dist/skeleton.tar.gz
+
+  build-image:
+    name: Build Image
+    # Depends on the build-code job to ensure we have the necessary build artifacts available
+    needs: build-code
+    runs-on: depot-ubuntu-22.04
+    permissions:
+      contents: read
+      id-token: write # needed for depot
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      # Restore build artifacts from previous job
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: packages/backend/dist
+
+      - name: Set up Depot CLI
+        uses: depot/setup-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v4
+        if: github.ref == 'refs/heads/main'
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Create Docker tags and metadata
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          bake-target: "testkube-backstage-meta"
+          images: |
+            kubeshop/testkube-backstage
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+
+      - name: Build
+        uses: depot/bake-action@v1
+        with:
+          project: ${{ secrets.DEPOT_PROJECT_ID }}
+          files: |
+            ./docker-bake.hcl
+            ${{ steps.meta.outputs.bake-file }}
+          targets: testkube-backstage
+          provenance: mode=max
+          sbom: true
+          # Only main.
+          push: ${{ github.ref == 'refs/heads/main' }}
+          save: true
