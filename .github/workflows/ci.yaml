@@ -8,7 +8,6 @@ on:
 
 permissions:
   contents: read
-  id-token: write # needed for depot
 
 jobs:
   lint:
@@ -142,6 +141,9 @@ jobs:
     # Depends on the build-code job to ensure we have the necessary build artifacts available
     needs: build-code
     runs-on: depot-ubuntu-22.04
+    permissions:
+      contents: read
+      id-token: write # needed for depot
     steps:
       # Restore build artifacts from previous job
       - name: Download build artifacts
@@ -174,6 +176,7 @@ jobs:
       - name: Build
         uses: depot/bake-action@v1
         with:
+          project: ${{ secrets.DEPOT_PROJECT_ID }}
           files: |
             ./docker-bake.hcl
             ${{ steps.meta.outputs.bake-file }}
