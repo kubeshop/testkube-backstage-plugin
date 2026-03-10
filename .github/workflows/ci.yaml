@@ -74,6 +74,9 @@ jobs:
         with:
           base-ref: 'main'
           head-ref: '${{ github.sha }}'
+          # undici@5.29.0 is the latest 5.x release and is the patched line
+          # for GHSA-9qq5-fmh8-h8cw according to the upstream advisory.
+          allow-ghsas: GHSA-9qq5-fmh8-h8cw
 
   security-scan:
     name: Security Scan
