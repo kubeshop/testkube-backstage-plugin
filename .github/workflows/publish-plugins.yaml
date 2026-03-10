@@ -63,7 +63,7 @@ jobs:
             echo "@testkube/backstage-plugin@${VERSION} already exists on npm, skipping publish."
           else
             cd plugins/testkube
-            npm publish --access public
+            npm publish --access public --tag next
           fi
 
       - name: Publish @testkube/backstage-plugin-backend
@@ -73,5 +73,5 @@ jobs:
             echo "@testkube/backstage-plugin-backend@${VERSION} already exists on npm, skipping publish."
           else
             cd plugins/testkube-backend
-            npm publish --access public
+            npm publish --access public --tag next
           fi
