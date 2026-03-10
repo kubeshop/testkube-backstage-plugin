@@ -48,7 +48,8 @@
     "@types/react-dom": "^18",
     "koa@npm:3.0.3": "npm:3.1.2",
     "koa@npm:2.15.3": "npm:2.16.4",
-    "underscore@npm:1.13.6": "npm:1.13.8"
+    "underscore@npm:1.13.6": "npm:1.13.8",
+    "dompurify@npm:=3.2.6": "npm:3.3.2"
   },
   "prettier": "@backstage/cli/config/prettier",
   "lint-staged": {
