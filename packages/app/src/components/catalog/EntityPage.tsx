@@ -61,7 +61,7 @@ import { FeatureFlagged } from '@backstage/core-app-api';
 import {
   TestkubeEntityPage,
   isTestkubeAvailable,
-} from '@backstage-community/plugin-testkube';
+} from '@testkube/backstage-plugin';
 
 const testkubeSummaryPage = (
   <Grid container spacing={3} alignItems="stretch">

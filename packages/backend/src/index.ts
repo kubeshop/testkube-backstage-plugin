@@ -64,6 +64,6 @@ backend.add(import('@backstage/plugin-notifications-backend'));
 backend.add(import('@backstage/plugin-signals-backend'));
 
 // testkube
-backend.add(import('@backstage-community/plugin-testkube-backend'));
+backend.add(import('@testkube/backstage-plugin-backend'));
 
 backend.start();

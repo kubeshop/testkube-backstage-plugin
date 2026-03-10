@@ -1,0 +1,71 @@
+name: Publish Testkube Backstage plugins
+
+on:
+  release:
+    types:
+      - published
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Build & Publish plugins
+    runs-on: ubuntu-latest
+    if: github.event.release.target_commitish == 'main'
+
+    env:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      RELEASE_TAG: ${{ github.event.release.tag_name }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: yarn
+
+      - name: Configure npm auth
+        run: |
+          if [ -z "${NPM_TOKEN}" ]; then
+            echo "NPM_TOKEN is not set; cannot publish to npm."
+            exit 1
+          fi
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+          npm whoami || true
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Set plugin versions from tag
+        run: yarn set-versions-from-tag
+
+      - name: Run tests and build
+        run: |
+          yarn lint
+          yarn test
+          yarn tsc
+          yarn build:all
+
+      - name: Publish @testkube/backstage-plugin
+        run: |
+          VERSION=$(node -p "require('./plugins/testkube/package.json').version")
+          if npm view @testkube/backstage-plugin@"${VERSION}" > /dev/null 2>&1; then
+            echo "@testkube/backstage-plugin@${VERSION} already exists on npm, skipping publish."
+          else
+            yarn workspace @testkube/backstage-plugin npm publish --access public
+          fi
+
+      - name: Publish @testkube/backstage-plugin-backend
+        run: |
+          VERSION=$(node -p "require('./plugins/testkube-backend/package.json').version")
+          if npm view @testkube/backstage-plugin-backend@"${VERSION}" > /dev/null 2>&1; then
+            echo "@testkube/backstage-plugin-backend@${VERSION} already exists on npm, skipping publish."
+          else
+            yarn workspace @testkube/backstage-plugin-backend npm publish --access public
+          fi
