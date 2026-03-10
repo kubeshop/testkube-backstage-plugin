@@ -20,6 +20,7 @@ jobs:
       YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       YARN_NPM_REGISTRY_SERVER: https://registry.npmjs.org
       YARN_NPM_PUBLISH_REGISTRY: https://registry.npmjs.org
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
     steps:
       - name: Checkout repository
@@ -61,7 +62,8 @@ jobs:
           if npm view @testkube/backstage-plugin@"${VERSION}" > /dev/null 2>&1; then
             echo "@testkube/backstage-plugin@${VERSION} already exists on npm, skipping publish."
           else
-            yarn workspace @testkube/backstage-plugin npm publish --access public
+            cd plugins/testkube
+            npm publish --access public
           fi
 
       - name: Publish @testkube/backstage-plugin-backend
@@ -70,5 +72,6 @@ jobs:
           if npm view @testkube/backstage-plugin-backend@"${VERSION}" > /dev/null 2>&1; then
             echo "@testkube/backstage-plugin-backend@${VERSION} already exists on npm, skipping publish."
           else
-            yarn workspace @testkube/backstage-plugin-backend npm publish --access public
+            cd plugins/testkube-backend
+            npm publish --access public
           fi
