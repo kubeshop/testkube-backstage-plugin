@@ -31,7 +31,7 @@ import {
   SignInPage,
 } from '@backstage/core-components';
 import { createApp } from '@backstage/app-defaults';
-import { AppRouter, FlatRoutes } from '@backstage/core-app-api';
+import { FlatRoutes } from '@backstage/core-app-api';
 import { CatalogGraphPage } from '@backstage/plugin-catalog-graph';
 import { RequirePermission } from '@backstage/plugin-permission-react';
 import { catalogEntityCreatePermission } from '@backstage/plugin-catalog-common/alpha';
@@ -102,13 +102,18 @@ const routes = (
   </FlatRoutes>
 );
 
-export default app.createRoot(
-  <>
+const AppProvider = app.getProvider();
+const AppRouter = app.getRouter();
+
+const App = () => (
+  <AppProvider>
     <AlertDisplay />
     <OAuthRequestDialog />
     <SignalsDisplay />
     <AppRouter>
       <Root>{routes}</Root>
     </AppRouter>
-  </>,
+  </AppProvider>
 );
+
+export default App;
