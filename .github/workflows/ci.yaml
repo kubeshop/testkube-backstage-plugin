@@ -104,13 +104,38 @@ jobs:
         uses: github/codeql-action/analyze@v3
 
 
-  build:
-    name: Build
-    runs-on: depot-ubuntu-22.04
+  build-code:
+    name: Build Code
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: 'yarn'
+
+      - run: yarn install --immutable
+      - run: yarn build:all
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts
+
+  build-image:
+    name: Build Image
+    # Depends on the build-code job to ensure we have the necessary build artifacts available
+    needs: build-code
+    runs-on: depot-ubuntu-22.04
+    steps:
+      # Restore build artifacts from previous job
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifacts
 
       - name: Set up Depot CLI
         uses: depot/setup-action@v1
