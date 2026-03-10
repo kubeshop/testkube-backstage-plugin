@@ -1,4 +1,3 @@
-import React from 'react';
 import { DashboardPage } from './DashboardPage';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';

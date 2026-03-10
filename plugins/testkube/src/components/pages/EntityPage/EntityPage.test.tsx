@@ -1,4 +1,3 @@
-import React from 'react';
 import { EntityPage } from './EntityPage';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';

@@ -1,4 +1,3 @@
-import React from 'react';
 import { ContentHeader, Table, EmptyState } from '@backstage/core-components';
 
 import {
