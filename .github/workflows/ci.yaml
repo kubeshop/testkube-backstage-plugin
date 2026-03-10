@@ -76,9 +76,7 @@ jobs:
           head-ref: '${{ github.sha }}'
           # undici@5.29.0 is the latest 5.x release and is the patched line
           # for GHSA-9qq5-fmh8-h8cw according to the upstream advisory.
-          allow-ghsas: |
-            GHSA-9qq5-fmh8-h8cw
-            GHSA-g9mf-h72j-4rw9
+          allow-ghsas: "GHSA-9qq5-fmh8-h8cw, GHSA-g9mf-h72j-4rw9"
 
   security-scan:
     name: Security Scan
@@ -149,6 +147,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build-artifacts
+          path: packages/backend/dist
 
       - name: Set up Depot CLI
         uses: depot/setup-action@v1
