@@ -11,7 +11,7 @@
     "role": "frontend-plugin",
     "pluginId": "testkube",
     "pluginPackages": [
-      "@backstage-community/plugin-testkube"
+      "@testkube/backstage-plugin"
     ]
   },
   "sideEffects": false,

@@ -8,7 +8,11 @@
     "access": "public"
   },
   "backstage": {
-    "role": "backend-plugin"
+    "role": "backend-plugin",
+    "pluginId": "testkube",
+    "pluginPackages": [
+      "@testkube/backstage-plugin-backend"
+    ]
   },
   "sideEffects": false,
   "scripts": {
