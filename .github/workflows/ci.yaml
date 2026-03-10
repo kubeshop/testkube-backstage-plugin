@@ -170,10 +170,6 @@ jobs:
             type=ref,event=branch
             type=semver,pattern={{version}}
 
-      - name: Add integration with Testkube .Dev instance
-        run: |
-          echo "${{ secrets.TESTKUBE_ENTERPRISE_CONFIG }}" >> app-config.yaml
-
       - name: Build
         uses: depot/bake-action@v1
         with:
