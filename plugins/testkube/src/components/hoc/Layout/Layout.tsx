@@ -1,4 +1,4 @@
-import React, { PropsWithChildren } from 'react';
+import { PropsWithChildren } from 'react';
 import { Page, Header, Content } from '@backstage/core-components';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { OrgEnvProvider } from '../../../context';
