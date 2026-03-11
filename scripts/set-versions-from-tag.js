@@ -29,7 +29,9 @@ function main() {
   const version = tag.replace(/^v/, '');
 
   if (!semver.valid(version)) {
-    console.error(`Invalid version derived from tag "${tag}": "${version}" is not a valid semver`);
+    console.error(
+      `Invalid version derived from tag "${tag}": "${version}" is not a valid semver`,
+    );
     console.error('Expected tag format: v1.2.3 or 1.2.3');
     process.exit(1);
   }

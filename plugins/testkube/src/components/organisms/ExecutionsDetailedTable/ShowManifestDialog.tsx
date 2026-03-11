@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { LinkButton } from '@backstage/core-components';
 
 import { useEnterpriseNavigation } from '../../../hooks/useEnterpriseNavigation';
