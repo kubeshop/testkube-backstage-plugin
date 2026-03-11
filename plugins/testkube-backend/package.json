@@ -1,15 +1,18 @@
 {
-  "name": "@backstage-community/plugin-testkube-backend",
+  "name": "@testkube/backstage-plugin-backend",
   "version": "0.1.0",
   "license": "Apache-2.0",
-  "private": true,
   "main": "src/index.ts",
   "types": "src/index.ts",
   "publishConfig": {
     "access": "public"
   },
   "backstage": {
-    "role": "backend-plugin"
+    "role": "backend-plugin",
+    "pluginId": "testkube",
+    "pluginPackages": [
+      "@testkube/backstage-plugin-backend"
+    ]
   },
   "sideEffects": false,
   "scripts": {

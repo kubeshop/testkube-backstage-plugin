@@ -42,7 +42,7 @@ import {
   githubAuthApiRef,
   useApi,
 } from '@backstage/core-plugin-api';
-import { TestkubeDashboardPage } from '@backstage-community/plugin-testkube';
+import { TestkubeDashboardPage } from '@testkube/backstage-plugin';
 
 const DynamicSignInPage = (props: SignInPageProps) => {
   const configApi = useApi(configApiRef);

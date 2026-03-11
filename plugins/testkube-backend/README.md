@@ -8,15 +8,15 @@ It exposes a `testkube` backend service that:
 - Adds support for Testkube Enterprise organizations and environments.
 - Provides metadata endpoints used by the UI plugin (organizations, environments, configuration, redirect URLs).
 
-It is intended to be used together with the **Testkube UI plugin** (`@backstage-community/plugin-testkube`).
+It is intended to be used together with the **Testkube UI plugin** (`@testkube/backstage-plugin`).
 
 ## Installation
 
 Add the plugin to your Backstage backend:
 
-````bash
-yarn workspace packages/backend add @backstage-community/plugin-testkube-backend
-``+
+```bash
+yarn workspace packages/backend add @testkube/backstage-plugin-backend
+```
 
 ## Wiring the plugin into the backend
 
@@ -28,10 +28,10 @@ import { createBackend } from '@backstage/backend-defaults';
 const backend = createBackend();
 
 // other backend plugins...
-backend.add(import('@backstage-community/plugin-testkube-backend'));
+backend.add(import('@testkube/backstage-plugin-backend'));
 
 backend.start();
-````
+```
 
 In this repository you can see a complete example in `packages/backend/src/index.ts`.
 
@@ -96,7 +96,7 @@ All routes are protected using Backstage’s `httpAuth` service, and incoming re
 
 ## Relationship with the UI plugin
 
-The Testkube UI plugin (`@backstage-community/plugin-testkube`):
+The Testkube UI plugin (`@testkube/backstage-plugin`):
 
 - Discovers this backend using the Backstage discovery API with the service ID `testkube`.
 - Calls the metadata endpoints and proxy paths exposed by this backend plugin.
