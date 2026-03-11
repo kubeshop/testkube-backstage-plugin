@@ -13,6 +13,7 @@ import {
   createOAuthProviderFactory,
   createSignInResolverFactory,
 } from '@backstage/plugin-auth-node';
+import { Config } from '@backstage/config';
 import {
   githubAuthenticator,
   githubSignInResolvers,
@@ -21,8 +22,56 @@ import { commonSignInResolvers } from '@backstage/plugin-auth-node';
 import fs from 'fs/promises';
 import path from 'path';
 
-const ALLOWED_EMAIL_DOMAINS = new Set(['testkube.io', 'kubeshop.io']);
 const PROVISIONED_USERS_DIR = '/tmp/backstage-github-users';
+const GITHUB_ACCESS_CONFIG_ERROR =
+  'GitHub access policy is not configured. Set auth.githubAccess.allowedDomains and/or auth.githubAccess.whitelistedEmails';
+
+type GithubAccessPolicy = {
+  allowedDomains: Set<string>;
+  whitelistedEmails: Set<string>;
+};
+
+export const normalizeAccessEntry = (value: string): string =>
+  value.trim().toLowerCase();
+
+const toNormalizedSet = (values: string[] = []): Set<string> =>
+  new Set(values.map(normalizeAccessEntry).filter(Boolean));
+
+export const readGithubAccessPolicy = (config: Config): GithubAccessPolicy => {
+  const githubAccess = config.getOptionalConfig('auth.githubAccess');
+
+  const allowedDomains = toNormalizedSet(
+    githubAccess?.getOptionalStringArray('allowedDomains') ?? [],
+  );
+  const whitelistedEmails = toNormalizedSet(
+    githubAccess?.getOptionalStringArray('whitelistedEmails') ?? [],
+  );
+
+  return { allowedDomains, whitelistedEmails };
+};
+
+export const assertGithubAccessPolicyConfigured = (
+  policy: GithubAccessPolicy,
+): void => {
+  if (policy.allowedDomains.size === 0 && policy.whitelistedEmails.size === 0) {
+    throw new Error(GITHUB_ACCESS_CONFIG_ERROR);
+  }
+};
+
+export const isEmailAllowed = (
+  email: string,
+  policy: GithubAccessPolicy,
+): boolean => {
+  assertGithubAccessPolicyConfigured(policy);
+
+  const normalizedEmail = normalizeAccessEntry(email);
+  if (policy.whitelistedEmails.has(normalizedEmail)) {
+    return true;
+  }
+
+  const domain = normalizedEmail.split('@')[1];
+  return Boolean(domain && policy.allowedDomains.has(domain));
+};
 
 const sanitizeEntityName = (value: string): string =>
   value
@@ -97,10 +146,12 @@ export default createBackendModule({
       deps: {
         providers: authProvidersExtensionPoint,
         auth: coreServices.auth,
+        rootConfig: coreServices.rootConfig,
         logger: coreServices.logger,
         catalog: catalogServiceRef,
       },
-      async init({ providers, auth, logger, catalog }) {
+      async init({ providers, auth, rootConfig, logger, catalog }) {
+        const githubAccessPolicy = readGithubAccessPolicy(rootConfig);
         const domainUserProvisioning = createSignInResolverFactory({
           create() {
             return async (info, ctx) => {
@@ -109,12 +160,13 @@ export default createBackendModule({
                 throw new Error('GitHub profile does not contain an email');
               }
 
-              const domain = email.split('@')[1]?.toLowerCase();
-              if (!domain || !ALLOWED_EMAIL_DOMAINS.has(domain)) {
+              if (!isEmailAllowed(email, githubAccessPolicy)) {
+                const normalizedEmail = normalizeAccessEntry(email);
+                const domain = normalizedEmail.split('@')[1];
                 throw new Error(
-                  `Email domain "${
+                  `Sign-in denied for "${normalizedEmail}" (domain "${
                     domain ?? 'unknown'
-                  }" is not allowed to sign in`,
+                  }"). Allowed by auth.githubAccess.allowedDomains or auth.githubAccess.whitelistedEmails only`,
                 );
               }
 

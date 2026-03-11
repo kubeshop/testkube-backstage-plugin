@@ -31,6 +31,11 @@ backend:
 
 auth:
   environment: production
+  githubAccess:
+    allowedDomains:
+      - testkube.io
+      - kubeshop.io
+    whitelistedEmails: []
   providers:
     github:
       production:
