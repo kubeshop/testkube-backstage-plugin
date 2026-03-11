@@ -79,7 +79,11 @@ export const Table: React.FC<TableProps> = ({ data }) => {
         <ExecutionStatusBadge status={rowData.result?.status} />
       ),
     },
-    { title: 'Duration', field: 'result?.totalDuration' },
+    {
+      title: 'Duration',
+      field: 'result.totalDuration',
+      render: (rowData: any) => rowData.result?.totalDuration ?? '-',
+    },
     { title: 'Scheduled at', field: 'scheduledAt', type: 'datetime' },
     {
       title: '',
