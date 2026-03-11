@@ -1,12 +1,12 @@
 {
   "name": "root",
   "version": "1.0.0",
-  "private": true,
   "engines": {
     "node": "22 || 24"
   },
   "scripts": {
     "start": "backstage-cli repo start",
+    "set-versions-from-tag": "node scripts/set-versions-from-tag.js",
     "build:backend": "yarn workspace backend build",
     "build:all": "backstage-cli repo build --all",
     "build-image": "yarn workspace backend build-image",
@@ -41,6 +41,7 @@
     "jsdom": "^27.1.0",
     "node-gyp": "^10.0.0",
     "prettier": "^2.3.2",
+    "semver": "^7.6.0",
     "typescript": "~5.8.0"
   },
   "resolutions": {

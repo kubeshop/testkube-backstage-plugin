@@ -76,7 +76,7 @@ jobs:
           head-ref: '${{ github.sha }}'
           # undici@5.29.0 is the latest 5.x release and is the patched line
           # for GHSA-9qq5-fmh8-h8cw according to the upstream advisory.
-          allow-ghsas: "GHSA-9qq5-fmh8-h8cw, GHSA-g9mf-h72j-4rw9"
+          allow-ghsas: 'GHSA-9qq5-fmh8-h8cw, GHSA-g9mf-h72j-4rw9'
 
   security-scan:
     name: Security Scan
@@ -104,7 +104,6 @@ jobs:
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
-
 
   build-code:
     name: Build Code
@@ -163,7 +162,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v6
         with:
-          bake-target: "testkube-backstage-meta"
+          bake-target: 'testkube-backstage-meta'
           images: |
             kubeshop/testkube-backstage
           tags: |

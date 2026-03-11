@@ -4,10 +4,6 @@ This is the **Testkube UI (frontend) plugin** for [Backstage](https://backstage.
 
 It allows you to centralize information about automated tests managed by Testkube directly inside Backstage, both at a global level and at the entity level.
 
-> **IMPORTANT**
->
-> The plugin currently supports integration with the [Testkube Standalone Agent](https://docs.testkube.io/articles/install/standalone-agent). Support for the Testkube Control Plane is planned.
-
 It provides the following main features:
 
 - **Testkube Dashboard:** a page containing an overview of the latest automated test executions. It includes a panel with three metrics: Success/Failure Range, Failed Executions, and Total Executions. Below the metrics, the executions are listed with their identifier, execution time, execution date, status, and test workflow name.
@@ -23,7 +19,7 @@ _This plugin was originally created through the Backstage CLI._
 
 ## Getting started
 
-This is a **frontend** Backstage plugin and must be used together with the **Testkube backend plugin** (`@backstage-community/plugin-testkube-backend`), which exposes the `testkube` backend service used by this UI.
+This is a **frontend** Backstage plugin and must be used together with the **Testkube backend plugin** (`@testkube/backstage-plugin-backend`), which exposes the `testkube` backend service used by this UI.
 
 For backend setup details, see `plugins/testkube-backend/README.md`.
 
@@ -32,13 +28,13 @@ For backend setup details, see `plugins/testkube-backend/README.md`.
 Install the UI plugin in your Backstage app:
 
 ```bash
-yarn workspace packages/app add @backstage-community/plugin-testkube
+yarn workspace packages/app add @testkube/backstage-plugin
 ```
 
 Install the backend plugin in your Backstage backend:
 
 ```bash
-yarn workspace packages/backend add @backstage-community/plugin-testkube-backend
+yarn workspace packages/backend add @testkube/backstage-plugin-backend
 ```
 
 ### Configuring the backend to connect to my Testkube Agent
@@ -51,7 +47,7 @@ import { createBackend } from '@backstage/backend-defaults';
 const backend = createBackend();
 
 // other plugins...
-backend.add(import('@backstage-community/plugin-testkube-backend'));
+backend.add(import('@testkube/backstage-plugin-backend'));
 
 backend.start();
 ```
@@ -81,7 +77,7 @@ To enable **Testkube Dashboard** into your Backstage project edit the file `pack
 
 ```javascript
 (...)
-import { TestkubeDashboardPage } from '@backstage-community/plugin-testkube';
+import { TestkubeDashboardPage } from '@testkube/backstage-plugin';
 
 (...)
 
@@ -130,7 +126,7 @@ To enable **Testkube Entity Page** into your Backstage project edit the file `pa
 
 ```javascript
 (...)
-import { TestkubeEntityPage, isTestkubeAvailable } from '@backstage-community/plugin-testkube';
+import { TestkubeEntityPage, isTestkubeAvailable } from '@testkube/backstage-plugin';
 
 const testkubeSummaryPage = (
   <Grid container spacing={3} alignItems="stretch">

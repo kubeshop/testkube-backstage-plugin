@@ -37,7 +37,7 @@ import { RequirePermission } from '@backstage/plugin-permission-react';
 import { catalogEntityCreatePermission } from '@backstage/plugin-catalog-common/alpha';
 import { NotificationsPage } from '@backstage/plugin-notifications';
 import { SignalsDisplay } from '@backstage/plugin-signals';
-import { TestkubeDashboardPage } from '@backstage-community/plugin-testkube';
+import { TestkubeDashboardPage } from '@testkube/backstage-plugin';
 
 const app = createApp({
   apis,
