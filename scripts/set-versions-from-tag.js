@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 const fs = require('fs');
 const path = require('path');
+const semver = require('semver');
 
 function updatePackageVersion(pkgPath, version) {
   const absolutePath = path.resolve(__dirname, '..', pkgPath);
@@ -27,8 +28,9 @@ function main() {
 
   const version = tag.replace(/^v/, '');
 
-  if (!version) {
-    console.error(`Could not derive version from tag "${tag}"`);
+  if (!semver.valid(version)) {
+    console.error(`Invalid version derived from tag "${tag}": "${version}" is not a valid semver`);
+    console.error('Expected tag format: v1.2.3 or 1.2.3');
     process.exit(1);
   }
 
