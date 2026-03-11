@@ -1,5 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
+import { IconButton, Menu, MenuItem } from '@material-ui/core';
+import LinkIcon from '@mui/icons-material/Link';
 
 import { Progress, Select, SelectedItems } from '@backstage/core-components';
 
@@ -9,9 +11,27 @@ import {
   useEnvironments,
   useOrganizations,
 } from '../../../hooks/useMetadata';
+import { useEnterpriseNavigation } from '../../../hooks/useEnterpriseNavigation';
+
+const links = [
+  {
+    label: 'Dashboard',
+    path: 'dashboard/home',
+  },
+  {
+    label: 'Executions',
+    path: 'dashboard/executions',
+  },
+  {
+    label: 'Test Workflows',
+    path: 'dashboard/test-workflows',
+  },
+] as const;
 
 export const OrgEnvSelector = () => {
   const { orgIndex, envSlug, setOrgIndex, setEnvSlug } = useOrgEnv();
+  const { navigate } = useEnterpriseNavigation();
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const { data: config, isLoading: configLoading } = useConfig();
   const { data: organizations = [], isLoading: orgsLoading } = useOrganizations(
@@ -57,6 +77,10 @@ export const OrgEnvSelector = () => {
     setEnvSlug(String(selected));
   };
 
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
   const orgItems = organizations.map(org => ({
     label: org.id,
     value: String(org.index),
@@ -85,6 +109,36 @@ export const OrgEnvSelector = () => {
         disabled={orgIndex === null || envsLoading}
         margin="dense"
       />
+      <Box sx={{ marginLeft: 'auto' }}>
+        <IconButton
+          id="links"
+          aria-label="links"
+          aria-haspopup="true"
+          aria-controls={anchorEl ? 'links-menu' : undefined}
+          aria-expanded={anchorEl ? 'true' : undefined}
+          onClick={handleMenuOpen}
+        >
+          <LinkIcon />
+        </IconButton>
+        <Menu
+          id="links-menu"
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={() => setAnchorEl(null)}
+        >
+          {links.map(({ path, label }) => (
+            <MenuItem
+              key={path}
+              onClick={() => {
+                navigate(path);
+                setAnchorEl(null);
+              }}
+            >
+              {label}
+            </MenuItem>
+          ))}
+        </Menu>
+      </Box>
     </Box>
   );
 };

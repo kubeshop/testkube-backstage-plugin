@@ -154,39 +154,6 @@ const mapToExecutionResult = (
     });
 };
 
-const computeMetrics = (executions: TestWorkflowExecutionSummary[]) => {
-  const initial = {
-    results: executions.length,
-    passed: 0,
-    failed: 0,
-    aborted: 0,
-    running: 0,
-    queued: 0,
-    noData: 0,
-  };
-
-  return executions.reduce((acc, e) => {
-    const status = e.result?.status;
-    if (status) {
-      switch (status) {
-        case 'passed':
-        case 'failed':
-        case 'aborted':
-        case 'running':
-        case 'queued':
-          acc[status]++;
-          break;
-        default:
-          acc.noData++;
-          break;
-      }
-    } else {
-      acc.noData++;
-    }
-    return acc;
-  }, initial);
-};
-
 export const useTestWorkflowsWithExecutions = ({
   filters = {},
 }: UseTestWorkflowsWithExecutionsProps = {}) => {
@@ -207,11 +174,7 @@ export const useTestWorkflowsWithExecutions = ({
 
       const results = mapToExecutionResult(workflowsWithExecutions);
 
-      const metrics = computeMetrics(results);
-
       return {
-        totals: metrics,
-        filtered: metrics,
         results,
       };
     },
