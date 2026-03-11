@@ -78,6 +78,11 @@ app:
 
 auth:
   environment: development
+  githubAccess:
+    allowedDomains:
+      - domain.example
+    whitelistedEmails:
+      - user@example.com
   providers:
     github:
       development:
@@ -118,6 +123,8 @@ yarn backstage-cli config:print --frontend --config app-config.yaml --config app
 ```
 
 You should see `app.signInPage: github` in the output. If not, stop and restart `yarn start` after updating config files.
+
+When changing `auth.githubAccess.allowedDomains` or `auth.githubAccess.whitelistedEmails`, restart the backend process to apply changes.
 
 ## Using the plugins in your own Backstage instance
 
