@@ -67,15 +67,22 @@ const createUserEntityYaml = (entity: Entity): string => {
   ) {
     lines.push('spec:', '  profile:');
     if (spec.profile.displayName) {
-      lines.push(
-        `    displayName: "${spec.profile.displayName.replace(/"/g, '\\"')}"`,
-      );
+      const escapedDisplayName = spec.profile.displayName
+        .replace(/\\/g, '\\\\')
+        .replace(/"/g, '\\"');
+      lines.push(`    displayName: "${escapedDisplayName}"`);
     }
     if (spec.profile.email) {
-      lines.push(`    email: "${spec.profile.email.replace(/"/g, '\\"')}"`);
+      const escapedEmail = spec.profile.email
+        .replace(/\\/g, '\\\\')
+        .replace(/"/g, '\\"');
+      lines.push(`    email: "${escapedEmail}"`);
     }
     if (spec.profile.picture) {
-      lines.push(`    picture: "${spec.profile.picture.replace(/"/g, '\\"')}"`);
+      const escapedPicture = spec.profile.picture
+        .replace(/\\/g, '\\\\')
+        .replace(/"/g, '\\"');
+      lines.push(`    picture: "${escapedPicture}"`);
     }
   }
 
