@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button } from '@material-ui/core';
 import { CodeSnippet } from '@backstage/core-components';
 import Dialog from '@mui/material/Dialog';

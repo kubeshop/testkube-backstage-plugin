@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button, Grid } from '@material-ui/core';
 import { InfoCard, LogViewer } from '@backstage/core-components';
 import Dialog from '@mui/material/Dialog';

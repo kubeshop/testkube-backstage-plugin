@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Table as BackstageTable,
   TableColumn,
@@ -76,10 +76,14 @@ export const Table: React.FC<TableProps> = ({ data }) => {
       title: 'Status',
       field: 'result.status',
       render: (rowData: any) => (
-        <ExecutionStatusBadge status={rowData.result.status} />
+        <ExecutionStatusBadge status={rowData.result?.status} />
       ),
     },
-    { title: 'Duration', field: 'result.totalDuration' },
+    {
+      title: 'Duration',
+      field: 'result.totalDuration',
+      render: (rowData: any) => rowData.result?.totalDuration ?? '-',
+    },
     { title: 'Scheduled at', field: 'scheduledAt', type: 'datetime' },
     {
       title: '',
