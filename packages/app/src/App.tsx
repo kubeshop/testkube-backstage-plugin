@@ -31,13 +31,39 @@ import {
   SignInPage,
 } from '@backstage/core-components';
 import { createApp } from '@backstage/app-defaults';
-import { FlatRoutes } from '@backstage/core-app-api';
+import { FlatRoutes, type SignInPageProps } from '@backstage/core-app-api';
 import { CatalogGraphPage } from '@backstage/plugin-catalog-graph';
 import { RequirePermission } from '@backstage/plugin-permission-react';
 import { catalogEntityCreatePermission } from '@backstage/plugin-catalog-common/alpha';
 import { NotificationsPage } from '@backstage/plugin-notifications';
 import { SignalsDisplay } from '@backstage/plugin-signals';
+import {
+  configApiRef,
+  githubAuthApiRef,
+  useApi,
+} from '@backstage/core-plugin-api';
 import { TestkubeDashboardPage } from '@testkube/backstage-plugin';
+
+const DynamicSignInPage = (props: SignInPageProps) => {
+  const configApi = useApi(configApiRef);
+  const configuredSignInPage = configApi.getOptionalString('app.signInPage');
+  if (configuredSignInPage === 'github') {
+    return (
+      <SignInPage
+        {...props}
+        auto
+        provider={{
+          id: 'github',
+          title: 'GitHub',
+          message: 'Sign in using GitHub',
+          apiRef: githubAuthApiRef,
+        }}
+      />
+    );
+  }
+
+  return <SignInPage {...props} auto providers={['guest']} />;
+};
 
 const app = createApp({
   apis,
@@ -59,7 +85,7 @@ const app = createApp({
     });
   },
   components: {
-    SignInPage: props => <SignInPage {...props} auto providers={['guest']} />,
+    SignInPage: DynamicSignInPage,
   },
 });
 

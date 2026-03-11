@@ -1,6 +1,7 @@
 app:
   # Should be the same as backend.baseUrl when using the `app-backend` plugin.
   baseUrl: http://localhost:7007
+  signInPage: github
 
 backend:
   # Note that the baseUrl should be the URL that the browser and other clients
@@ -29,10 +30,10 @@ backend:
       #     $file: <file-path>/ca/server.crt
 
 auth:
-  environment: development
+  environment: production
   providers:
     github:
-      development:
+      production:
         clientId: ${AUTH_GITHUB_CLIENT_ID}
         clientSecret: ${AUTH_GITHUB_CLIENT_SECRET}
         ## uncomment if using GitHub Enterprise
@@ -42,7 +43,7 @@ auth:
         signIn:
           resolvers:
             # See https://backstage.io/docs/auth/github/provider#resolvers for more resolvers
-            - resolver: usernameMatchingUserEntityName
+            - resolver: domainUserProvisioning
 
 catalog:
   # Overrides the default list locations from app-config.yaml as these contain example data.
@@ -65,3 +66,5 @@ catalog:
       target: ./examples/org.yaml
       rules:
         - allow: [User, Group]
+  rules:
+    - allow: [Component, System, API, Resource, Location, User, Group]
