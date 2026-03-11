@@ -67,6 +67,6 @@ backend.add(import('@backstage/plugin-signals-backend'));
 backend.add(import('@backstage-community/plugin-testkube-backend'));
 
 // auth providers
-backend.add(import('@backstage/plugin-auth-backend-module-github-provider'));
+backend.add(import('./modules/auth/githubDomainUserProvisioningModule'));
 
 backend.start();

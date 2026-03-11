@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "app": {
+      "type": "object",
+      "properties": {
+        "signInPage": {
+          "type": "string",
+          "enum": ["guest", "github"],
+          "visibility": "frontend"
+        }
+      }
+    }
+  }
+}

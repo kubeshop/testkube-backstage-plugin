@@ -2,16 +2,14 @@ import {
   ScmIntegrationsApi,
   scmIntegrationsApiRef,
   ScmAuth,
+  scmAuthApiRef,
 } from '@backstage/integration-react';
 import {
   AnyApiFactory,
   configApiRef,
   createApiFactory,
-  discoveryApiRef,
-  oauthRequestApiRef,
   githubAuthApiRef,
 } from '@backstage/core-plugin-api';
-import { GithubAuth } from '@backstage/core-app-api';
 
 export const apis: AnyApiFactory[] = [
   createApiFactory({
@@ -19,20 +17,12 @@ export const apis: AnyApiFactory[] = [
     deps: { configApi: configApiRef },
     factory: ({ configApi }) => ScmIntegrationsApi.fromConfig(configApi),
   }),
-  ScmAuth.createDefaultApiFactory(),
   createApiFactory({
-    api: githubAuthApiRef,
+    api: scmAuthApiRef,
     deps: {
-      discoveryApi: discoveryApiRef,
-      oauthRequestApi: oauthRequestApiRef,
-      configApi: configApiRef,
+      githubAuthApi: githubAuthApiRef,
     },
-    factory: ({ discoveryApi, oauthRequestApi, configApi }) =>
-      GithubAuth.create({
-        discoveryApi,
-        oauthRequestApi,
-        defaultScopes: ['read:user'],
-        environment: configApi.getOptionalString('auth.environment'),
-      }),
+    factory: ({ githubAuthApi }) =>
+      ScmAuth.merge(ScmAuth.forGithub(githubAuthApi)),
   }),
 ];

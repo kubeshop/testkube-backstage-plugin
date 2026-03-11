@@ -66,6 +66,59 @@ yarn start
 
 This will start both the frontend (on port `3000`) and backend (on port `7007`). The Testkube dashboard and entity pages are available in the example app once the plugins are loaded.
 
+### Troubleshooting GitHub auth locally
+
+If you need to debug GitHub authentication instead of using guest auth locally:
+
+1. Create or update `app-config.local.yaml`:
+
+```yaml
+app:
+  signInPage: github
+
+auth:
+  environment: development
+  providers:
+    github:
+      development:
+        clientId: ${AUTH_GITHUB_CLIENT_ID}
+        clientSecret: ${AUTH_GITHUB_CLIENT_SECRET}
+        signIn:
+          resolvers:
+            - resolver: domainUserProvisioning
+
+catalog:
+  rules:
+    - allow: [Component, System, API, Resource, Location, User, Group]
+```
+
+2. Export GitHub OAuth credentials in your shell:
+
+```bash
+export AUTH_GITHUB_CLIENT_ID=<your_client_id>
+export AUTH_GITHUB_CLIENT_SECRET=<your_client_secret>
+```
+
+3. In your GitHub OAuth App, set callback URL to:
+
+```text
+http://localhost:7007/api/auth/github/handler/frame
+```
+
+4. Start the app:
+
+```bash
+yarn start
+```
+
+5. Verify effective frontend config (optional but useful):
+
+```bash
+yarn backstage-cli config:print --frontend --config app-config.yaml --config app-config.local.yaml
+```
+
+You should see `app.signInPage: github` in the output. If not, stop and restart `yarn start` after updating config files.
+
 ## Using the plugins in your own Backstage instance
 
 If you want to integrate Testkube into your own Backstage deployment, follow the plugin‑specific guides:
