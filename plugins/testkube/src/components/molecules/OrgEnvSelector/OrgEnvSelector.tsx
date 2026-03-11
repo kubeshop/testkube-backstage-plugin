@@ -111,13 +111,17 @@ export const OrgEnvSelector = () => {
       />
       <Box sx={{ marginLeft: 'auto' }}>
         <IconButton
+          id="links"
           aria-label="links"
           aria-haspopup="true"
+          aria-controls={anchorEl ? 'links-menu' : undefined}
+          aria-expanded={anchorEl ? 'true' : undefined}
           onClick={handleMenuOpen}
         >
           <LinkIcon />
         </IconButton>
         <Menu
+          id="links-menu"
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
           onClose={() => setAnchorEl(null)}

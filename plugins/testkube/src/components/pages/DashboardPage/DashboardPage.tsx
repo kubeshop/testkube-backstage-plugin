@@ -1,6 +1,10 @@
 import { useState } from 'react';
-import { ContentHeader, Table, EmptyState } from '@backstage/core-components';
-import { TableColumn } from '@backstage/core-components';
+import {
+  ContentHeader,
+  Table,
+  EmptyState,
+  TableColumn,
+} from '@backstage/core-components';
 
 import { components } from '../../../types/openapi';
 import { ExecutionStatusBadge } from '../../molecules/ExecutionStatusBadge';
@@ -97,7 +101,7 @@ export const DashboardPage = layout(() => {
       field: 'result.status',
       type: 'string',
       render: (rowData: any) => (
-        <ExecutionStatusBadge status={rowData.result.status} />
+        <ExecutionStatusBadge status={rowData.result?.status} />
       ),
     },
     {
