@@ -77,6 +77,10 @@ export const OrgEnvSelector = () => {
     setEnvSlug(String(selected));
   };
 
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
   const orgItems = organizations.map(org => ({
     label: org.id,
     value: String(org.index),
@@ -86,10 +90,6 @@ export const OrgEnvSelector = () => {
     label: env.name,
     value: env.slug,
   }));
-
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
 
   return (
     <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>

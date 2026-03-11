@@ -11,6 +11,28 @@
           "visibility": "frontend"
         }
       }
+    },
+    "auth": {
+      "type": "object",
+      "properties": {
+        "githubAccess": {
+          "type": "object",
+          "properties": {
+            "allowedDomains": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "whitelistedEmails": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
