@@ -16,7 +16,7 @@ describe('ShowLogsDialog', () => {
   it('redirects to external UI in enterprise mode', async () => {
     const onOpen = jest.fn();
 
-    const { getByLabelText } = await renderInTestApp(
+    const { getByText } = await renderInTestApp(
       <ShowLogsDialog
         executionName="exec-1"
         executionId="exec-1"
@@ -24,7 +24,7 @@ describe('ShowLogsDialog', () => {
       />,
     );
 
-    fireEvent.click(getByLabelText('more'));
+    fireEvent.click(getByText('exec-1'));
 
     expect(onOpen).not.toHaveBeenCalled();
     expect(navigateMock).toHaveBeenCalled();

@@ -1,4 +1,3 @@
-import React from 'react';
 import { EmptyState, Table, TableColumn } from '@backstage/core-components';
 
 import { ExecutionStatusBadge } from '../../molecules/ExecutionStatusBadge';
@@ -26,22 +25,6 @@ export const ExecutionHistoryTable: React.FC<ExecutionHistoryTableProps> = ({
       field: 'name',
       type: 'string',
       highlight: true,
-    },
-    {
-      title: 'Status',
-      field: 'result.status',
-      type: 'string',
-      render: (rowData: any) => (
-        <ExecutionStatusBadge status={rowData.result.status} />
-      ),
-    },
-    { title: 'Duration', field: 'result.totalDuration' },
-    { title: 'Scheduled at', field: 'scheduledAt', type: 'datetime' },
-    {
-      title: '',
-      field: 'actions',
-      width: '5px',
-      sorting: false,
       render: (rowData: any) => (
         <ShowLogsDialog
           executionName={rowData.name}
@@ -53,6 +36,16 @@ export const ExecutionHistoryTable: React.FC<ExecutionHistoryTableProps> = ({
         />
       ),
     },
+    {
+      title: 'Status',
+      field: 'result.status',
+      type: 'string',
+      render: (rowData: any) => (
+        <ExecutionStatusBadge status={rowData.result.status} />
+      ),
+    },
+    { title: 'Duration', field: 'result.totalDuration' },
+    { title: 'Scheduled at', field: 'scheduledAt', type: 'datetime' },
   ];
 
   const noDataState = (
