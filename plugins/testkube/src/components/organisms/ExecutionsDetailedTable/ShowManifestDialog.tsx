@@ -16,7 +16,7 @@ export const ShowManifestDialog: React.FC<ShowManifestDialogProps> = ({
 
   const handleClick = useCallback(() => {
     if (shouldNavigateToUi) {
-      navigate(`dashboard/test-workflows/${name}/settings/definition`);
+      navigate(`dashboard/test-workflows/${name}/overview`);
       return;
     }
 

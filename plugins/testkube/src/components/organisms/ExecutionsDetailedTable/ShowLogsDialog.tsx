@@ -1,6 +1,5 @@
 import { useCallback } from 'react';
-import { IconButton, Tooltip } from '@material-ui/core';
-import ArticleIcon from '@mui/icons-material/Article';
+import { LinkButton } from '@backstage/core-components';
 
 import { useEnterpriseNavigation } from '../../../hooks/useEnterpriseNavigation';
 
@@ -14,14 +13,13 @@ type ShowLogsDialogProps = {
 export const ShowLogsDialog: React.FC<ShowLogsDialogProps> = ({
   executionName,
   executionId,
-  small = true,
   onOpen,
 }) => {
   const { shouldNavigateToUi, navigate } = useEnterpriseNavigation();
 
   const handleClick = useCallback(() => {
     if (shouldNavigateToUi) {
-      navigate(`dashboard/executions/${executionId}/log-output`);
+      navigate(`dashboard/executions/${executionId}`);
       return;
     }
 
@@ -30,23 +28,11 @@ export const ShowLogsDialog: React.FC<ShowLogsDialogProps> = ({
 
   return (
     <>
-      <Tooltip title="Show execution logs">
-        <IconButton
-          aria-label="more"
-          id="long-button"
-          aria-controls={undefined}
-          aria-expanded={undefined}
-          aria-haspopup="true"
-          onClick={handleClick}
-        >
-          <ArticleIcon />
-        </IconButton>
-      </Tooltip>
-      {small && (
-        <span style={{ paddingRight: '10px', textTransform: 'none' }}>
+      <LinkButton onClick={handleClick} color="primary" to="">
+        <span style={{ fontWeight: 'bold', textTransform: 'none' }}>
           {executionName}
         </span>
-      )}
+      </LinkButton>
     </>
   );
 };
