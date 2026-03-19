@@ -13,7 +13,7 @@ export const ExecutionStatusBadge = ({ status }: { status: string }) => {
     case 'failed':
       return <StatusError>Failed</StatusError>;
     case 'aborted':
-      return <StatusAborted>Aborted</StatusAborted>;
+      return <StatusError>Aborted</StatusError>;
     case 'queued':
       return <StatusPending>Queued</StatusPending>;
     case 'running':
