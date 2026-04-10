@@ -1,50 +1,68 @@
 import {
   ApiBlueprint,
   createApiFactory,
-  createFrontendPlugin,
-  discoveryApiRef,
   identityApiRef,
+  discoveryApiRef,
+  createFrontendPlugin,
+  createRouteRef,
   PageBlueprint,
+  ExtensionDefinition,
 } from '@backstage/frontend-plugin-api';
-import { testkubeApiRef, TestkubeClient } from './api';
+import { EntityContentBlueprint } from '@backstage/plugin-catalog-react/alpha';
+import { testkubeApiRef } from './api/TestkubeApi';
+import { TestkubeClient } from './api/TestkubeClient';
+import BugReportIcon from '@material-ui/icons/BugReport';
 
-export const testkubeApi = ApiBlueprint.make({
+const testkubeDashboardRouteRef = createRouteRef();
+
+const testkubeApi = ApiBlueprint.make({
   name: 'testkubeApi',
-  params: {
-    factory: createApiFactory({
-      api: testkubeApiRef,
-      deps: {
-        discoveryApi: discoveryApiRef,
-        identityApi: identityApiRef,
-      },
-      factory: ({ discoveryApi, identityApi }) =>
-        new TestkubeClient({
-          discoveryApi,
-          identityApi,
-        }),
-    }),
-  },
+  params: defineParams =>
+    defineParams(
+      createApiFactory({
+        api: testkubeApiRef,
+        deps: {
+          discoveryApi: discoveryApiRef,
+          identityApi: identityApiRef,
+        },
+        factory: ({ discoveryApi, identityApi }) =>
+          new TestkubeClient({ discoveryApi, identityApi }),
+      }),
+    ),
 });
 
 const TestkubeDashboardPage = PageBlueprint.make({
+  name: 'dashboard',
   params: {
-    defaultPath: '/testkube',
+    path: '/testkube',
+    title: 'Testkube',
+    icon: <BugReportIcon />,
+    routeRef: testkubeDashboardRouteRef,
     loader: () =>
-      import('./components/pages/DashboardPage').then(
-        m => m.DashboardPage as any,
-      ),
+      import('./components/pages/DashboardPage').then(m => <m.DashboardPage />),
   },
 });
 
-const TestkubeEntityPage = PageBlueprint.make({
+const TestkubeEntityContent = EntityContentBlueprint.make({
+  name: 'tests-summary',
   params: {
-    defaultPath: '/tests-summary',
+    path: '/tests-summary',
+    title: 'Testkube',
     loader: () =>
-      import('./components/pages/EntityPage').then(m => m.EntityPage as any),
+      import('./components/pages/EntityPage').then(m => <m.EntityPage />),
   },
 });
+
+const extensions: ExtensionDefinition[] = [
+  testkubeApi as ExtensionDefinition,
+  TestkubeDashboardPage as ExtensionDefinition,
+  TestkubeEntityContent as ExtensionDefinition,
+];
 
 export default createFrontendPlugin({
-  id: 'testkube',
-  extensions: [testkubeApi, TestkubeDashboardPage, TestkubeEntityPage],
+  pluginId: 'testkube',
+  routes: {
+    root: testkubeDashboardRouteRef,
+  },
+  extensions,
 });

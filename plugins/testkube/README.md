@@ -71,7 +71,26 @@ You can find a working example of this configuration in this repository’s root
 
 ### Adding Testkube plugin pages
 
-#### Testkube Dashboard
+#### Using the new frontend system (alpha)
+
+If your Backstage app uses the [new frontend system](https://backstage.io/docs/frontend-system/), you can install the plugin by importing it from the `/alpha` subpath and adding it to your app features in `packages/app/src/App.tsx`:
+
+```tsx
+import { createApp } from '@backstage/frontend-defaults';
+import catalogPlugin from '@backstage/plugin-catalog/alpha';
+import testkubePlugin from '@testkube/backstage-plugin/alpha';
+import { navModule } from './modules/nav';
+
+export default createApp({
+  features: [catalogPlugin, navModule, testkubePlugin],
+});
+```
+
+This automatically registers the **Testkube Dashboard** page at `/testkube` and the **Testkube Entity Page** content on catalog entities with the `testkube.io/labels` annotation. No additional route or entity page configuration is needed.
+
+#### Using the legacy frontend system
+
+##### Testkube Dashboard
 
 To enable **Testkube Dashboard** into your Backstage project edit the file `packages/app/src/App.tsx` to include the following lines:
 
