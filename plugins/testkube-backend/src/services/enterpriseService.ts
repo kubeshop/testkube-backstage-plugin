@@ -153,7 +153,8 @@ const EnterpriseService = ({
       throw new Error(`Failed to fetch environments for organization ${orgId}`);
     }
 
-    const { elements = [] }: ListEnvironmentsResponse = await response.json();
+    const { elements = [] } =
+      (await response.json()) as ListEnvironmentsResponse;
 
     const environments: EnvironmentMetadata[] = elements.map(
       ({ id, slug, name }) => ({
@@ -218,7 +219,7 @@ const EnterpriseService = ({
           throw new Error(`Failed to fetch organization ${id}`);
         }
 
-        const organizationApi: OrganizationApi = await organization.json();
+        const organizationApi = (await organization.json()) as OrganizationApi;
 
         return organizationApi;
       }),
