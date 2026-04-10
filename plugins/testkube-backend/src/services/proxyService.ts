@@ -1,3 +1,9 @@
+import {
+  Agent,
+  fetch as undiciFetch,
+  type Response as UndiciResponse,
+} from 'undici';
+
 import type { LoggerService } from '@backstage/backend-plugin-api';
 import type { Config } from './configService';
 
@@ -14,7 +20,7 @@ type ProxyService = {
     orgId?: string;
     envId?: string;
     apiKey?: string;
-  }): Promise<Response>;
+  }): Promise<UndiciResponse>;
 };
 
 type ProxyServiceParams = {
@@ -64,29 +70,29 @@ const skipHeaders = new Set([
 const buildHeaders = (
   incomingHeaders?: IncomingHeaders,
   apiKey?: string,
-): Headers => {
-  const headers = new Headers({
+): Record<string, string> => {
+  const headers: Record<string, string> = {
     'User-Agent': 'backstage-testkube-backend',
-  });
+  };
 
   if (incomingHeaders) {
     for (const [key, value] of Object.entries(incomingHeaders)) {
       if (value && !skipHeaders.has(key.toLowerCase())) {
-        headers.set(key, Array.isArray(value) ? value.join(', ') : value);
+        headers[key] = Array.isArray(value) ? value.join(', ') : value;
       }
     }
   }
 
-  if (!headers.has('Accept')) {
-    headers.set('Accept', 'application/json');
+  if (!headers.Accept) {
+    headers.Accept = 'application/json';
   }
 
-  if (!headers.has('Content-Type')) {
-    headers.set('Content-Type', 'application/json');
+  if (!headers['Content-Type']) {
+    headers['Content-Type'] = 'application/json';
   }
 
   if (apiKey) {
-    headers.set('Authorization', `Bearer ${apiKey}`);
+    headers.Authorization = `Bearer ${apiKey}`;
   }
 
   return headers;
@@ -109,13 +115,18 @@ const ProxyService = ({
     });
 
     try {
-      const response = await fetch(targetUrl, {
+      const response = await undiciFetch(targetUrl, {
         method,
         headers,
         body:
           body && !['GET', 'DELETE'].includes(method as string)
             ? JSON.stringify(body)
             : undefined,
+        ...(config.skipTlsVerify
+          ? {
+              dispatcher: new Agent({ connect: { rejectUnauthorized: false } }),
+            }
+          : {}),
       });
 
       logger.info('Received response from Testkube API', {
@@ -126,11 +137,16 @@ const ProxyService = ({
 
       return response;
     } catch (error) {
+      const cause =
+        error instanceof Error && 'cause' in error
+          ? (error.cause as Error)?.message ?? error.cause
+          : undefined;
       logger.error('Network error while calling Testkube API', {
         method,
         path,
         targetUrl,
         error: error instanceof Error ? error.message : 'Unknown network error',
+        cause,
       });
       throw error;
     }

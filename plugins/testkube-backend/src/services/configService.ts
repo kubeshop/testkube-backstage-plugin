@@ -4,6 +4,7 @@ export type Config = {
   url: string;
   isEnterprise: boolean;
   uiUrl?: string;
+  skipTlsVerify: boolean;
 
   organizations: {
     id: string;
@@ -35,11 +36,15 @@ const ConfigService = (): ConfigService => ({
       apiKey: config.getString('apiKey') ?? '',
     }));
 
+    const skipTlsVerify =
+      backstageConfig.getOptionalBoolean('testkube.skipTlsVerify') ?? false;
+
     return {
       url: baseUrl.replace(/\/$/, ''),
       uiUrl: uiUrl?.replace(/\/$/, ''),
       isEnterprise,
       organizations,
+      skipTlsVerify,
     };
   },
 
