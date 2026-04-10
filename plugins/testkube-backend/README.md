@@ -50,6 +50,20 @@ testkube:
 
 This should point to the HTTP endpoint of your Testkube API server.
 
+### Skipping TLS verification (optional)
+
+If your Testkube API uses a self-signed certificate or a certificate that cannot be verified, you can disable TLS verification:
+
+```yaml
+testkube:
+  apiUrl: 'https://api.localhost.testkube.dev'
+  skipTlsVerify: true
+```
+
+> **Warning**
+>
+> Only use `skipTlsVerify` in development or trusted environments. Disabling TLS verification in production is not recommended.
+
 ### Enterprise setup (optional)
 
 When using Testkube Enterprise, you can configure multiple organizations and environments. The backend plugin will:
