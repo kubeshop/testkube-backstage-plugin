@@ -1,3 +1,5 @@
+import { accessSync, constants } from 'node:fs';
+
 import type { Config as BackstageConfig } from '@backstage/config';
 
 export type Config = {
@@ -65,6 +67,16 @@ const ConfigService = (): ConfigService => ({
 
     if (config.isEnterprise && !config.uiUrl) {
       errors.push('Testkube UI URL is required for enterprise mode');
+    }
+
+    if (config.caFilePath && !config.skipTlsVerify) {
+      try {
+        accessSync(config.caFilePath, constants.R_OK);
+      } catch {
+        errors.push(
+          `CA certificate file is not readable at '${config.caFilePath}'`,
+        );
+      }
     }
 
     return errors;

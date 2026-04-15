@@ -101,7 +101,7 @@ const buildHeaders = (
 };
 
 const getCertBuffer = (
-  caFilePath: string,
+  caFilePath: string | undefined,
   logger: LoggerService,
 ): Buffer | undefined => {
   if (!caFilePath) return undefined;
@@ -112,9 +112,8 @@ const getCertBuffer = (
     return caCert;
   } catch (error) {
     throw new Error(
-      `Failed to read CA certificate file at '${caFilePath}': ${
-        error instanceof Error ? error.message : error
-      }`,
+      `Failed to read CA certificate file at '${caFilePath}'`,
+      { cause: error },
     );
   }
 };
@@ -141,7 +140,10 @@ const getDispatcher = (
 };
 
 const ProxyService = ({ config, logger }: ProxyServiceParams): ProxyService => {
-  const caCert = getCertBuffer(config.caFilePath ?? '', logger);
+  const caCert = config.skipTlsVerify
+    ? undefined
+    : getCertBuffer(config.caFilePath, logger);
+
   logger.debug('Initializing ProxyService with configuration', {
     apiUrl: config.url,
     uiUrl: config.uiUrl,
