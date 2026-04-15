@@ -1,3 +1,5 @@
+import { statSync } from 'node:fs';
+
 import type { Config as BackstageConfig } from '@backstage/config';
 
 export type Config = {
@@ -5,6 +7,7 @@ export type Config = {
   isEnterprise: boolean;
   uiUrl?: string;
   skipTlsVerify: boolean;
+  caFilePath?: string;
 
   organizations: {
     id: string;
@@ -39,12 +42,16 @@ const ConfigService = (): ConfigService => ({
     const skipTlsVerify =
       backstageConfig.getOptionalBoolean('testkube.skipTlsVerify') ?? false;
 
+    const caFilePath =
+      backstageConfig.getOptionalString('testkube.caFilePath') ?? undefined;
+
     return {
       url: baseUrl.replace(/\/$/, ''),
       uiUrl: uiUrl?.replace(/\/$/, ''),
       isEnterprise,
       organizations,
       skipTlsVerify,
+      caFilePath,
     };
   },
 
@@ -60,6 +67,21 @@ const ConfigService = (): ConfigService => ({
 
     if (config.isEnterprise && !config.uiUrl) {
       errors.push('Testkube UI URL is required for enterprise mode');
+    }
+
+    if (config.caFilePath && !config.skipTlsVerify) {
+      try {
+        const stat = statSync(config.caFilePath);
+        if (!stat.isFile()) {
+          errors.push(
+            `CA certificate path is not a regular file: '${config.caFilePath}'`,
+          );
+        }
+      } catch {
+        errors.push(
+          `CA certificate file is not readable at '${config.caFilePath}'`,
+        );
+      }
     }
 
     return errors;

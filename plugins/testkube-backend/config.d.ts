@@ -6,5 +6,7 @@ export interface Config {
       /** API key or token sent to Testkube API (e.g. from env: ${TESTKUBE_API_KEY}) */
       apiKey?: string;
     };
+    /** Path to a PEM file containing custom CA certificates for TLS verification */
+    caFilePath?: string;
   };
 }

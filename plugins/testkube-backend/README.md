@@ -50,6 +50,20 @@ testkube:
 
 This should point to the HTTP endpoint of your Testkube API server.
 
+### Custom CA certificates
+
+If your Testkube API uses a certificate signed by a private or internal CA, you can provide a path to a PEM file containing the CA certificate(s) instead of disabling TLS verification with `skipTlsVerify`:
+
+```yaml
+testkube:
+  apiUrl: 'https://testkube.internal.example.com'
+  caFilePath: '/etc/ssl/certs/internal-ca.pem'
+```
+
+> **Note**
+>
+> If both `skipTlsVerify` and `caFilePath` are set, `skipTlsVerify` takes precedence and certificate validation is disabled entirely.
+
 ### Enterprise setup (optional)
 
 When using Testkube Enterprise, you can configure multiple organizations and environments. The backend plugin will:
