@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+
 import {
   Agent,
   fetch as undiciFetch,
@@ -98,59 +100,107 @@ const buildHeaders = (
   return headers;
 };
 
-const ProxyService = ({
-  config,
-  logger,
-}: ProxyServiceParams): ProxyService => ({
-  async send({ path, method, body, incomingHeaders, orgId, envId, apiKey }) {
-    const targetUrl = getTargetUrl(config.url, path, orgId, envId);
-    const headers = buildHeaders(incomingHeaders, apiKey);
+const getCertBuffer = (
+  caFilePath: string,
+  logger: LoggerService,
+): Buffer | undefined => {
+  if (!caFilePath) return undefined;
 
-    logger.debug('Sending request to Testkube API', {
-      method,
-      path,
-      targetUrl,
-      hasOrgId: !!orgId,
-      hasEnvId: !!envId,
+  try {
+    const caCert = readFileSync(caFilePath);
+    logger.info('Loaded custom CA certificate', { path: caFilePath });
+    return caCert;
+  } catch (error) {
+    throw new Error(
+      `Failed to read CA certificate file at '${caFilePath}': ${
+        error instanceof Error ? error.message : error
+      }`,
+    );
+  }
+};
+
+const getDispatcher = (
+  config: Config,
+  caCert: Buffer | undefined,
+  logger: LoggerService,
+): Agent | undefined => {
+  if (config.skipTlsVerify) {
+    logger.info('TLS verification disabled (skipTlsVerify)');
+    return new Agent({ connect: { rejectUnauthorized: false } });
+  }
+
+  if (caCert) {
+    logger.info('Using custom CA certificate for TLS', {
+      path: config.caFilePath,
     });
 
-    try {
-      const response = await undiciFetch(targetUrl, {
-        method,
-        headers,
-        body:
-          body && !['GET', 'DELETE'].includes(method as string)
-            ? JSON.stringify(body)
-            : undefined,
-        ...(config.skipTlsVerify
-          ? {
-              dispatcher: new Agent({ connect: { rejectUnauthorized: false } }),
-            }
-          : {}),
-      });
+    return new Agent({ connect: { ca: caCert } });
+  }
 
-      logger.info('Received response from Testkube API', {
-        method,
-        path,
-        status: response.status,
-      });
+  return undefined;
+};
 
-      return response;
-    } catch (error) {
-      const cause =
-        error instanceof Error && 'cause' in error
-          ? (error.cause as Error)?.message ?? error.cause
-          : undefined;
-      logger.error('Network error while calling Testkube API', {
+const ProxyService = ({ config, logger }: ProxyServiceParams): ProxyService => {
+  const caCert = getCertBuffer(config.caFilePath ?? '', logger);
+  logger.debug('Initializing ProxyService with configuration', {
+    apiUrl: config.url,
+    uiUrl: config.uiUrl,
+    isEnterprise: config.isEnterprise,
+    skipTlsVerify: config.skipTlsVerify,
+    caFilePath: config.caFilePath,
+    organizationsCount: config.organizations.length,
+  });
+
+  const dispatcher = getDispatcher(config, caCert, logger);
+
+  return {
+    async send({ path, method, body, incomingHeaders, orgId, envId, apiKey }) {
+      const targetUrl = getTargetUrl(config.url, path, orgId, envId);
+      const headers = buildHeaders(incomingHeaders, apiKey);
+
+      logger.debug('Sending request to Testkube API', {
         method,
         path,
         targetUrl,
-        error: error instanceof Error ? error.message : 'Unknown network error',
-        cause,
+        hasOrgId: !!orgId,
+        hasEnvId: !!envId,
       });
-      throw error;
-    }
-  },
-});
+
+      try {
+        const response = await undiciFetch(targetUrl, {
+          method,
+          headers,
+          body:
+            body && !['GET', 'DELETE'].includes(method as string)
+              ? JSON.stringify(body)
+              : undefined,
+          ...(dispatcher ? { dispatcher } : {}),
+        });
+
+        logger.info('Received response from Testkube API', {
+          method,
+          path,
+          status: response.status,
+        });
+
+        return response;
+      } catch (error) {
+        const cause =
+          error instanceof Error && 'cause' in error
+            ? (error.cause as Error)?.message ?? error.cause
+            : undefined;
+        logger.error('Network error while calling Testkube API', {
+          method,
+          path,
+          targetUrl,
+          error:
+            error instanceof Error ? error.message : 'Unknown network error',
+          cause,
+        });
+        throw error;
+      }
+    },
+  };
+};
 
 export default ProxyService;

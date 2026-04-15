@@ -5,6 +5,7 @@ export type Config = {
   isEnterprise: boolean;
   uiUrl?: string;
   skipTlsVerify: boolean;
+  caFilePath?: string;
 
   organizations: {
     id: string;
@@ -39,12 +40,16 @@ const ConfigService = (): ConfigService => ({
     const skipTlsVerify =
       backstageConfig.getOptionalBoolean('testkube.skipTlsVerify') ?? false;
 
+    const caFilePath =
+      backstageConfig.getOptionalString('testkube.caFilePath') ?? undefined;
+
     return {
       url: baseUrl.replace(/\/$/, ''),
       uiUrl: uiUrl?.replace(/\/$/, ''),
       isEnterprise,
       organizations,
       skipTlsVerify,
+      caFilePath,
     };
   },
 
