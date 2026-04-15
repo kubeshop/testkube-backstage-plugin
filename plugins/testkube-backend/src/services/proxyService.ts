@@ -111,10 +111,9 @@ const getCertBuffer = (
     logger.info('Loaded custom CA certificate', { path: caFilePath });
     return caCert;
   } catch (error) {
-    throw new Error(
-      `Failed to read CA certificate file at '${caFilePath}'`,
-      { cause: error },
-    );
+    throw new Error(`Failed to read CA certificate file at '${caFilePath}'`, {
+      cause: error,
+    });
   }
 };
 
