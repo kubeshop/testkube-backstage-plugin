@@ -1,6 +1,6 @@
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { writeFileSync, unlinkSync, mkdtempSync } from 'node:fs';
+import { writeFileSync, rmSync, mkdtempSync } from 'node:fs';
 
 import type { LoggerService } from '@backstage/backend-plugin-api';
 import type { Config } from './configService';
@@ -53,11 +53,7 @@ describe('ProxyService TLS configuration', () => {
   });
 
   afterAll(() => {
-    try {
-      unlinkSync(validCaPath);
-    } catch {
-      // ignore
-    }
+    rmSync(tmpDir, { recursive: true, force: true });
   });
 
   beforeEach(() => {

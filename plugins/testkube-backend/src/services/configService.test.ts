@@ -1,6 +1,6 @@
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { writeFileSync, unlinkSync, mkdtempSync } from 'node:fs';
+import { writeFileSync, rmSync, mkdtempSync } from 'node:fs';
 
 import ConfigService, { type Config } from './configService';
 
@@ -39,11 +39,7 @@ describe('ConfigService.validate', () => {
     });
 
     afterAll(() => {
-      try {
-        unlinkSync(validCaPath);
-      } catch {
-        // ignore
-      }
+      rmSync(tmpDir, { recursive: true, force: true });
     });
 
     it('returns no errors when caFilePath points to a readable file', () => {
@@ -77,6 +73,13 @@ describe('ConfigService.validate', () => {
         baseConfig({ caFilePath: undefined }),
       );
       expect(errors).toEqual([]);
+    });
+
+    it('returns an error when caFilePath points to a directory', () => {
+      const errors = configService.validate(baseConfig({ caFilePath: tmpDir }));
+      expect(errors).toContain(
+        `CA certificate path is not a regular file: '${tmpDir}'`,
+      );
     });
   });
 });

@@ -1,4 +1,4 @@
-import { accessSync, constants } from 'node:fs';
+import { statSync } from 'node:fs';
 
 import type { Config as BackstageConfig } from '@backstage/config';
 
@@ -71,7 +71,12 @@ const ConfigService = (): ConfigService => ({
 
     if (config.caFilePath && !config.skipTlsVerify) {
       try {
-        accessSync(config.caFilePath, constants.R_OK);
+        const stat = statSync(config.caFilePath);
+        if (!stat.isFile()) {
+          errors.push(
+            `CA certificate path is not a regular file: '${config.caFilePath}'`,
+          );
+        }
       } catch {
         errors.push(
           `CA certificate file is not readable at '${config.caFilePath}'`,
