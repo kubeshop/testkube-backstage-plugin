@@ -125,6 +125,7 @@ export const useExecution = ({
 
 type UseTestWorkflowsWithExecutionsProps = {
   filters?: TestWorkflowWithExecutionsFilters;
+  enabled?: boolean;
 };
 
 const mapToExecutionResult = (
@@ -156,6 +157,7 @@ const mapToExecutionResult = (
 
 export const useTestWorkflowsWithExecutions = ({
   filters = {},
+  enabled = true,
 }: UseTestWorkflowsWithExecutionsProps = {}) => {
   const TestkubeAPI = useApi(testkubeApiRef);
   const orgEnv = useOrgEnvParams();
@@ -167,6 +169,7 @@ export const useTestWorkflowsWithExecutions = ({
       orgEnv.orgIndex,
       orgEnv.envSlug,
     ],
+    enabled,
     refetchInterval: defaultRefetchInterval,
     queryFn: async () => {
       const workflowsWithExecutions =

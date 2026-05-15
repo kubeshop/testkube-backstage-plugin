@@ -19,9 +19,14 @@ export const EntityPage: React.FC = withQueryProvider(() => {
     filters: {
       labels,
     },
+    enabled: Boolean(labels),
   });
 
   const classes = useStyles();
+
+  if (!labels) {
+    return null;
+  }
 
   if (isLoading) {
     return <Loading />;

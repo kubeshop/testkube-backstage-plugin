@@ -11,6 +11,7 @@ import {
 import { EntityContentBlueprint } from '@backstage/plugin-catalog-react/alpha';
 import { testkubeApiRef } from './api/TestkubeApi';
 import { TestkubeClient } from './api/TestkubeClient';
+import { isTestkubeAvailable } from './hooks/useLabels';
 import BugReportIcon from '@material-ui/icons/BugReport';
 
 const testkubeDashboardRouteRef = createRouteRef();
@@ -48,6 +49,7 @@ const TestkubeEntityContent = EntityContentBlueprint.make({
   params: {
     path: '/tests-summary',
     title: 'Testkube',
+    filter: isTestkubeAvailable,
     loader: () =>
       import('./components/pages/EntityPage').then(m => <m.EntityPage />),
   },
