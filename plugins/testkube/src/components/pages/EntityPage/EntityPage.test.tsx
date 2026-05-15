@@ -1,7 +1,7 @@
 import { EntityPage } from './EntityPage';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import {
   registerMswTestHooks,
   renderInTestApp,
@@ -37,6 +37,19 @@ describe('TestkubeEntityPage', () => {
 
   const testkubeApi: Partial<TestkubeApi> = {};
 
+  const createTestkubeApi = (
+    overrides: Partial<TestkubeApi> = {},
+  ): Partial<TestkubeApi> => ({
+    getConfig: jest.fn().mockResolvedValue({
+      isEnterprise: false,
+      organizationCount: 0,
+    }),
+    getRedirectUrl: jest
+      .fn()
+      .mockResolvedValue({ url: 'https://testkube.example' }),
+    ...overrides,
+  });
+
   it('should render', async () => {
     await renderInTestApp(
       <TestApiProvider apis={[[testkubeApiRef, testkubeApi]]}>
@@ -46,5 +59,66 @@ describe('TestkubeEntityPage', () => {
       </TestApiProvider>,
     );
     expect(screen.getByText('Loading data ...')).toBeInTheDocument();
+  });
+
+  it('passes entity label annotation to getTestWorkflowsWithExecutions', async () => {
+    const getTestWorkflowsWithExecutions = jest.fn().mockResolvedValue([]);
+
+    await renderInTestApp(
+      <TestApiProvider
+        apis={[
+          [
+            testkubeApiRef,
+            createTestkubeApi({ getTestWorkflowsWithExecutions }),
+          ],
+        ]}
+      >
+        <EntityProvider entity={entity}>
+          <EntityPage />
+        </EntityProvider>
+      </TestApiProvider>,
+    );
+
+    await waitFor(() => {
+      expect(getTestWorkflowsWithExecutions).toHaveBeenCalledWith(
+        { labels: 'app=test' },
+        { orgIndex: null, envSlug: null },
+      );
+    });
+  });
+
+  it('should not fetch or render entity content when labels annotation is missing', async () => {
+    const getTestWorkflowsWithExecutions = jest.fn().mockResolvedValue([]);
+
+    await renderInTestApp(
+      <TestApiProvider
+        apis={[
+          [
+            testkubeApiRef,
+            createTestkubeApi({ getTestWorkflowsWithExecutions }),
+          ],
+        ]}
+      >
+        <EntityProvider
+          entity={{
+            ...entity,
+            metadata: {
+              ...entity.metadata,
+              annotations: {
+                'testkube.io/organization': 'test',
+                'testkube.io/environments': 'dev,test',
+              },
+            },
+          }}
+        >
+          <EntityPage />
+        </EntityProvider>
+      </TestApiProvider>,
+    );
+    expect(screen.queryByText('Loading data ...')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('No executions were returned from Testkube.'),
+    ).not.toBeInTheDocument();
+    expect(getTestWorkflowsWithExecutions).not.toHaveBeenCalled();
   });
 });

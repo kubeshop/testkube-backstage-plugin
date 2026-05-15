@@ -2,13 +2,9 @@ import { TESTKUBE_LABELS } from '../constants/annotations';
 import { Entity } from '@backstage/catalog-model';
 import { useEntity } from '@backstage/plugin-catalog-react';
 
-export const useLabels = (): string => {
+export const useLabels = (): string | undefined => {
   const { entity } = useEntity();
-  const labels = entity.metadata.annotations?.[TESTKUBE_LABELS];
-  if (!labels) {
-    throw new Error("'testkube.io/labels' annotation is missing in the entity");
-  }
-  return labels;
+  return entity.metadata.annotations?.[TESTKUBE_LABELS];
 };
 
 export const isTestkubeAvailable = (entity: Entity) =>
