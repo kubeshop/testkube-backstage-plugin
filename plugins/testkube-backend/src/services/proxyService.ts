@@ -155,7 +155,7 @@ const sendWithAgent = async ({
       {
         protocol: url.protocol,
         hostname: url.hostname,
-        port: url.port,
+        port: url.port ? Number(url.port) : undefined,
         path: `${url.pathname}${url.search}`,
         method,
         headers,
