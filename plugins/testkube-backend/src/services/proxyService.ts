@@ -120,7 +120,7 @@ const getDispatcher = (
 ): Agent | undefined => {
   if (config.skipTlsVerify) {
     logger.info('TLS verification disabled (skipTlsVerify)');
-    return new Agent({ connect: { rejectUnauthorized: false } });
+    return new Agent({ rejectUnauthorized: false });
   }
 
   if (caCert) {
@@ -128,7 +128,7 @@ const getDispatcher = (
       path: config.caFilePath,
     });
 
-    return new Agent({ connect: { ca: caCert } });
+    return new Agent({ ca: caCert });
   }
 
   return undefined;
