@@ -174,10 +174,13 @@ const sendWithAgent = async ({
 
           for (const [key, value] of Object.entries(response.headers)) {
             if (value !== undefined) {
-              responseHeaders.set(
-                key,
-                Array.isArray(value) ? value.join(', ') : String(value),
-              );
+              if (Array.isArray(value)) {
+                for (const v of value) {
+                  responseHeaders.append(key, v);
+                }
+              } else {
+                responseHeaders.set(key, String(value));
+              }
             }
           }
 
@@ -220,7 +223,7 @@ const ProxyService = ({ config, logger }: ProxyServiceParams): ProxyService => {
     async send({ path, method, body, incomingHeaders, orgId, envId, apiKey }) {
       const targetUrl = getTargetUrl(config.url, path, orgId, envId);
       const headers = buildHeaders(incomingHeaders, apiKey);
-      const methodValue = String(method);
+      const methodValue = method ?? 'GET';
       const normalizedMethod = methodValue.toUpperCase();
       const requestBody =
         body && !['GET', 'DELETE'].includes(normalizedMethod)
@@ -245,7 +248,7 @@ const ProxyService = ({ config, logger }: ProxyServiceParams): ProxyService => {
               agent: dispatcher,
             })
           : await fetch(targetUrl, {
-              method,
+              method: methodValue,
               headers,
               body: requestBody,
             });
