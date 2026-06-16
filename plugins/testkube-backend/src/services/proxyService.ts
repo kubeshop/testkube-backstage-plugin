@@ -231,7 +231,7 @@ const ProxyService = ({ config, logger }: ProxyServiceParams): ProxyService => {
           : undefined;
 
       logger.debug('Sending request to Testkube API', {
-        method,
+        method: normalizedMethod,
         path,
         targetUrl,
         hasOrgId: !!orgId,
@@ -242,19 +242,19 @@ const ProxyService = ({ config, logger }: ProxyServiceParams): ProxyService => {
         const response = dispatcher
           ? await sendWithAgent({
               targetUrl,
-              method: methodValue,
+              method: normalizedMethod,
               headers,
               body: requestBody,
               agent: dispatcher,
             })
           : await fetch(targetUrl, {
-              method: methodValue,
+              method: normalizedMethod,
               headers,
               body: requestBody,
             });
 
         logger.info('Received response from Testkube API', {
-          method,
+          method: normalizedMethod,
           path,
           status: response.status,
         });
@@ -266,7 +266,7 @@ const ProxyService = ({ config, logger }: ProxyServiceParams): ProxyService => {
             ? (error.cause as Error)?.message ?? error.cause
             : undefined;
         logger.error('Network error while calling Testkube API', {
-          method,
+          method: normalizedMethod,
           path,
           targetUrl,
           error:
