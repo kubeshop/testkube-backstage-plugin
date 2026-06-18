@@ -117,15 +117,15 @@ permission:
   enabled: false
 
 testkube:
-  apiUrl: 'http://localhost:8088'
+  # apiUrl: 'http://localhost:8088'
 
   # skipTlsVerify: false
   # caFilePath: /path/to/ca.crt
   # enterprise settings
-  # enterprise: true
-  # uiUrl: https://app.testkube.io
-  # apiUrl: 'https://api.testkube.io'
+  enterprise: true
+  uiUrl: https://app.testkube.io
+  apiUrl: 'https://api.testkube.io'
   # add as many organizations as you need
-  # organizations:
-  #   - id: <your-organization-id>
-  #     apiKey: <your-api-key-with-only-read-access!!>
+  organizations:
+    - id: tkcorg_0f382d90e81ea228
+      apiKey: tkcapi_3caae18f3e6f0bed4fdbf17c42115e

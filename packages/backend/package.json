@@ -45,8 +45,8 @@
     "@backstage/plugin-search-backend-node": "^1.4.1",
     "@backstage/plugin-signals-backend": "^0.3.12",
     "@backstage/plugin-techdocs-backend": "^2.1.5",
-    "@testkube/backstage-plugin-backend": "workspace:*",
-    "app": "link:../app",
+    "@testkube/backstage-plugin-backend": "0.1.0",
+    "app": "file:../app",
     "better-sqlite3": "^12.0.0",
     "node-gyp": "^10.0.0",
     "pg": "^8.11.3"

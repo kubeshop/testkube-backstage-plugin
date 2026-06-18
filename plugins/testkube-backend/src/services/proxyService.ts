@@ -1,10 +1,6 @@
 import { readFileSync } from 'node:fs';
-
-import {
-  Agent,
-  fetch as undiciFetch,
-  type Response as UndiciResponse,
-} from 'undici';
+import { request as httpRequest } from 'node:http';
+import { Agent, request as httpsRequest } from 'node:https';
 
 import type { LoggerService } from '@backstage/backend-plugin-api';
 import type { Config } from './configService';
@@ -22,7 +18,7 @@ type ProxyService = {
     orgId?: string;
     envId?: string;
     apiKey?: string;
-  }): Promise<UndiciResponse>;
+  }): Promise<Response>;
 };
 
 type ProxyServiceParams = {
@@ -124,7 +120,7 @@ const getDispatcher = (
 ): Agent | undefined => {
   if (config.skipTlsVerify) {
     logger.info('TLS verification disabled (skipTlsVerify)');
-    return new Agent({ connect: { rejectUnauthorized: false } });
+    return new Agent({ rejectUnauthorized: false });
   }
 
   if (caCert) {
@@ -132,10 +128,79 @@ const getDispatcher = (
       path: config.caFilePath,
     });
 
-    return new Agent({ connect: { ca: caCert } });
+    return new Agent({ ca: caCert });
   }
 
   return undefined;
+};
+
+const sendWithAgent = async ({
+  targetUrl,
+  method,
+  headers,
+  body,
+  agent,
+}: {
+  targetUrl: string;
+  method: string;
+  headers: Record<string, string>;
+  body?: string;
+  agent: Agent;
+}): Promise<Response> => {
+  const url = new URL(targetUrl);
+  const requestFn = url.protocol === 'https:' ? httpsRequest : httpRequest;
+
+  return new Promise((resolve, reject) => {
+    const request = requestFn(
+      {
+        protocol: url.protocol,
+        hostname: url.hostname,
+        port: url.port ? Number(url.port) : undefined,
+        path: `${url.pathname}${url.search}`,
+        method,
+        headers,
+        ...(url.protocol === 'https:' ? { agent } : {}),
+      },
+      response => {
+        const chunks: Buffer[] = [];
+
+        response.on('data', chunk => {
+          chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+        });
+
+        response.on('error', reject);
+        response.on('end', () => {
+          const responseHeaders = new Headers();
+
+          for (const [key, value] of Object.entries(response.headers)) {
+            if (value !== undefined) {
+              if (Array.isArray(value)) {
+                for (const v of value) {
+                  responseHeaders.append(key, v);
+                }
+              } else {
+                responseHeaders.set(key, String(value));
+              }
+            }
+          }
+
+          resolve(
+            new Response(Buffer.concat(chunks), {
+              status: response.statusCode ?? 500,
+              statusText: response.statusMessage ?? '',
+              headers: responseHeaders,
+            }),
+          );
+        });
+      },
+    );
+
+    request.on('error', reject);
+    if (body) {
+      request.write(body);
+    }
+    request.end();
+  });
 };
 
 const ProxyService = ({ config, logger }: ProxyServiceParams): ProxyService => {
@@ -158,9 +223,15 @@ const ProxyService = ({ config, logger }: ProxyServiceParams): ProxyService => {
     async send({ path, method, body, incomingHeaders, orgId, envId, apiKey }) {
       const targetUrl = getTargetUrl(config.url, path, orgId, envId);
       const headers = buildHeaders(incomingHeaders, apiKey);
+      const methodValue = method ?? 'GET';
+      const normalizedMethod = methodValue.toUpperCase();
+      const requestBody =
+        body && !['GET', 'DELETE'].includes(normalizedMethod)
+          ? JSON.stringify(body)
+          : undefined;
 
       logger.debug('Sending request to Testkube API', {
-        method,
+        method: normalizedMethod,
         path,
         targetUrl,
         hasOrgId: !!orgId,
@@ -168,18 +239,22 @@ const ProxyService = ({ config, logger }: ProxyServiceParams): ProxyService => {
       });
 
       try {
-        const response = await undiciFetch(targetUrl, {
-          method,
-          headers,
-          body:
-            body && !['GET', 'DELETE'].includes(method as string)
-              ? JSON.stringify(body)
-              : undefined,
-          ...(dispatcher ? { dispatcher } : {}),
-        });
+        const response = dispatcher
+          ? await sendWithAgent({
+              targetUrl,
+              method: normalizedMethod,
+              headers,
+              body: requestBody,
+              agent: dispatcher,
+            })
+          : await fetch(targetUrl, {
+              method: normalizedMethod,
+              headers,
+              body: requestBody,
+            });
 
         logger.info('Received response from Testkube API', {
-          method,
+          method: normalizedMethod,
           path,
           status: response.status,
         });
@@ -191,7 +266,7 @@ const ProxyService = ({ config, logger }: ProxyServiceParams): ProxyService => {
             ? (error.cause as Error)?.message ?? error.cause
             : undefined;
         logger.error('Network error while calling Testkube API', {
-          method,
+          method: normalizedMethod,
           path,
           targetUrl,
           error:
