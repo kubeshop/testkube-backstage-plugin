@@ -132,6 +132,9 @@ jobs:
   build-image:
     name: Build Image
     # Depends on the build-code job to ensure we have the necessary build artifacts available
+    # Only runs on main branch: DEPOT_PROJECT_ID secret is not accessible in PR workflows
+    # (GitHub restricts secret access for Dependabot and fork PRs by default)
+    if: github.ref == 'refs/heads/main'
     needs: build-code
     runs-on: depot-ubuntu-22.04
     permissions:
