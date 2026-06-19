@@ -25,6 +25,7 @@
     "@backstage/plugin-auth-backend-module-guest-provider": "^0.2.16",
     "@backstage/plugin-auth-node": "^0.6.13",
     "@backstage/plugin-catalog-backend": "^3.4.0",
+    "@backstage/plugin-catalog-backend-module-github": "^0.13.3",
     "@backstage/plugin-catalog-backend-module-logs": "^0.1.19",
     "@backstage/plugin-catalog-backend-module-scaffolder-entity-model": "^0.2.17",
     "@backstage/plugin-catalog-node": "^2.0.0",
