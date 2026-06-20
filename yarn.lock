@@ -16003,7 +16003,7 @@ __metadata:
 
 "app@file:../app::locator=backend%40workspace%3Apackages%2Fbackend":
   version: 0.0.0
-  resolution: "app@file:../app#../app::hash=7c3c54&locator=backend%40workspace%3Apackages%2Fbackend"
+  resolution: "app@file:../app#../app::hash=466ed1&locator=backend%40workspace%3Apackages%2Fbackend"
   dependencies:
     "@backstage/app-defaults": "npm:^1.7.5"
     "@backstage/catalog-model": "npm:^1.7.6"
@@ -16018,6 +16018,7 @@ __metadata:
     "@backstage/plugin-catalog-graph": "npm:^0.5.7"
     "@backstage/plugin-catalog-import": "npm:^0.13.10"
     "@backstage/plugin-catalog-react": "npm:^2.0.0"
+    "@backstage/plugin-github-actions": "npm:^0.6.16"
     "@backstage/plugin-kubernetes": "npm:^0.12.16"
     "@backstage/plugin-notifications": "npm:^0.5.14"
     "@backstage/plugin-org": "npm:^0.6.49"
@@ -16039,7 +16040,7 @@ __metadata:
     react-dom: "npm:^18.0.2"
     react-router: "npm:^6.30.2"
     react-router-dom: "npm:^6.30.2"
-  checksum: 10c0/a35cef05f078ce840fc027a7e463be2aa55cd53ceff7c3a5d3d666ad1cdd3e5e498e0d69e8d0c802e2753110b75f7cf9a43a08b28b2b3acf5248bea6afbf5746
+  checksum: 10c0/6b707a25799408e447c8d47daf4435fb06ba76060002dfa045b463064956a316828a661001dfea5f9df1b1e750712cfd052d0fe78db582da97fea004f76b3e41
   languageName: node
   linkType: hard
 
