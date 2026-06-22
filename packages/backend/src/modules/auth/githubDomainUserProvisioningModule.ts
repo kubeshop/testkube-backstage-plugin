@@ -255,6 +255,7 @@ export default createBackendModule({
         providers.registerProvider({
           providerId: 'github',
           factory: createOAuthProviderFactory({
+            // @ts-expect-error - the types are currently not correctly inferred from the plugin-auth-node exports
             authenticator: githubAuthenticator,
             additionalScopes: ['user:email'],
             signInResolverFactories: {
