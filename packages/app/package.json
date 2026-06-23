@@ -13,11 +13,11 @@
     "lint": "backstage-cli package lint"
   },
   "dependencies": {
-    "@backstage/app-defaults": "^1.7.5",
+    "@backstage/app-defaults": "^1.7.9",
     "@backstage/catalog-model": "^1.7.6",
-    "@backstage/cli": "^0.35.4",
-    "@backstage/core-app-api": "^1.19.5",
-    "@backstage/core-components": "^0.18.7",
+    "@backstage/cli": "^0.36.3",
+    "@backstage/core-app-api": "^1.20.2",
+    "@backstage/core-components": "^0.18.11",
     "@backstage/core-plugin-api": "^1.12.3",
     "@backstage/integration-react": "^1.2.15",
     "@backstage/plugin-api-docs": "^0.13.4",
@@ -25,7 +25,7 @@
     "@backstage/plugin-catalog-common": "^1.1.8",
     "@backstage/plugin-catalog-graph": "^0.5.7",
     "@backstage/plugin-catalog-import": "^0.13.10",
-    "@backstage/plugin-catalog-react": "^2.0.0",
+    "@backstage/plugin-catalog-react": "^3.1.0",
     "@backstage/plugin-github-actions": "^0.6.16",
     "@backstage/plugin-kubernetes": "^0.12.16",
     "@backstage/plugin-notifications": "^0.5.14",
@@ -51,7 +51,7 @@
   },
   "devDependencies": {
     "@backstage/test-utils": "^1.7.15",
-    "@playwright/test": "^1.32.3",
+    "@playwright/test": "^1.45.0",
     "@testing-library/dom": "^9.0.0",
     "@testing-library/jest-dom": "^6.0.0",
     "@testing-library/react": "^14.0.0",
