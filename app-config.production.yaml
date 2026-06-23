@@ -47,29 +47,43 @@ auth:
         # sessionDuration: { hours: 24 } # supports `ms` library format (e.g. '24h', '2 days'), ISO duration, "human duration" as used in code
         signIn:
           resolvers:
-            # See https://backstage.io/docs/auth/github/provider#resolvers for more resolvers
-            - resolver: domainUserProvisioning
+          # See https://backstage.io/docs/auth/github/provider#resolvers for more resolvers
+          - resolver: domainUserProvisioning
 
 catalog:
+  providers:
+    github:
+      kubeshop:
+        organization: kubeshop
+        catalogPath: /catalog-info.yaml
+        validateLocationsExist: true
+        filters:
+          repository: '^testkube.*$'
+          branch: 'backstage'
+        schedule:
+          frequency:
+            minutes: 30
+          timeout:
+            minutes: 10
   # Overrides the default list locations from app-config.yaml as these contain example data.
   # See https://backstage.io/docs/features/software-catalog/#adding-components-to-the-catalog for more details
   # on how to get entities into the catalog.
-  locations:
-    # Local example data, replace this with your production config, these are intended for demo use only.
-    # File locations are relative to the backend process, typically in a deployed context, such as in a Docker container, this will be the root
-    - type: file
-      target: ./examples/entities.yaml
+  locations: []
+  # Local example data, replace this with your production config, these are intended for demo use only.
+  # File locations are relative to the backend process, typically in a deployed context, such as in a Docker container, this will be the root
+  # - type: file
+  #   target: ./examples/entities.yaml
 
-    # Local example template
-    - type: file
-      target: ./examples/template/template.yaml
-      rules:
-        - allow: [Template]
+  # # Local example template
+  # - type: file
+  #   target: ./examples/template/template.yaml
+  #   rules:
+  #   - allow: [ Template ]
 
-    # Local example organizational data
-    - type: file
-      target: ./examples/org.yaml
-      rules:
-        - allow: [User, Group]
+  # # Local example organizational data
+  # - type: file
+  #   target: ./examples/org.yaml
+  #   rules:
+  #   - allow: [ User, Group ]
   rules:
-    - allow: [Component, System, API, Resource, Location, User, Group]
+  - allow: [ Component, System, API, Resource, Location, User, Group ]

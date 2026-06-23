@@ -18,12 +18,12 @@ backend:
     # Uncomment the following host directive to bind to specific interfaces
     # host: 127.0.0.1
   csp:
-    connect-src: ["'self'", 'http:', 'https:']
+    connect-src: [ "'self'", 'http:', 'https:' ]
     # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
     # Default Helmet Content-Security-Policy values can be removed by setting the key to false
   cors:
     origin: http://localhost:3000
-    methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
+    methods: [ GET, HEAD, PATCH, POST, PUT, DELETE ]
     credentials: true
   # This is for local development only, it is not recommended to use this in production
   # The production database configuration is stored in app-config.production.yaml
@@ -31,6 +31,11 @@ backend:
     client: better-sqlite3
     connection: ':memory:'
   # workingDirectory: /tmp # Use this to configure a working directory for the scaffolder, defaults to the OS temp-dir
+  reading:
+    allow:
+      - host: docs.testkube.io
+        paths:
+          - /articles/install/standalone-agent
 
 integrations:
   github:
@@ -68,15 +73,28 @@ auth:
     # See https://backstage.io/docs/auth/guest/provider
     guest: {}
 
-scaffolder:
-  # see https://backstage.io/docs/features/software-templates/configuration for software template options
+scaffolder: # see https://backstage.io/docs/features/software-templates/configuration for software template options
 
 catalog:
   import:
     entityFilename: catalog-info.yaml
     pullRequestBranchName: backstage-integration
+  providers:
+    github:
+      kubeshop:
+        organization: kubeshop
+        catalogPath: /catalog-info.yaml
+        validateLocationsExist: true
+        filters:
+          repository: '^testkube.*$'
+          branch: 'backstage'
+        schedule:
+          frequency:
+            minutes: 30
+          timeout:
+            minutes: 10
   rules:
-    - allow: [Component, System, API, Resource, Location]
+    - allow: [ Component, System, API, Resource, Location ]
   locations:
     # Local example data, file locations are relative to the backend process, typically `packages/backend`
     - type: file
@@ -90,14 +108,13 @@ catalog:
     - type: file
       target: ../../examples/template/template.yaml
       rules:
-        - allow: [Template]
+      - allow: [ Template ]
 
     # Local example organizational data
     - type: file
       target: ../../examples/org.yaml
       rules:
-        - allow: [User, Group]
-
+      - allow: [ User, Group ]
     ## Uncomment these lines to add more example data
     # - type: url
     #   target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/all.yaml
@@ -108,8 +125,7 @@ catalog:
     #   rules:
     #     - allow: [User, Group]
 
-kubernetes:
-  # see https://backstage.io/docs/features/kubernetes/configuration for kubernetes configuration options
+kubernetes: # see https://backstage.io/docs/features/kubernetes/configuration for kubernetes configuration options
 
 # see https://backstage.io/docs/permissions/getting-started for more on the permission framework
 permission:
@@ -117,15 +133,15 @@ permission:
   enabled: false
 
 testkube:
-  # apiUrl: 'http://localhost:8088'
+  apiUrl: 'http://localhost:8088'
 
   # skipTlsVerify: false
   # caFilePath: /path/to/ca.crt
   # enterprise settings
-  enterprise: true
-  uiUrl: https://app.testkube.io
-  apiUrl: 'https://api.testkube.io'
+  # enterprise: true
+  # uiUrl: https://app.testkube.io
+  # apiUrl: 'https://api.testkube.io'
   # add as many organizations as you need
-  organizations:
-    - id: tkcorg_0f382d90e81ea228
-      apiKey: tkcapi_3caae18f3e6f0bed4fdbf17c42115e
+  # organizations:
+  # - id: tkcorg_0000000000
+  #   apiKey: tkcapi_00000000000000000000000000000000
