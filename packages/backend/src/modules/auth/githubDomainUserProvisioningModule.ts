@@ -212,6 +212,7 @@ export default createBackendModule({
                       email,
                       picture: info.profile.picture,
                     },
+                    memberOf: ['testkube'],
                   },
                 };
 
