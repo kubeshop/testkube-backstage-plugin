@@ -199,6 +199,16 @@ const serviceEntityPage = (
     <EntityLayout.Route path="/docs" title="Docs">
       {techdocsContent}
     </EntityLayout.Route>
+
+    <FeatureFlagged with="testkube">
+      <EntityLayout.Route
+        path="/tests-summary"
+        title="Tests Summary"
+        if={isTestkubeAvailable}
+      >
+        {testkubeSummaryPage}
+      </EntityLayout.Route>
+    </FeatureFlagged>
   </EntityLayout>
 );
 
