@@ -67,6 +67,17 @@ spec:
         repoContentsUrl: ${{ steps['publish'].output.repoContentsUrl }}
         catalogInfoPath: '/catalog-info.yaml'
 
+    # Run the Testkube quality gate after the component is registered.
+    - id: testkube
+      name: Run Testkube quality gate
+      action: testkube:run-test-workflows
+      input:
+        workflows:
+          - name: k6-sample
+        orgId: ${{ parameters.testkubeOrgId }}
+        envId: ${{ parameters.testkubeEnvId }}
+        timeoutSeconds: 1800
+
     # Let's notify the user that the template has completed using the Notification action
     - id: notify
       name: Notify

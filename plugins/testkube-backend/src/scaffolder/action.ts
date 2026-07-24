@@ -1,0 +1,272 @@
+import { createTemplateAction } from '@backstage/plugin-scaffolder-node';
+
+import type EnterpriseService from '../services/enterpriseService';
+import type { Config } from '../services/configService';
+import type ProxyService from '../services/proxyService';
+
+const POLL_INTERVAL_MS = 5_000;
+const TERMINAL_STATUSES = new Set(['passed', 'failed', 'aborted']);
+
+type TestWorkflowExecution = {
+  id: string;
+  name: string;
+  result: {
+    status: string;
+  };
+};
+
+type ActionResult = {
+  workflow: string;
+  executionId?: string;
+  testkubeStatus: string;
+  status: 'green' | 'red';
+  url?: string;
+};
+
+type Services = {
+  config: Config;
+  proxyService: ReturnType<typeof ProxyService>;
+  enterpriseService: ReturnType<typeof EnterpriseService>;
+};
+
+const getErrorMessage = async (response: Response): Promise<string> => {
+  const body = await response.text();
+  return body
+    ? `${response.status} ${response.statusText}: ${body}`
+    : `${response.status} ${response.statusText}`;
+};
+
+const wait = (signal?: AbortSignal): Promise<void> =>
+  new Promise((resolve, reject) => {
+    const onAbort = () => {
+      clearTimeout(timeout);
+      reject(new Error('Testkube workflow polling was cancelled'));
+    };
+    const timeout = setTimeout(() => {
+      signal?.removeEventListener('abort', onAbort);
+      resolve();
+    }, POLL_INTERVAL_MS);
+
+    if (signal?.aborted) {
+      onAbort();
+    } else {
+      signal?.addEventListener('abort', onAbort, { once: true });
+    }
+  });
+
+export const createRunTestWorkflowsAction = ({
+  config,
+  proxyService,
+  enterpriseService,
+}: Services) =>
+  createTemplateAction({
+    id: 'testkube:run-test-workflows',
+    description:
+      'Run Testkube Enterprise Test Workflows and fail unless all executions pass',
+    schema: {
+      input: {
+        workflows: z =>
+          z
+            .array(z.string().min(1))
+            .min(1)
+            .describe('Test Workflow names to execute'),
+        orgId: z => z.string().min(1).describe('Testkube organization ID'),
+        envId: z => z.string().min(1).describe('Testkube environment ID'),
+        timeoutSeconds: z =>
+          z
+            .number()
+            .int()
+            .positive()
+            .optional()
+            .default(1800)
+            .describe('Maximum time to wait for all workflows'),
+      },
+      output: {
+        status: z => z.enum(['green', 'red']),
+        results: z =>
+          z.array(
+            z.object({
+              workflow: z.string(),
+              executionId: z.string().optional(),
+              testkubeStatus: z.string(),
+              status: z.enum(['green', 'red']),
+              url: z.string().url().optional(),
+            }),
+          ),
+      },
+    },
+    async handler(ctx) {
+      if (!config.isEnterprise) {
+        throw new Error(
+          'testkube:run-test-workflows requires testkube.enterprise: true',
+        );
+      }
+
+      const org = config.organizations.find(
+        organization => organization.id === ctx.input.orgId,
+      );
+      if (!org) {
+        throw new Error(
+          `Testkube organization is not configured: ${ctx.input.orgId}`,
+        );
+      }
+
+      const [organization, environments] = await Promise.all([
+        enterpriseService.getOrganizationMetadata({ orgId: org.id }),
+        enterpriseService.getEnvironments({ org }),
+      ]);
+      const environment = environments.find(
+        candidate => candidate.id === ctx.input.envId,
+      );
+
+      if (!organization?.slug) {
+        throw new Error(`Testkube organization was not found: ${org.id}`);
+      }
+      if (!environment?.slug) {
+        throw new Error(
+          `Testkube environment was not found: ${ctx.input.envId}`,
+        );
+      }
+
+      const dashboardBaseUrl = `${config.uiUrl}/organization/${organization.slug}/environment/${environment.slug}/dashboard/executions`;
+      const deadline = Date.now() + ctx.input.timeoutSeconds * 1_000;
+      const request = (path: string, method: string, body?: object) =>
+        proxyService.send({
+          path,
+          method,
+          body,
+          orgId: org.id,
+          envId: ctx.input.envId,
+          apiKey: org.apiKey,
+        });
+
+      const triggers = await Promise.allSettled(
+        ctx.input.workflows.map(async workflow => {
+          const response = await request(
+            `/v1/test-workflows/${encodeURIComponent(workflow)}/executions`,
+            'POST',
+            { disableWebhooks: false },
+          );
+          if (!response.ok) {
+            throw new Error(await getErrorMessage(response));
+          }
+
+          const executions = (await response.json()) as TestWorkflowExecution[];
+          if (executions.length === 0) {
+            throw new Error('Testkube returned no executions');
+          }
+          return { workflow, executions };
+        }),
+      );
+
+      const results: ActionResult[] = [];
+      const executions: Array<{
+        workflow: string;
+        execution: TestWorkflowExecution;
+      }> = [];
+
+      triggers.forEach((trigger, index) => {
+        const workflow = ctx.input.workflows[index];
+        if (trigger.status === 'fulfilled') {
+          executions.push(
+            ...trigger.value.executions.map(execution => ({
+              workflow,
+              execution,
+            })),
+          );
+        } else {
+          const message =
+            trigger.reason instanceof Error
+              ? trigger.reason.message
+              : String(trigger.reason);
+          ctx.logger.error(`Failed to trigger Testkube workflow ${workflow}`, {
+            error: message,
+          });
+          results.push({
+            workflow,
+            testkubeStatus: 'trigger_error',
+            status: 'red',
+          });
+        }
+      });
+
+      const completed = await Promise.all(
+        executions.map(async ({ workflow, execution }) => {
+          const url = `${dashboardBaseUrl}/${execution.id}`;
+          let latest = execution;
+
+          while (!TERMINAL_STATUSES.has(latest.result.status)) {
+            if (Date.now() >= deadline) {
+              return {
+                workflow,
+                executionId: execution.id,
+                testkubeStatus: 'timeout',
+                status: 'red' as const,
+                url,
+              };
+            }
+
+            await wait(ctx.signal);
+
+            try {
+              const response = await request(
+                `/v1/test-workflows/${encodeURIComponent(
+                  workflow,
+                )}/executions/${encodeURIComponent(execution.id)}`,
+                'GET',
+              );
+              if (!response.ok) {
+                throw new Error(await getErrorMessage(response));
+              }
+              latest = (await response.json()) as TestWorkflowExecution;
+            } catch (error) {
+              ctx.logger.warn(
+                `Unable to poll Testkube workflow ${workflow}; retrying`,
+                {
+                  executionId: execution.id,
+                  error: error instanceof Error ? error.message : String(error),
+                },
+              );
+            }
+          }
+
+          return {
+            workflow,
+            executionId: execution.id,
+            testkubeStatus: latest.result.status,
+            status:
+              latest.result.status === 'passed'
+                ? ('green' as const)
+                : ('red' as const),
+            url,
+          };
+        }),
+      );
+      results.push(...completed);
+
+      const status = results.every(result => result.status === 'green')
+        ? 'green'
+        : 'red';
+      ctx.output('status', status);
+      ctx.output('results', results);
+
+      results.forEach(result => {
+        const log = `${result.status.toUpperCase()}: ${result.workflow} (${
+          result.testkubeStatus
+        })${result.url ? ` ${result.url}` : ''}`;
+        if (result.status === 'green') {
+          ctx.logger.info(log);
+        } else {
+          ctx.logger.error(log);
+        }
+      });
+
+      if (status === 'red') {
+        const failed = results
+          .filter(result => result.status === 'red')
+          .map(result => `${result.workflow}: ${result.testkubeStatus}`)
+          .join(', ');
+        throw new Error(`Testkube quality gate failed: ${failed}`);
+      }
+    },
+  });

@@ -35,6 +35,37 @@ backend.start();
 
 In this repository you can see a complete example in `packages/backend/src/index.ts`.
 
+## Scaffolder quality gate
+
+Register the optional Testkube Scaffolder module alongside the backend plugin:
+
+```ts
+backend.add(import('@testkube/backstage-plugin-backend'));
+backend.add(import('@testkube/backstage-plugin-backend/scaffolder'));
+```
+
+The module adds the `testkube:run-test-workflows` action. It is available only
+in enterprise mode and waits for every requested Test Workflow to finish. The
+action fails unless all executions pass.
+
+```yaml
+- id: testkube
+  name: Run Testkube quality gate
+  action: testkube:run-test-workflows
+  input:
+    workflows:
+      - api-smoke-test
+      - browser-smoke-test
+    orgId: tkcorg_0000000000
+    envId: tkcenv_0000000000
+    timeoutSeconds: 1800
+```
+
+The action outputs an overall `green` or `red` status and one result per
+execution containing its Testkube status and dashboard URL. Organization API
+keys continue to come exclusively from the backend `testkube.organizations`
+configuration.
+
 ## Configuration
 
 The plugin reads its configuration from the `testkube` section of `app-config.yaml`.
