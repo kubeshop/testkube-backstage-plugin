@@ -15,6 +15,10 @@ type TestWorkflowExecution = {
   };
 };
 
+type TestWorkflow = {
+  name?: string;
+};
+
 type ActionResult = {
   workflow: string;
   executionId?: string;
@@ -64,23 +68,32 @@ export const createRunTestWorkflowsAction = ({
     description:
       'Run Testkube Enterprise Test Workflows and fail unless all executions pass',
     schema: {
-      input: {
-        workflows: z =>
-          z
-            .array(z.string().min(1))
-            .min(1)
-            .describe('Test Workflow names to execute'),
-        orgId: z => z.string().min(1).describe('Testkube organization ID'),
-        envId: z => z.string().min(1).describe('Testkube environment ID'),
-        timeoutSeconds: z =>
-          z
-            .number()
-            .int()
-            .positive()
-            .optional()
-            .default(1800)
-            .describe('Maximum time to wait for all workflows'),
-      },
+      input: z =>
+        z
+          .object({
+            workflows: z
+              .array(z.string().min(1))
+              .optional()
+              .default([])
+              .describe('Test Workflow names to execute'),
+            selector: z
+              .string()
+              .min(1)
+              .optional()
+              .describe('Kubernetes label selector for Test Workflows'),
+            orgId: z.string().min(1).describe('Testkube organization ID'),
+            envId: z.string().min(1).describe('Testkube environment ID'),
+            timeoutSeconds: z
+              .number()
+              .int()
+              .positive()
+              .optional()
+              .default(1800)
+              .describe('Maximum time to wait for all workflows'),
+          })
+          .refine(input => input.workflows.length > 0 || input.selector, {
+            message: 'At least one workflow name or selector is required',
+          }),
       output: {
         status: z => z.enum(['green', 'red']),
         results: z =>
@@ -140,8 +153,33 @@ export const createRunTestWorkflowsAction = ({
           apiKey: org.apiKey,
         });
 
+      const selectedWorkflows = new Set(ctx.input.workflows);
+      if (ctx.input.selector) {
+        const response = await request(
+          `/v1/test-workflows?selector=${encodeURIComponent(
+            ctx.input.selector,
+          )}`,
+          'GET',
+        );
+        if (!response.ok) {
+          throw new Error(await getErrorMessage(response));
+        }
+
+        const workflows = (await response.json()) as TestWorkflow[];
+        workflows.forEach(workflow => {
+          if (workflow.name) selectedWorkflows.add(workflow.name);
+        });
+      }
+
+      const workflowNames = [...selectedWorkflows];
+      if (workflowNames.length === 0) {
+        throw new Error(
+          `No Testkube workflows matched selector: ${ctx.input.selector}`,
+        );
+      }
+
       const triggers = await Promise.allSettled(
-        ctx.input.workflows.map(async workflow => {
+        workflowNames.map(async workflow => {
           const response = await request(
             `/v1/test-workflows/${encodeURIComponent(workflow)}/executions`,
             'POST',
@@ -166,7 +204,7 @@ export const createRunTestWorkflowsAction = ({
       }> = [];
 
       triggers.forEach((trigger, index) => {
-        const workflow = ctx.input.workflows[index];
+        const workflow = workflowNames[index];
         if (trigger.status === 'fulfilled') {
           executions.push(
             ...trigger.value.executions.map(execution => ({

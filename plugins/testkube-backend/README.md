@@ -46,7 +46,8 @@ backend.add(import('@testkube/backstage-plugin-backend/scaffolder'));
 
 The module adds the `testkube:run-test-workflows` action. It is available only
 in enterprise mode and waits for every requested Test Workflow to finish. The
-action fails unless all executions pass.
+action accepts workflow names, a Kubernetes label selector, or both. Matching
+names are de-duplicated, and the action fails unless all executions pass.
 
 ```yaml
 - id: testkube
@@ -59,6 +60,15 @@ action fails unless all executions pass.
     orgId: tkcorg_0000000000
     envId: tkcenv_0000000000
     timeoutSeconds: 1800
+```
+
+To select workflows by label:
+
+```yaml
+input:
+  selector: app=backend,environment=staging
+  orgId: tkcorg_0000000000
+  envId: tkcenv_0000000000
 ```
 
 The action outputs an overall `green` or `red` status and one result per

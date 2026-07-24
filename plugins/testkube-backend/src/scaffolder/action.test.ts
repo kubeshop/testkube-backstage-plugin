@@ -25,7 +25,8 @@ const response = (body: unknown, status = 200) =>
 
 const context = (
   input: {
-    workflows: string[];
+    workflows?: string[];
+    selector?: string;
     orgId: string;
     envId: string;
     timeoutSeconds?: number;
@@ -112,6 +113,61 @@ describe('testkube:run-test-workflows', () => {
         },
       ],
     });
+  });
+
+  it('resolves label selectors and de-duplicates explicit workflow names', async () => {
+    const send = jest
+      .fn()
+      .mockResolvedValueOnce(
+        response([{ name: 'api' }, { name: 'browser' }, { name: 'api' }]),
+      )
+      .mockResolvedValueOnce(response([execution('run-1', 'passed')]))
+      .mockResolvedValueOnce(response([execution('run-2', 'passed')]));
+    const outputs: Record<string, unknown> = {};
+    const action = createRunTestWorkflowsAction(services(send));
+
+    await action.handler(
+      context(
+        {
+          workflows: ['api'],
+          selector: 'app=backend',
+          orgId: 'org-1',
+          envId: 'env-1',
+        },
+        outputs,
+      ),
+    );
+
+    expect(send).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        path: '/v1/test-workflows?selector=app%3Dbackend',
+        method: 'GET',
+      }),
+    );
+    expect(send).toHaveBeenCalledTimes(3);
+    expect(outputs.results).toEqual([
+      expect.objectContaining({ workflow: 'api', status: 'green' }),
+      expect.objectContaining({ workflow: 'browser', status: 'green' }),
+    ]);
+  });
+
+  it('fails when a selector matches no workflows', async () => {
+    const send = jest.fn().mockResolvedValue(response([]));
+    const action = createRunTestWorkflowsAction(services(send));
+
+    await expect(
+      action.handler(
+        context(
+          {
+            selector: 'app=missing',
+            orgId: 'org-1',
+            envId: 'env-1',
+          },
+          {},
+        ),
+      ),
+    ).rejects.toThrow('No Testkube workflows matched selector: app=missing');
   });
 
   it('outputs all results before failing a mixed quality gate', async () => {
