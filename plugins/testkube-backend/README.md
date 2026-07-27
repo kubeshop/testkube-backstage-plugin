@@ -72,8 +72,9 @@ names are de-duplicated, and the action fails unless all executions pass.
     timeoutSeconds: 1800
 ```
 
-Every execution includes `executedFrom: backstage`. Additional action-level
-tags are applied to all explicitly named and label-selected workflows.
+Every execution includes `executedFrom: backstage` and the current Backstage
+`taskId`. Additional action-level tags are applied to all explicitly named and
+label-selected workflows.
 
 To select workflows by label:
 

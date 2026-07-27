@@ -53,6 +53,7 @@ const context = (
       error: jest.fn(),
       debug: jest.fn(),
     },
+    task: { id: 'task-123' },
   } as unknown as ActionContext<any, any>);
 
 const services = (send: jest.Mock) =>
@@ -118,6 +119,7 @@ describe('testkube:run-test-workflows', () => {
           tags: {
             component: 'payments',
             executedFrom: 'backstage',
+            taskId: 'task-123',
           },
           config: { workers: '2' },
           target: {
@@ -184,7 +186,7 @@ describe('testkube:run-test-workflows', () => {
       expect.objectContaining({
         body: {
           disableWebhooks: false,
-          tags: { executedFrom: 'backstage' },
+          tags: { executedFrom: 'backstage', taskId: 'task-123' },
         },
       }),
     );

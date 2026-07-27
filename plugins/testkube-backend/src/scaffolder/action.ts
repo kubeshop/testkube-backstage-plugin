@@ -233,7 +233,11 @@ export const createRunTestWorkflowsAction = ({
           `No Testkube workflows matched selector: ${ctx.input.selector}`,
         );
       }
-      const tags = { ...ctx.input.tags, executedFrom: 'backstage' };
+      const tags = {
+        ...ctx.input.tags,
+        executedFrom: 'backstage',
+        taskId: ctx.task.id,
+      };
 
       const triggers = await Promise.allSettled(
         workflows.map(async workflow => {
