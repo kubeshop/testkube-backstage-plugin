@@ -64,11 +64,12 @@ const getErrorMessage = async (response: Response): Promise<string> => {
 
 const wait = (signal?: AbortSignal): Promise<void> =>
   new Promise((resolve, reject) => {
+    const timer: { value?: ReturnType<typeof setTimeout> } = {};
     const onAbort = () => {
-      clearTimeout(timeout);
+      if (timer.value) clearTimeout(timer.value);
       reject(new Error('Testkube workflow polling was cancelled'));
     };
-    const timeout = setTimeout(() => {
+    timer.value = setTimeout(() => {
       signal?.removeEventListener('abort', onAbort);
       resolve();
     }, POLL_INTERVAL_MS);

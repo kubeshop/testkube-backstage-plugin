@@ -308,11 +308,12 @@ describe('testkube:run-test-workflows', () => {
       ),
     );
 
-    const expectation = expect(result).rejects.toThrow(
-      'Testkube quality gate failed: api: timeout',
-    );
-    await jest.advanceTimersByTimeAsync(5_000);
-    await expectation;
+    await Promise.all([
+      expect(result).rejects.toThrow(
+        'Testkube quality gate failed: api: timeout',
+      ),
+      jest.advanceTimersByTimeAsync(5_000),
+    ]);
 
     expect(outputs.results).toEqual([
       expect.objectContaining({
