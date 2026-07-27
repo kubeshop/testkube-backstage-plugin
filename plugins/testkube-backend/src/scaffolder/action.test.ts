@@ -25,7 +25,15 @@ const response = (body: unknown, status = 200) =>
 
 const context = (
   input: {
-    workflows?: string[];
+    workflows?: Array<{
+      name: string;
+      config?: Record<string, string>;
+      target?: {
+        match?: Record<string, string[]>;
+        not?: Record<string, string[]>;
+        replicate?: string[];
+      };
+    }>;
     selector?: string;
     orgId: string;
     envId: string;
@@ -68,15 +76,26 @@ describe('testkube:run-test-workflows', () => {
   it('returns green execution links when every workflow passes', async () => {
     const send = jest
       .fn()
-      .mockResolvedValueOnce(response([execution('run-1', 'passed')]))
-      .mockResolvedValueOnce(response([execution('run-2', 'passed')]));
+      .mockResolvedValueOnce(response(execution('run-1', 'passed')))
+      .mockResolvedValueOnce(response(execution('run-2', 'passed')));
     const outputs: Record<string, unknown> = {};
     const action = createRunTestWorkflowsAction(services(send));
 
     await action.handler(
       context(
         {
-          workflows: ['api', 'browser'],
+          workflows: [
+            {
+              name: 'api',
+              config: { workers: '2' },
+              target: {
+                match: { environment: ['staging'] },
+                not: { region: ['legacy'] },
+                replicate: ['runner-1'],
+              },
+            },
+            { name: 'browser' },
+          ],
           orgId: 'org-1',
           envId: 'env-1',
         },
@@ -92,6 +111,15 @@ describe('testkube:run-test-workflows', () => {
         orgId: 'org-1',
         envId: 'env-1',
         apiKey: 'secret',
+        body: {
+          disableWebhooks: false,
+          config: { workers: '2' },
+          target: {
+            match: { environment: ['staging'] },
+            not: { region: ['legacy'] },
+            replicate: ['runner-1'],
+          },
+        },
       }),
     );
     expect(outputs).toEqual({
@@ -129,7 +157,7 @@ describe('testkube:run-test-workflows', () => {
     await action.handler(
       context(
         {
-          workflows: ['api'],
+          workflows: [{ name: 'api' }],
           selector: 'app=backend',
           orgId: 'org-1',
           envId: 'env-1',
@@ -173,8 +201,8 @@ describe('testkube:run-test-workflows', () => {
   it('outputs all results before failing a mixed quality gate', async () => {
     const send = jest
       .fn()
-      .mockResolvedValueOnce(response([execution('run-1', 'failed')]))
-      .mockResolvedValueOnce(response([execution('run-2', 'passed')]));
+      .mockResolvedValueOnce(response(execution('run-1', 'failed')))
+      .mockResolvedValueOnce(response(execution('run-2', 'passed')));
     const outputs: Record<string, unknown> = {};
     const action = createRunTestWorkflowsAction(services(send));
 
@@ -182,7 +210,7 @@ describe('testkube:run-test-workflows', () => {
       action.handler(
         context(
           {
-            workflows: ['api', 'browser'],
+            workflows: [{ name: 'api' }, { name: 'browser' }],
             orgId: 'org-1',
             envId: 'env-1',
           },
@@ -212,7 +240,7 @@ describe('testkube:run-test-workflows', () => {
     jest.useFakeTimers();
     const send = jest
       .fn()
-      .mockResolvedValueOnce(response([execution('run-1', 'running')]))
+      .mockResolvedValueOnce(response(execution('run-1', 'running')))
       .mockResolvedValueOnce(response({ error: 'temporary' }, 503))
       .mockResolvedValueOnce(response(execution('run-1', 'passed')));
     const outputs: Record<string, unknown> = {};
@@ -221,7 +249,7 @@ describe('testkube:run-test-workflows', () => {
     const result = action.handler(
       context(
         {
-          workflows: ['api'],
+          workflows: [{ name: 'api' }],
           orgId: 'org-1',
           envId: 'env-1',
           timeoutSeconds: 30,
@@ -246,7 +274,7 @@ describe('testkube:run-test-workflows', () => {
     jest.useFakeTimers();
     const send = jest
       .fn()
-      .mockResolvedValueOnce(response([execution('run-1', 'running')]))
+      .mockResolvedValueOnce(response(execution('run-1', 'running')))
       .mockResolvedValueOnce(response(execution('run-1', 'running')));
     const outputs: Record<string, unknown> = {};
     const action = createRunTestWorkflowsAction(services(send));
@@ -254,7 +282,7 @@ describe('testkube:run-test-workflows', () => {
     const result = action.handler(
       context(
         {
-          workflows: ['api'],
+          workflows: [{ name: 'api' }],
           orgId: 'org-1',
           envId: 'env-1',
           timeoutSeconds: 5,
@@ -287,7 +315,11 @@ describe('testkube:run-test-workflows', () => {
     await expect(
       standalone.handler(
         context(
-          { workflows: ['api'], orgId: 'org-1', envId: 'env-1' },
+          {
+            workflows: [{ name: 'api' }],
+            orgId: 'org-1',
+            envId: 'env-1',
+          },
           outputs,
         ),
       ),
@@ -297,7 +329,11 @@ describe('testkube:run-test-workflows', () => {
     await expect(
       unknownOrg.handler(
         context(
-          { workflows: ['api'], orgId: 'unknown', envId: 'env-1' },
+          {
+            workflows: [{ name: 'api' }],
+            orgId: 'unknown',
+            envId: 'env-1',
+          },
           outputs,
         ),
       ),

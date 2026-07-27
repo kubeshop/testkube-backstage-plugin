@@ -19,6 +19,16 @@ type TestWorkflow = {
   name?: string;
 };
 
+type WorkflowInput = {
+  name: string;
+  config?: Record<string, string>;
+  target?: {
+    match?: Record<string, string[]>;
+    not?: Record<string, string[]>;
+    replicate?: string[];
+  };
+};
+
 type ActionResult = {
   workflow: string;
   executionId?: string;
@@ -31,6 +41,18 @@ type Services = {
   config: Config;
   proxyService: ReturnType<typeof ProxyService>;
   enterpriseService: ReturnType<typeof EnterpriseService>;
+};
+
+const isTestWorkflowExecution = (
+  value: unknown,
+): value is TestWorkflowExecution => {
+  if (!value || typeof value !== 'object') return false;
+  const execution = value as Partial<TestWorkflowExecution>;
+  return (
+    typeof execution.id === 'string' &&
+    typeof execution.name === 'string' &&
+    typeof execution.result?.status === 'string'
+  );
 };
 
 const getErrorMessage = async (response: Response): Promise<string> => {
@@ -72,10 +94,26 @@ export const createRunTestWorkflowsAction = ({
         z
           .object({
             workflows: z
-              .array(z.string().min(1))
+              .array(
+                z.object({
+                  name: z.string().min(1),
+                  config: z.record(z.string()).optional(),
+                  target: z
+                    .object({
+                      match: z
+                        .record(z.array(z.string().min(1)).min(1))
+                        .optional(),
+                      not: z
+                        .record(z.array(z.string().min(1)).min(1))
+                        .optional(),
+                      replicate: z.array(z.string().min(1)).min(1).optional(),
+                    })
+                    .optional(),
+                }),
+              )
               .optional()
               .default([])
-              .describe('Test Workflow names to execute'),
+              .describe('Named Test Workflows and their execution settings'),
             selector: z
               .string()
               .min(1)
@@ -93,7 +131,16 @@ export const createRunTestWorkflowsAction = ({
           })
           .refine(input => input.workflows.length > 0 || input.selector, {
             message: 'At least one workflow name or selector is required',
-          }),
+          })
+          .refine(
+            input =>
+              new Set(input.workflows.map(workflow => workflow.name)).size ===
+              input.workflows.length,
+            {
+              message: 'Workflow names must be unique',
+              path: ['workflows'],
+            },
+          ),
       output: {
         status: z => z.enum(['green', 'red']),
         results: z =>
@@ -153,7 +200,9 @@ export const createRunTestWorkflowsAction = ({
           apiKey: org.apiKey,
         });
 
-      const selectedWorkflows = new Set(ctx.input.workflows);
+      const selectedWorkflows = new Map(
+        (ctx.input.workflows ?? []).map(workflow => [workflow.name, workflow]),
+      );
       if (ctx.input.selector) {
         const response = await request(
           `/v1/test-workflows?selector=${encodeURIComponent(
@@ -167,33 +216,45 @@ export const createRunTestWorkflowsAction = ({
 
         const workflows = (await response.json()) as TestWorkflow[];
         workflows.forEach(workflow => {
-          if (workflow.name) selectedWorkflows.add(workflow.name);
+          if (workflow.name && !selectedWorkflows.has(workflow.name)) {
+            selectedWorkflows.set(workflow.name, { name: workflow.name });
+          }
         });
       }
 
-      const workflowNames = [...selectedWorkflows];
-      if (workflowNames.length === 0) {
+      const workflows = [...selectedWorkflows.values()] as WorkflowInput[];
+      if (workflows.length === 0) {
         throw new Error(
           `No Testkube workflows matched selector: ${ctx.input.selector}`,
         );
       }
 
       const triggers = await Promise.allSettled(
-        workflowNames.map(async workflow => {
+        workflows.map(async workflow => {
           const response = await request(
-            `/v1/test-workflows/${encodeURIComponent(workflow)}/executions`,
+            `/v1/test-workflows/${encodeURIComponent(
+              workflow.name,
+            )}/executions`,
             'POST',
-            { disableWebhooks: false },
+            {
+              disableWebhooks: false,
+              ...(workflow.config && { config: workflow.config }),
+              ...(workflow.target && { target: workflow.target }),
+            },
           );
           if (!response.ok) {
             throw new Error(await getErrorMessage(response));
           }
 
-          const executions = (await response.json()) as TestWorkflowExecution[];
-          if (executions.length === 0) {
-            throw new Error('Testkube returned no executions');
+          const payload: unknown = await response.json();
+          const executions = Array.isArray(payload) ? payload : [payload];
+          if (
+            executions.length === 0 ||
+            !executions.every(isTestWorkflowExecution)
+          ) {
+            throw new Error('Testkube returned an invalid execution response');
           }
-          return { workflow, executions };
+          return { workflow: workflow.name, executions };
         }),
       );
 
@@ -204,7 +265,7 @@ export const createRunTestWorkflowsAction = ({
       }> = [];
 
       triggers.forEach((trigger, index) => {
-        const workflow = workflowNames[index];
+        const workflow = workflows[index].name;
         if (trigger.status === 'fulfilled') {
           executions.push(
             ...trigger.value.executions.map(execution => ({

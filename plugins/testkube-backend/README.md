@@ -55,8 +55,16 @@ names are de-duplicated, and the action fails unless all executions pass.
   action: testkube:run-test-workflows
   input:
     workflows:
-      - api-smoke-test
-      - browser-smoke-test
+      - name: api-smoke-test
+        config:
+          workers: '2'
+        target:
+          match:
+            environment: [staging]
+          not:
+            region: [legacy]
+          replicate: [runner-1, runner-2]
+      - name: browser-smoke-test
     orgId: tkcorg_0000000000
     envId: tkcenv_0000000000
     timeoutSeconds: 1800
