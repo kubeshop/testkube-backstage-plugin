@@ -24,6 +24,7 @@ spec:
       input:
         workflows:
           - name: k6-sample
+          - name: postman-junit-report
         orgId: tkcorg_0f382d90e81ea228
         envId: tkcenv_943fe797cb48b4d2
         timeoutSeconds: 1800
