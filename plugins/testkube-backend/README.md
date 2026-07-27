@@ -65,10 +65,15 @@ names are de-duplicated, and the action fails unless all executions pass.
             region: [legacy]
           replicate: [runner-1, runner-2]
       - name: browser-smoke-test
+    tags:
+      component: payments
     orgId: tkcorg_0000000000
     envId: tkcenv_0000000000
     timeoutSeconds: 1800
 ```
+
+Every execution includes `executedFrom: backstage`. Additional action-level
+tags are applied to all explicitly named and label-selected workflows.
 
 To select workflows by label:
 

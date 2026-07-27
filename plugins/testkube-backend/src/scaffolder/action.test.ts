@@ -35,6 +35,7 @@ const context = (
       };
     }>;
     selector?: string;
+    tags?: Record<string, string>;
     orgId: string;
     envId: string;
     timeoutSeconds?: number;
@@ -96,6 +97,7 @@ describe('testkube:run-test-workflows', () => {
             },
             { name: 'browser' },
           ],
+          tags: { component: 'payments', executedFrom: 'override' },
           orgId: 'org-1',
           envId: 'env-1',
         },
@@ -113,6 +115,10 @@ describe('testkube:run-test-workflows', () => {
         apiKey: 'secret',
         body: {
           disableWebhooks: false,
+          tags: {
+            component: 'payments',
+            executedFrom: 'backstage',
+          },
           config: { workers: '2' },
           target: {
             match: { environment: ['staging'] },
@@ -171,6 +177,15 @@ describe('testkube:run-test-workflows', () => {
       expect.objectContaining({
         path: '/v1/test-workflows?selector=app%3Dbackend',
         method: 'GET',
+      }),
+    );
+    expect(send).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        body: {
+          disableWebhooks: false,
+          tags: { executedFrom: 'backstage' },
+        },
       }),
     );
     expect(send).toHaveBeenCalledTimes(3);

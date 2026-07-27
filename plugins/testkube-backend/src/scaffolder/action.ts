@@ -119,6 +119,11 @@ export const createRunTestWorkflowsAction = ({
               .min(1)
               .optional()
               .describe('Kubernetes label selector for Test Workflows'),
+            tags: z
+              .record(z.string())
+              .optional()
+              .default({})
+              .describe('Tags applied to every Test Workflow execution'),
             orgId: z.string().min(1).describe('Testkube organization ID'),
             envId: z.string().min(1).describe('Testkube environment ID'),
             timeoutSeconds: z
@@ -228,6 +233,7 @@ export const createRunTestWorkflowsAction = ({
           `No Testkube workflows matched selector: ${ctx.input.selector}`,
         );
       }
+      const tags = { ...ctx.input.tags, executedFrom: 'backstage' };
 
       const triggers = await Promise.allSettled(
         workflows.map(async workflow => {
@@ -238,6 +244,7 @@ export const createRunTestWorkflowsAction = ({
             'POST',
             {
               disableWebhooks: false,
+              tags,
               ...(workflow.config && { config: workflow.config }),
               ...(workflow.target && { target: workflow.target }),
             },
