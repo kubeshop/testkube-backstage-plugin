@@ -332,9 +332,12 @@ export const createRunTestWorkflowsAction = ({
 
               const payload: unknown = await response.json();
               if (!isTestWorkflowExecution(payload)) {
-                throw new Error('Testkube returned an invalid execution response');
+                throw new Error(
+                  'Testkube returned an invalid execution response',
+                );
               }
               latest = payload;
+            } catch (error) {
               ctx.logger.warn(
                 `Unable to poll Testkube workflow ${workflow}; retrying`,
                 {
