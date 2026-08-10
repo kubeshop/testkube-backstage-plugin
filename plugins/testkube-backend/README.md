@@ -35,6 +35,61 @@ backend.start();
 
 In this repository you can see a complete example in `packages/backend/src/index.ts`.
 
+## Scaffolder quality gate
+
+Register the optional Testkube Scaffolder module alongside the backend plugin:
+
+```ts
+backend.add(import('@testkube/backstage-plugin-backend'));
+backend.add(import('@testkube/backstage-plugin-backend/scaffolder'));
+```
+
+The module adds the `testkube:run-test-workflows` action. It is available only
+in enterprise mode and waits for every requested Test Workflow to finish. The
+action accepts workflow names, a Kubernetes label selector, or both. Matching
+names are de-duplicated, and the action fails unless all executions pass.
+
+```yaml
+- id: testkube
+  name: Run Testkube quality gate
+  action: testkube:run-test-workflows
+  input:
+    workflows:
+      - name: api-smoke-test
+        config:
+          workers: '2'
+        target:
+          match:
+            environment: [staging]
+          not:
+            region: [legacy]
+          replicate: [runner-1, runner-2]
+      - name: browser-smoke-test
+    tags:
+      component: payments
+    orgId: tkcorg_0000000000
+    envId: tkcenv_0000000000
+    timeoutSeconds: 1800
+```
+
+Every execution includes `executedFrom: backstage` and the current Backstage
+`taskId`. Additional action-level tags are applied to all explicitly named and
+label-selected workflows.
+
+To select workflows by label:
+
+```yaml
+input:
+  selector: app=backend,environment=staging
+  orgId: tkcorg_0000000000
+  envId: tkcenv_0000000000
+```
+
+The action outputs an overall `green` or `red` status and one result per
+execution containing its Testkube status and dashboard URL. Organization API
+keys continue to come exclusively from the backend `testkube.organizations`
+configuration.
+
 ## Configuration
 
 The plugin reads its configuration from the `testkube` section of `app-config.yaml`.
