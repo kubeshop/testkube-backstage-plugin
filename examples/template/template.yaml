@@ -24,9 +24,9 @@ spec:
       input:
         workflows:
           - name: k6-sample
-          - name: postman-junit-report
-        orgId: tkcorg_0f382d90e81ea228
-        envId: tkcenv_943fe797cb48b4d2
+          - name: example-postman
+        orgId: tkcorg_9deb42dda2197657
+        envId: tkcenv_03e3ff499f13ccba
         timeoutSeconds: 1800
 
   # Outputs are displayed to the user after a successful execution of the template.
