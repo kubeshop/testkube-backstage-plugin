@@ -133,17 +133,15 @@ permission:
   enabled: false
 
 testkube:
-  enterprise: true
-  uiUrl: https://app.testkube.io
-  apiUrl: 'https://api.testkube.io'
-  organizations:
-  - id: 'tkcorg_0f382d90e81ea228'
-    apiKey: 'tkcapi_2070a606951e2b02a8c1e71239ccdd'
+  apiUrl: 'http://localhost:8088'
 
-# testkube:
-#   enterprise: true
-#   uiUrl: 'https://app.testkube.dev'
-#   apiUrl: 'https://api.testkube.dev'
-#   organizations:
-#     - id: 'tkcorg_9deb42dda2197657'
-#       apiKey: 'tkcapi_85efe2ae71cddcbb8a5d9d6aa4714f'
+  # skipTlsVerify: false
+  # caFilePath: /path/to/ca.crt
+  # enterprise settings
+  # enterprise: true
+  # uiUrl: https://app.testkube.io
+  # apiUrl: 'https://api.testkube.io'
+  # add as many organizations as you need
+  # organizations:
+  # - id: tkcorg_0000000000
+  #   apiKey: tkcapi_00000000000000000000000000000000
