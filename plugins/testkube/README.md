@@ -37,7 +37,7 @@ Install the backend plugin in your Backstage backend:
 yarn workspace packages/backend add @testkube/backstage-plugin-backend
 ```
 
-### Configuring the backend to connect to my Testkube Agent
+### Configuring the backend to connect to my Testkube Runner
 
 Register the backend plugin in `packages/backend/src/index.ts` using the new backend system:
 

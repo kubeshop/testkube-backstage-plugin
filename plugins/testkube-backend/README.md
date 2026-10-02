@@ -41,7 +41,7 @@ The plugin reads its configuration from the `testkube` section of `app-config.ya
 
 ### OSS / local setup
 
-For a local Testkube Standalone Agent (for example using `kubectl port-forward`), a minimal configuration looks like:
+For a local Testkube Standalone Runner (for example using `kubectl port-forward`), a minimal configuration looks like:
 
 ```yaml
 testkube:
