@@ -181,4 +181,5 @@ jobs:
           sbom: true
           # Only main.
           push: ${{ github.ref == 'refs/heads/main' }}
-          save: true
+          # Do not aave the image to the Depot ephemeral registry
+          save: false
