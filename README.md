@@ -28,7 +28,7 @@ This repo includes a full Backstage app you can use to try the Testkube plugins 
 ### Prerequisites
 
 - **Node.js** 20 or later.
-- A running **Testkube Standalone Agent**. See the Testkube documentation for [installation instructions](https://docs.testkube.io/articles/install/standalone-agent).
+- A running **Testkube Standalone Runner**. See the Testkube documentation for [installation instructions](https://docs.testkube.io/articles/install/standalone-agent).
 - Access to a Kubernetes cluster where Testkube is running (for example via [Kind](https://kind.sigs.k8s.io/)).
 
 Optional but recommended for local testing:
