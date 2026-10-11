@@ -27,6 +27,7 @@
   "dependencies": {
     "@backstage/backend-plugin-api": "^1.7.0",
     "@backstage/config": "^1.3.6",
+    "@backstage/plugin-scaffolder-node": "^0.13.4",
     "express": "^4.22.2"
   },
   "devDependencies": {
@@ -39,6 +40,7 @@
   ],
   "exports": {
     ".": "./src/index.ts",
+    "./scaffolder": "./src/scaffolder.ts",
     "./package.json": "./package.json"
   },
   "repository": {
