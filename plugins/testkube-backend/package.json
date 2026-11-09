@@ -11,9 +11,11 @@
     "role": "backend-plugin",
     "pluginId": "testkube",
     "pluginPackages": [
+      "@testkube/backstage-plugin",
       "@testkube/backstage-plugin-backend"
     ]
   },
+  "configSchema": "config.d.ts",
   "sideEffects": false,
   "scripts": {
     "start": "backstage-cli package start",
