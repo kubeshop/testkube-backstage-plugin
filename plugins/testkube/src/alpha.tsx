@@ -6,7 +6,6 @@ import {
   createFrontendPlugin,
   createRouteRef,
   PageBlueprint,
-  ExtensionDefinition,
 } from '@backstage/frontend-plugin-api';
 import { EntityContentBlueprint } from '@backstage/plugin-catalog-react/alpha';
 import { testkubeApiRef } from './api/TestkubeApi';
@@ -55,16 +54,10 @@ const TestkubeEntityContent = EntityContentBlueprint.make({
   },
 });
 
-const extensions: ExtensionDefinition[] = [
-  testkubeApi as ExtensionDefinition,
-  TestkubeDashboardPage as ExtensionDefinition,
-  TestkubeEntityContent as ExtensionDefinition,
-];
-
 export default createFrontendPlugin({
   pluginId: 'testkube',
   routes: {
     root: testkubeDashboardRouteRef,
   },
-  extensions,
+  extensions: [testkubeApi, TestkubeDashboardPage, TestkubeEntityContent],
 });
